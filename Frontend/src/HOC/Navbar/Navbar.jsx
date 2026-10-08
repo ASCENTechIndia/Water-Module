@@ -20,7 +20,18 @@ const STATIC_MENU = [
   {
     MENUID: 1,
     MENUTITLE: "Master",
-    children: [{ MENUID: 101, MENUTITLE: "Temporary", PAGEPATH: "" }],
+    children: [
+      {
+        MENUID: 101,
+        MENUTITLE: "Menu Master",
+        PAGEPATH: "/Masters/FrmMenuList",
+      },
+      {
+        MENUID: 102,
+        MENUTITLE: "User Access",
+        PAGEPATH: "/Masters/FrmUserAccessNewList",
+      },
+    ],
   },
 ];
 

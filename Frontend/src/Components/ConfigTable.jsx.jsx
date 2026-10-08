@@ -33,7 +33,7 @@ const ConfigTable = ({
 
   return (
     <div className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[400px]">
         <table className="w-full table-fixed border-collapse max-h-[200px]">
           <thead className="bg-slate-100/95">
             <tr className="border-b border-slate-200">
