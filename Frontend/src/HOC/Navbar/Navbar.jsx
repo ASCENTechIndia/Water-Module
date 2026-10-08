@@ -12,9 +12,7 @@ import {
 } from "lucide-react";
 import SidebarItem from "../../Components/SidebarItem";
 
-// 🔹 Icon mapping by menu label
 const iconMap = {
-  // Home: LayoutDashboard,
   Default: Shapes,
 };
 
@@ -27,26 +25,20 @@ const STATIC_MENU = [
 ];
 
 const Navbar = ({ title = "Water", isOpen, onClose }) => {
-  const [openSections, setOpenSections] = useState({});
+  const [openSectionId, setOpenSectionId] = useState(null);
   const { pathname } = useLocation();
 
-  // 🔹 Auto-open the section containing the active page
   useEffect(() => {
-    STATIC_MENU.forEach((section) => {
-      const hasActive = section.children?.some(
-        (item) => item.PAGEPATH === pathname,
-      );
-      if (hasActive) {
-        setOpenSections((prev) => ({ ...prev, [section.MENUID]: true }));
-      }
-    });
+    const activeSection = STATIC_MENU.find((section) =>
+      section.children?.some((item) => item.PAGEPATH === pathname),
+    );
+    if (activeSection) {
+      setOpenSectionId(activeSection.MENUID);
+    }
   }, [pathname]);
 
   const toggleSection = (menuId) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [menuId]: !prev[menuId],
-    }));
+    setOpenSectionId((prev) => (prev === menuId ? null : menuId));
   };
 
   return (
@@ -100,7 +92,7 @@ const Navbar = ({ title = "Water", isOpen, onClose }) => {
           {/* Accordion Menu */}
           <div className="space-y-1">
             {STATIC_MENU.map((section) => {
-              const isOpenSection = openSections[section.MENUID] ?? false;
+              const isOpenSection = openSectionId === section.MENUID;
 
               return (
                 <div key={section.MENUID}>
