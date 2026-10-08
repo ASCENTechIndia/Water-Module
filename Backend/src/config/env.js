@@ -24,8 +24,8 @@ const DB_CONNECT_STRING = must("DB_CONNECT_STRING");
 
 const oracleProfiles = {
   db1: {
-    user: process.env.DB1_USER,
-    password: process.env.DB1_PASSWORD,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
     connectString: DB_CONNECT_STRING,
   },
 };
@@ -81,8 +81,8 @@ function validateConfig() {
 module.exports = {
   PORT: config.port,
   db1: {
-    user: process.env.DB1_USER,
-    password: process.env.DB1_PASSWORD,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
   },
   DB_CONNECT_STRING,
   DB_DEFAULT_NAME: defaultDbKey,
