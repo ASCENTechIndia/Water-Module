@@ -15,9 +15,8 @@ function asInt(value, fallback) {
 function pickDefaultDbKey() {
   if (process.env.ORACLE_DEFAULT_DB_KEY) return process.env.ORACLE_DEFAULT_DB_KEY;
   if (process.env.DB_DEFAULT_NAME) return process.env.DB_DEFAULT_NAME;
-  if (process.env.DB1_USER && process.env.DB1_PASSWORD) return "db1";
-  if (process.env.DB2_USER && process.env.DB2_PASSWORD) return "db2";
-  if (process.env.DB3_USER && process.env.DB3_PASSWORD) return "db3";
+  if (process.env.DB_USER && process.env.DB_PASSWORD) return "db1";
+
   return "db1";
 }
 
@@ -27,16 +26,6 @@ const oracleProfiles = {
   db1: {
     user: process.env.DB1_USER,
     password: process.env.DB1_PASSWORD,
-    connectString: DB_CONNECT_STRING,
-  },
-  db2: {
-    user: process.env.DB2_USER,
-    password: process.env.DB2_PASSWORD,
-    connectString: DB_CONNECT_STRING,
-  },
-  db3: {
-    user: process.env.DB3_USER,
-    password: process.env.DB3_PASSWORD,
     connectString: DB_CONNECT_STRING,
   },
 };
@@ -73,7 +62,7 @@ function validateConfig() {
   if (!config.oracle.connectString) missing.push("DB_CONNECT_STRING");
   if (!config.jwtSecret) missing.push("JWT_SECRET");
   if (!config.loginEncryptionKey) missing.push("LOGIN_ENCRYPTION_KEY");
-  if (keys.length === 0) missing.push("DB1_USER/DB1_PASSWORD (or DB2/DB3)");
+  if (keys.length === 0) missing.push("DB_USER/DB_PASSWORD (or DB2/DB3)");
 
   for (const key of keys) {
     if (!profiles[key].user) missing.push(`${key.toUpperCase()}_USER`);
@@ -94,14 +83,6 @@ module.exports = {
   db1: {
     user: process.env.DB1_USER,
     password: process.env.DB1_PASSWORD,
-  },
-  db2: {
-    user: process.env.DB2_USER,
-    password: process.env.DB2_PASSWORD,
-  },
-  db3: {
-    user: process.env.DB3_USER,
-    password: process.env.DB3_PASSWORD,
   },
   DB_CONNECT_STRING,
   DB_DEFAULT_NAME: defaultDbKey,
