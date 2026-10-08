@@ -9,37 +9,16 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmPremiseTypeConfig = () => {
-
+const FrmBillingMethodConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            premiseName: "OFFICE",
+            documentName: "Individual Billing",
         },
         {
             id: 2,
-            premiseName: "FACTORY",
-        },
-        {
-            id: 3,
-            premiseName: "SHOP",
-        },
-        {
-            id: 4,
-            premiseName: "apartment",
-        },
-        {
-            id: 5,
-            premiseName: "test1",
-        },
-        {
-            id: 6,
-            premiseName: "retail",
-        },
-        {
-            id: 7,
-            premiseName: "WAREHOUSE",
-        },
+            documentName: "Whole Billing"
+        }
     ]);
 
     const [checkedMap, setCheckedMap] = useState({});
@@ -47,10 +26,9 @@ const FrmPremiseTypeConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            premiseName: "Premise Name",
+            documentName: "Document Name",
         },
     };
-
 
     const { user } = useAuth();
     const { setLoading } = useLoader();
@@ -67,10 +45,9 @@ const FrmPremiseTypeConfig = () => {
     } = useForm({
         defaultValues: {
             ulbName: "1",
-            premiseTypeStr: [],
+            documentStr: [],
         },
     });
-
 
     const [ulbOptions, setULBOptions] = useState([{
         label: "मीरा भाईंदर महानगरपालिका", value: "1"
@@ -83,8 +60,6 @@ const FrmPremiseTypeConfig = () => {
             const payload = {};
 
             const response = await apiService.post("", payload);
-
-            console.log(response);
 
             if (
                 response?.data?.success &&
@@ -106,7 +81,6 @@ const FrmPremiseTypeConfig = () => {
         }
     };
 
-
     const handleToggle = (id, checked) => {
         setCheckedMap((prev) => {
             const updatedMap = {
@@ -120,7 +94,7 @@ const FrmPremiseTypeConfig = () => {
                 .map((row) => row.id);
 
             // Store selected IDs in react-hook-form
-            setValue("premiseTypeStr", selectedIds, {
+            setValue("documentStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -143,7 +117,7 @@ const FrmPremiseTypeConfig = () => {
             // Store all IDs in react-hook-form
             const selectedIds = rows.map((row) => row.id);
 
-            setValue("premiseTypeStr", selectedIds, {
+            setValue("documentStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -151,24 +125,23 @@ const FrmPremiseTypeConfig = () => {
             setCheckedMap({});
 
             // Clear selected IDs from react-hook-form
-            setValue("premiseTypeStr", [], {
+            setValue("documentStr", [], {
                 shouldValidate: true,
                 shouldDirty: true,
             });
         }
     };
 
-
     const onSubmit = async (values) => {
         try {
             setLoading(true);
 
 
-            const premiseStr = values.premiseTypeStr.join("$");
+            const docStr = values.documentStr.join("$");
 
             const payload = {
                 ulbName: values.ulbName,
-                premiseStr: premiseStr,
+                usageStr: docStr,
             };
 
             console.log("Form Values:", values);
@@ -188,11 +161,11 @@ const FrmPremiseTypeConfig = () => {
 
     return (
         <Layout
-            title="Premise Type Configuration"
+            title="Usage Type Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Premise Type Configuration",
+                current: "Usage Type Configuration",
             }}
         >
             <form
@@ -208,8 +181,8 @@ const FrmPremiseTypeConfig = () => {
 
                         <select
                             className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm bg-slate-100 cursor-not-allowed"
-                            disabled
                             {...register("ulbName")}
+                            disabled
                         >
                             <option value="">
                                 -- Select --
@@ -255,6 +228,7 @@ const FrmPremiseTypeConfig = () => {
             </form>
         </Layout>
     );
+
 };
 
-export default FrmPremiseTypeConfig;
+export default FrmBillingMethodConfig;

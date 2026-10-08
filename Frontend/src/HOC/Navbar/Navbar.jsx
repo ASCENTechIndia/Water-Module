@@ -22,6 +22,32 @@ const STATIC_MENU = [
     MENUTITLE: "Master",
     children: [{ MENUID: 101, MENUTITLE: "Temporary", PAGEPATH: "" }],
   },
+  {
+    MENUID: 2,
+    MENUTITLE: "Configuration",
+    children: [
+      {
+        MENUID: 201,
+        MENUTITLE: "Premise Type Configuration",
+        PAGEPATH: "/Masters/FrmPremiseTypeConfig"
+      },
+      {
+        MENUID: 202,
+        MENUTITLE: "Usage Type Configuration",
+        PAGEPATH: "/Masters/FrmUsageTypeConfig"
+      },
+      {
+        MENUID: 203,
+        MENUTITLE: "Usage Subtype Configuration",
+        PAGEPATH: "/Masters/FrmUsageSubTypeConfig"
+      },
+      {
+        MENUID: 204,
+        MENUTITLE: "Billing Method Configuration",
+        PAGEPATH: "/Masters/FrmBillingMethodConfig"
+      },
+    ]
+  }
 ];
 
 const Navbar = ({ title = "Water", isOpen, onClose }) => {

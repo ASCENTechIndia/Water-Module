@@ -9,36 +9,35 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmPremiseTypeConfig = () => {
-
+const FrmUsageTypeConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            premiseName: "OFFICE",
+            premiseName: "Domestic",
         },
         {
             id: 2,
-            premiseName: "FACTORY",
+            premiseName: "Commercial",
         },
         {
             id: 3,
-            premiseName: "SHOP",
+            premiseName: "Industrial",
         },
         {
             id: 4,
-            premiseName: "apartment",
+            premiseName: "Institutional (संस्था)",
         },
         {
             id: 5,
-            premiseName: "test1",
+            premiseName: "Ac Bricks Sheet",
         },
         {
             id: 6,
-            premiseName: "retail",
+            premiseName: "Residential",
         },
         {
             id: 7,
-            premiseName: "WAREHOUSE",
+            premiseName: "कार्यालय",
         },
     ]);
 
@@ -47,10 +46,9 @@ const FrmPremiseTypeConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            premiseName: "Premise Name",
+            premiseName: "Usage Type",
         },
     };
-
 
     const { user } = useAuth();
     const { setLoading } = useLoader();
@@ -67,7 +65,7 @@ const FrmPremiseTypeConfig = () => {
     } = useForm({
         defaultValues: {
             ulbName: "1",
-            premiseTypeStr: [],
+            usageTypeStr: [],
         },
     });
 
@@ -84,7 +82,7 @@ const FrmPremiseTypeConfig = () => {
 
             const response = await apiService.post("", payload);
 
-            console.log(response);
+
 
             if (
                 response?.data?.success &&
@@ -120,7 +118,7 @@ const FrmPremiseTypeConfig = () => {
                 .map((row) => row.id);
 
             // Store selected IDs in react-hook-form
-            setValue("premiseTypeStr", selectedIds, {
+            setValue("usageTypeStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -143,7 +141,7 @@ const FrmPremiseTypeConfig = () => {
             // Store all IDs in react-hook-form
             const selectedIds = rows.map((row) => row.id);
 
-            setValue("premiseTypeStr", selectedIds, {
+            setValue("usageTypeStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -151,24 +149,23 @@ const FrmPremiseTypeConfig = () => {
             setCheckedMap({});
 
             // Clear selected IDs from react-hook-form
-            setValue("premiseTypeStr", [], {
+            setValue("usageTypeStr", [], {
                 shouldValidate: true,
                 shouldDirty: true,
             });
         }
     };
 
-
     const onSubmit = async (values) => {
         try {
             setLoading(true);
 
 
-            const premiseStr = values.premiseTypeStr.join("$");
+            const usageStr = values.usageTypeStr.join("$");
 
             const payload = {
                 ulbName: values.ulbName,
-                premiseStr: premiseStr,
+                usageStr: usageStr,
             };
 
             console.log("Form Values:", values);
@@ -188,11 +185,11 @@ const FrmPremiseTypeConfig = () => {
 
     return (
         <Layout
-            title="Premise Type Configuration"
+            title="Usage Type Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Premise Type Configuration",
+                current: "Usage Type Configuration",
             }}
         >
             <form
@@ -255,6 +252,7 @@ const FrmPremiseTypeConfig = () => {
             </form>
         </Layout>
     );
-};
 
-export default FrmPremiseTypeConfig;
+}
+
+export default FrmUsageTypeConfig;

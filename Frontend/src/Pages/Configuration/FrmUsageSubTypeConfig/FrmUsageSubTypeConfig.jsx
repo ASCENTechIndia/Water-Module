@@ -9,36 +9,11 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmPremiseTypeConfig = () => {
-
+const FrmUsageSubTypeConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            premiseName: "OFFICE",
-        },
-        {
-            id: 2,
-            premiseName: "FACTORY",
-        },
-        {
-            id: 3,
-            premiseName: "SHOP",
-        },
-        {
-            id: 4,
-            premiseName: "apartment",
-        },
-        {
-            id: 5,
-            premiseName: "test1",
-        },
-        {
-            id: 6,
-            premiseName: "retail",
-        },
-        {
-            id: 7,
-            premiseName: "WAREHOUSE",
+            premiseName: "Ac Bricks Sheet",
         },
     ]);
 
@@ -47,15 +22,15 @@ const FrmPremiseTypeConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            premiseName: "Premise Name",
+            premiseName: "Sub Usage Name",
         },
     };
-
 
     const { user } = useAuth();
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
+    
     const {
         register,
         setValue,
@@ -67,14 +42,18 @@ const FrmPremiseTypeConfig = () => {
     } = useForm({
         defaultValues: {
             ulbName: "1",
-            premiseTypeStr: [],
+            usageType: "",
+            usageSubTypeStr: [],
         },
     });
-
 
     const [ulbOptions, setULBOptions] = useState([{
         label: "मीरा भाईंदर महानगरपालिका", value: "1"
     }]);
+    const [usageTypeOptions, setUsageTypeOptions] = useState([{
+        label: "Ac Bricks Sheet", value: "1"
+    }]);
+    const [selectedUsageType, setSelectedUsageType] = useState("")
 
     const fetchULBDropdown = async () => {
         try {
@@ -84,7 +63,7 @@ const FrmPremiseTypeConfig = () => {
 
             const response = await apiService.post("", payload);
 
-            console.log(response);
+
 
             if (
                 response?.data?.success &&
@@ -106,6 +85,35 @@ const FrmPremiseTypeConfig = () => {
         }
     };
 
+    const fetchUsageDropdown = async () => {
+        try {
+            setLoading(true);
+
+            const payload = {};
+
+            const response = await apiService.post("", payload);
+
+
+
+            if (
+                response?.data?.success &&
+                Array.isArray(response?.data?.data)
+            ) {
+                const formatted = response.data.data.map((item) => ({
+                    label: item.usageID,
+                    value: item.usagename,
+                }));
+
+                setUsageTypeOptions(formatted);
+            } else {
+                setULBOptions([]);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleToggle = (id, checked) => {
         setCheckedMap((prev) => {
@@ -120,7 +128,7 @@ const FrmPremiseTypeConfig = () => {
                 .map((row) => row.id);
 
             // Store selected IDs in react-hook-form
-            setValue("premiseTypeStr", selectedIds, {
+            setValue("usageSubTypeStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -143,7 +151,7 @@ const FrmPremiseTypeConfig = () => {
             // Store all IDs in react-hook-form
             const selectedIds = rows.map((row) => row.id);
 
-            setValue("premiseTypeStr", selectedIds, {
+            setValue("usageSubTypeStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -151,24 +159,24 @@ const FrmPremiseTypeConfig = () => {
             setCheckedMap({});
 
             // Clear selected IDs from react-hook-form
-            setValue("premiseTypeStr", [], {
+            setValue("usageSubTypeStr", [], {
                 shouldValidate: true,
                 shouldDirty: true,
             });
         }
     };
 
-
     const onSubmit = async (values) => {
         try {
             setLoading(true);
 
 
-            const premiseStr = values.premiseTypeStr.join("$");
+            const usageSubTypeStr = values.usageSubTypeStr.join("$");
 
             const payload = {
                 ulbName: values.ulbName,
-                premiseStr: premiseStr,
+                usageType: values.usageType,
+                usageStr: usageSubTypeStr,
             };
 
             console.log("Form Values:", values);
@@ -188,11 +196,11 @@ const FrmPremiseTypeConfig = () => {
 
     return (
         <Layout
-            title="Premise Type Configuration"
+            title="वापराचा उप प्रकार वर्गीकरण"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Premise Type Configuration",
+                current: "वापराचा उप प्रकार वर्गीकरण",
             }}
         >
             <form
@@ -208,8 +216,8 @@ const FrmPremiseTypeConfig = () => {
 
                         <select
                             className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm bg-slate-100 cursor-not-allowed"
-                            disabled
                             {...register("ulbName")}
+                            disabled
                         >
                             <option value="">
                                 -- Select --
@@ -225,17 +233,47 @@ const FrmPremiseTypeConfig = () => {
                             ))}
                         </select>
                     </div>
+                    <div>
+                        <Label
+                            text={"Usage Type: "}
+                            required
+                        />
+                        <select
+                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                            {...register("usageType")}
+                            onChange={(e) => {
+                                setSelectedUsageType(e.target.value)
+                            }}
+                        >
+                            <option value="">
+                                -- Select --
+                            </option>
+
+                            {usageTypeOptions.map((opt) => (
+                                <option
+                                    key={opt.value}
+                                    value={opt.value}
+                                >
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                <div className="mt-3">
-                    <ConfigTable
-                        rows={rows}
-                        checkedMap={checkedMap}
-                        onToggle={handleToggle}
-                        onToggleAll={handleToggleAll}
-                        tableKeyMapping={tableKeyMapping}
-                    />
-                </div>
+                {selectedUsageType &&
+                    (
+                        <div className="mt-3">
+                            <ConfigTable
+                                rows={rows}
+                                checkedMap={checkedMap}
+                                onToggle={handleToggle}
+                                onToggleAll={handleToggleAll}
+                                tableKeyMapping={tableKeyMapping}
+                            />
+                        </div>
+                    )
+                }
 
                 <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
                     <Button type="submit">
@@ -257,4 +295,4 @@ const FrmPremiseTypeConfig = () => {
     );
 };
 
-export default FrmPremiseTypeConfig;
+export default FrmUsageSubTypeConfig;
