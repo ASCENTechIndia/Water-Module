@@ -111,7 +111,7 @@ const Login = () => {
         <div className="bg-white rounded-lg shadow-xl overflow-hidden">
           {/* Header */}
           <div className="bg-blue-600 py-6 px-8 text-center">
-            <h1 className="text-2xl font-bold text-white">Water</h1>
+            <h1 className="text-2xl font-bold text-white">Water Tax</h1>
           </div>
 
           {/* Login Form */}

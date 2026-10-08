@@ -7,6 +7,10 @@ import FrmMenuList from "./Pages/Master/MenuMaster/FrmMenuList.jsx";
 import FrmMenuMst from "./Pages/Master/MenuMaster/FrmMenuMst.jsx";
 import FrmUserAccessNewList from "./Pages/Master/UserAccess/FrmUserAccessNewList.jsx";
 import FrmUserAccessNewMst from "./Pages/Master/UserAccess/FrmUserAccessNewMst.jsx";
+import FrmPremiseTypeConfig from "./Pages/Configuration/FrmPremiseTypeConfig/FrmPremiseTypeConfig.jsx";
+import FrmUsageTypeConfig from "./Pages/Configuration/FrmUsageTypeConfig/FrmUsageTypeConfig.jsx";
+import FrmUsageSubTypeConfig from "./Pages/Configuration/FrmUsageSubTypeConfig/FrmUsageSubTypeConfig.jsx";
+import FrmBillingMethodConfig from "./Pages/Configuration/FrmBillingMethodConfig/FrmBillingMethodConfig.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -24,8 +28,19 @@ function App() {
                   {/* Dashboard */}
                   <Route path="/dashboard" element={<Dashboard />} />
                   {/* Configuration */}
-
-
+                  <Route path="/Masters/FrmPremiseTypeConfig" element={<FrmPremiseTypeConfig />} />
+                  <Route 
+                    path="/Masters/FrmUsageTypeConfig"
+                    element={<FrmUsageTypeConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmUsageSubTypeConfig"
+                    element={<FrmUsageSubTypeConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmBillingMethodConfig"
+                    element={<FrmBillingMethodConfig />}
+                  />
                   {/* Master routes */}
                   <Route path="/Masters/FrmMenuList" element={<FrmMenuList />} />
                   <Route path="/Masters/FrmMenuMst" element={<FrmMenuMst />} />
