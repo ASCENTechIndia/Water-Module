@@ -46,6 +46,21 @@ const STATIC_MENU = [
         MENUTITLE: "Zone Master",
         PAGEPATH: "/Masters/FrmZoneList",
       },
+      {
+        MENUID: 106,
+        MENUTITLE: "Block Master",
+        PAGEPATH: "/Masters/FrmBlockList",
+      },
+      {
+        MENUID: 107,
+        MENUTITLE: "Bank List",
+        PAGEPATH: "/Masters/FrmBankList",
+      },
+      {
+        MENUID: 108,
+        MENUTITLE: "Rate Master",
+        PAGEPATH: "/Masters/FrmRateList",
+      },
     ],
   },
   {

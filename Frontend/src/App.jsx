@@ -17,6 +17,12 @@ import FrmWardList from "./Pages/Master/WardMaster/FrmWardList.jsx";
 import FrmWardMst from "./Pages/Master/WardMaster/FrmWardMst.jsx";
 import FrmZoneList from "./Pages/Master/ZoneMaster/FrmZoneList.jsx";
 import FrmZoneMst from "./Pages/Master/ZoneMaster/FrmZoneMst.jsx";
+import FrmBlockList from "./Pages/Master/BlockMaster/FrmBlockList.jsx";
+import FrmBlockMst from "./Pages/Master/BlockMaster/FrmBlockMst.jsx";
+import FrmBankList from "./Pages/Master/BankMaster/FrmBankList.jsx";
+import FrmBankMst from "./Pages/Master/BankMaster/FrmBankMst.jsx";
+import FrmRateList from "./Pages/Master/RateMaster/FrmRateList.jsx";
+import FrmRateMst from "./Pages/Master/RateMaster/FrmRateMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -58,6 +64,12 @@ function App() {
                   <Route path="/Masters/FrmWardMst" element={<FrmWardMst />} />
                   <Route path="/Masters/FrmZoneList" element={<FrmZoneList />} />
                   <Route path="/Masters/FrmZoneMst" element={<FrmZoneMst />} />
+                  <Route path="/Masters/FrmBlockList" element={<FrmBlockList />} />
+                  <Route path="/Masters/FrmBlockMst" element={<FrmBlockMst />} />
+                  <Route path="/Masters/FrmBankList" element={<FrmBankList />} />
+                  <Route path="/Masters/FrmBankMst" element={<FrmBankMst />} />
+                  <Route path="/Masters/FrmRateList" element={<FrmRateList />} />
+                  <Route path="/Masters/FrmRateMst" element={<FrmRateMst />} />
                   
 
                   {/* Water */}
