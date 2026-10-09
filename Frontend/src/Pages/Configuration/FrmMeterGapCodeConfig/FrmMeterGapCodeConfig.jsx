@@ -9,15 +9,27 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmMeterGapCodeConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            meterGapCodeName: "THM",
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            meterGapCodeName: "TPM"
+        },
+        {
+            id: 3,
+            meterGapCodeName: "NAM"
+        },
+        {
+            id: 4,
+            meterGapCodeName: "MUM"
+        },
+        {
+            id: 5,
+            meterGapCodeName: "AVG"
         }
     ]);
 
@@ -26,7 +38,7 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            meterGapCodeName: "Meter Gap Code Name",
         },
     };
 
@@ -161,11 +173,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Meter Gap Code Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Meter Gap Code Configuration",
             }}
         >
             <form
@@ -231,4 +243,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmMeterGapCodeConfig;

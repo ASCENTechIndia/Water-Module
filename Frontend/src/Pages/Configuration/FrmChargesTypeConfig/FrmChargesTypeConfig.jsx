@@ -9,15 +9,27 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmChargesTypeConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            chargesName: "Water No Dues Certificate"
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            chargesName: "Change in Water Connection Usage"
+        },
+        {
+            id: 3,
+            chargesName: "Re-Water Connection Fee"
+        },
+        {
+            id: 4,
+            chargesName: "Change Water connection size"
+        },
+        {
+            id: 5,
+            chargesName: "Connection / Disconnection"
         }
     ]);
 
@@ -26,7 +38,7 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            chargesName: "Charges Type Name"
         },
     };
 
@@ -161,11 +173,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Charges Type Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Charges Type Configuration",
             }}
         >
             <form
@@ -231,4 +243,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmChargesTypeConfig;

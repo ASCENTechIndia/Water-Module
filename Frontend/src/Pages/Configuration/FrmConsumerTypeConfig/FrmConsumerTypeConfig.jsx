@@ -9,15 +9,35 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmConsumerTypeConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            documentName: "Individual Connection",
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            documentName: "Group Connection"
+        },
+        {
+            id: 3,
+            documentName: "Not Stated"
+        },
+        {
+            id: 4,
+            documentName: "Ahmednagar Corporation"
+        },
+        {
+            id: 5,
+            documentName: "Old"
+        },
+        {
+            id: 6,
+            documentName: "म.न.पा. (Municipal Corporation Meter)"
+        },
+        {
+            id: 7,
+            documentName: "NA"
         }
     ]);
 
@@ -161,11 +181,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Consumer Type Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Consumer Type Configuration",
             }}
         >
             <form
@@ -231,4 +251,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmConsumerTypeConfig;

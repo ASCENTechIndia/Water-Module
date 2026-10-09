@@ -9,15 +9,32 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmTaxMasterConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            taxName: "Water Tax",
+            taxCode: "WTS"
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            taxName: "Cheque Bounce",
+            taxCode: "tt"
+        },
+        {
+            id: 3,
+            taxName: "Dpc",
+            taxCode: "t"
+        },
+        {
+            id: 4,
+            taxName: "Notfee",
+            taxCode: "t"
+        },
+        {
+            id: 5,
+            taxName: "Security Deposit",
+            taxCode: "SD"
         }
     ]);
 
@@ -26,7 +43,8 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            taxName: "Tax Name",
+            taxCode: "Tax Code"
         },
     };
 
@@ -161,11 +179,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Tax Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Tax Configuration",
             }}
         >
             <form
@@ -231,4 +249,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmTaxMasterConfig;

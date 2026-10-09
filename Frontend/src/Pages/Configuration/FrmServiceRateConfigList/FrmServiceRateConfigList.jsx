@@ -9,30 +9,12 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            documentName: "Individual Billing",
-        },
-        {
-            id: 2,
-            documentName: "Whole Billing"
-        }
-    ]);
-
-    const [checkedMap, setCheckedMap] = useState({});
-
-    const tableKeyMapping = {
-        id: "id",
-        columns: {
-            documentName: "Document Name",
-        },
-    };
-
+const FrmServiceRateConfigList = () => {
     const { user } = useAuth();
     const { setLoading } = useLoader();
     const navigate = useNavigate();
+
+    const [tableData, setTableData] = useState([]);
 
     const {
         register,
@@ -45,7 +27,6 @@ const FrmBillingMethodConfig = () => {
     } = useForm({
         defaultValues: {
             ulbName: "1",
-            documentStr: [],
         },
     });
 
@@ -81,57 +62,6 @@ const FrmBillingMethodConfig = () => {
         }
     };
 
-    const handleToggle = (id, checked) => {
-        setCheckedMap((prev) => {
-            const updatedMap = {
-                ...prev,
-                [id]: checked,
-            };
-
-            // Get all selected premise IDs
-            const selectedIds = rows
-                .filter((row) => updatedMap[row.id])
-                .map((row) => row.id);
-
-            // Store selected IDs in react-hook-form
-            setValue("documentStr", selectedIds, {
-                shouldValidate: true,
-                shouldDirty: true,
-            });
-
-            return updatedMap;
-        });
-    };
-
-
-    const handleToggleAll = (checked) => {
-        if (checked) {
-            const newCheckedMap = {};
-
-            rows.forEach((row) => {
-                newCheckedMap[row.id] = true;
-            });
-
-            setCheckedMap(newCheckedMap);
-
-            // Store all IDs in react-hook-form
-            const selectedIds = rows.map((row) => row.id);
-
-            setValue("documentStr", selectedIds, {
-                shouldValidate: true,
-                shouldDirty: true,
-            });
-        } else {
-            setCheckedMap({});
-
-            // Clear selected IDs from react-hook-form
-            setValue("documentStr", [], {
-                shouldValidate: true,
-                shouldDirty: true,
-            });
-        }
-    };
-
     const onSubmit = async (values) => {
         try {
             setLoading(true);
@@ -161,11 +91,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Service Rate Configuration List"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Service Rate Configuration List",
             }}
         >
             <form
@@ -198,37 +128,23 @@ const FrmBillingMethodConfig = () => {
                             ))}
                         </select>
                     </div>
-                </div>
+                    <div className="flex items-end">
+                        <Button
+                            type="button"
+                            onClick={() => {
 
+                            }}
+                        >
+                            नविन माहिती जोडा
+                        </Button>
+                    </div>
+                </div>
                 <div className="mt-3">
-                    <ConfigTable
-                        rows={rows}
-                        checkedMap={checkedMap}
-                        onToggle={handleToggle}
-                        onToggleAll={handleToggleAll}
-                        tableKeyMapping={tableKeyMapping}
-                    />
-                </div>
-
-                <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
-                    <Button type="submit">
-                        Submit
-                    </Button>
-
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => {
-                            navigate("/dashboard")
-                        }}
-                    >
-                        Back
-                    </Button>
+                    
                 </div>
             </form>
         </Layout>
-    );
+    )
+}
 
-};
-
-export default FrmBillingMethodConfig;
+export default FrmServiceRateConfigList;

@@ -23,6 +23,21 @@ import FrmBankList from "./Pages/Master/BankMaster/FrmBankList.jsx";
 import FrmBankMst from "./Pages/Master/BankMaster/FrmBankMst.jsx";
 import FrmRateList from "./Pages/Master/RateMaster/FrmRateList.jsx";
 import FrmRateMst from "./Pages/Master/RateMaster/FrmRateMst.jsx";
+import FrmConsumerTypeConfig from "./Pages/Configuration/FrmConsumerTypeConfig/FrmConsumerTypeConfig.jsx";
+import FrmConnCodeConfig from "./Pages/Configuration/FrmConnCodeConfig/FrmConnCodeConfig.jsx";
+import FrmMeterOwnerConfig from "./Pages/Configuration/FrmMeterOwnerConfig/FrmMeterOwnerConfig.jsx";
+import FrmBankConfig from "./Pages/Configuration/FrmBankConfig/FrmBankConfig.jsx";
+import FrmBillingFrequencyConfig from "./Pages/Configuration/FrmBillingFrequencyConfig/FrmBillingFrequencyConfig.jsx";
+import FrmConnSizeConfig from "./Pages/Configuration/FrmConnSizeConfig/FrmConnSizeConfig.jsx";
+import FrmConnStatusConfig from "./Pages/Configuration/FrmConnStatusConfig/FrmConnStatusConfig.jsx";
+import FrmMeterGapCodeConfig from "./Pages/Configuration/FrmMeterGapCodeConfig/FrmMeterGapCodeConfig.jsx";
+import FrmTaxMasterConfig from "./Pages/Configuration/FrmTaxMasterConfig/FrmTaxMasterConfig.jsx";
+import FrmConnTypeConfig from "./Pages/Configuration/FrmConnTypeConfig/FrmConnTypeConfig.jsx";
+import FrmCollCenterConfig from "./Pages/Configuration/FrmCollCenterConfig/FrmCollCenterConfig.jsx";
+import FrmServiceConfig from "./Pages/Configuration/FrmServiceConfig/FrmServiceConfig.jsx";
+import FrmChargesTypeConfig from "./Pages/Configuration/FrmChargesTypeConfig/FrmChargesTypeConfig.jsx";
+import FrmUserCollectionConfig from "./Pages/Configuration/FrmUserCollectionConfig/FrmUserCollectionConfig.jsx";
+import FrmServiceRateConfigList from "./Pages/Configuration/FrmServiceRateConfigList/FrmServiceRateConfigList.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -52,6 +67,66 @@ function App() {
                   <Route 
                     path="/Masters/FrmBillingMethodConfig"
                     element={<FrmBillingMethodConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmConsumerTypeConfig"
+                    element={<FrmConsumerTypeConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmConnCodeConfig"
+                    element={<FrmConnCodeConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmMeterOwnerConfig"
+                    element={<FrmMeterOwnerConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmBankConfig"
+                    element={<FrmBankConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmBillingFrequencyConfig"
+                    element={<FrmBillingFrequencyConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmConnSizeConfig"
+                    element={<FrmConnSizeConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmConnStatusConfig"
+                    element={<FrmConnStatusConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmMeterGapCodeConfig"
+                    element={<FrmMeterGapCodeConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmTaxMasterConfig"
+                    element={<FrmTaxMasterConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmConnTypeConfig"
+                    element={<FrmConnTypeConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmCollcenterConfig"
+                    element={<FrmCollCenterConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmServiceConfig"
+                    element={<FrmServiceConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmChargesTypeConfig"
+                    element={<FrmChargesTypeConfig />}
+                  />
+                  <Route 
+                    path="/Transaction/FrmUserCollectionConfig"
+                    element={<FrmUserCollectionConfig />}
+                  />
+                  <Route 
+                    path="/Masters/FrmServiceRateConfigList"
+                    element={<FrmServiceRateConfigList />}
                   />
                   {/* Master routes */}
                   <Route path="/Masters/FrmMenuList" element={<FrmMenuList />} />

@@ -9,15 +9,27 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmBillingFrequencyConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            billFreqName: "Quaterly",
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            billFreqName: "Half Yearly"
+        },
+        {
+            id: 3,
+            billFreqName: "Nine Months"
+        },
+        {
+            id: 4,
+            billFreqName: "Yearly"
+        },
+        {
+            id: 5,
+            billFreqName: "BillFreq5"
         }
     ]);
 
@@ -26,7 +38,7 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            billFreqName: "Bill Frequency Name",
         },
     };
 
@@ -161,11 +173,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Billing Frequency Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Billing Frequency Configuration",
             }}
         >
             <form
@@ -231,4 +243,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmBillingFrequencyConfig;
