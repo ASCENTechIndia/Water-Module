@@ -31,6 +31,21 @@ const STATIC_MENU = [
         MENUTITLE: "User Access",
         PAGEPATH: "/Masters/FrmUserAccessNewList",
       },
+      {
+        MENUID: 103,
+        MENUTITLE: "User Creation",
+        PAGEPATH: "/Masters/FrmUserList",
+      },
+      {
+        MENUID: 104,
+        MENUTITLE: "Ward Master",
+        PAGEPATH: "/Masters/FrmWardList",
+      },
+      {
+        MENUID: 105,
+        MENUTITLE: "Zone Master",
+        PAGEPATH: "/Masters/FrmZoneList",
+      },
     ],
   },
   {

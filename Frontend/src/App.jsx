@@ -11,6 +11,12 @@ import FrmPremiseTypeConfig from "./Pages/Configuration/FrmPremiseTypeConfig/Frm
 import FrmUsageTypeConfig from "./Pages/Configuration/FrmUsageTypeConfig/FrmUsageTypeConfig.jsx";
 import FrmUsageSubTypeConfig from "./Pages/Configuration/FrmUsageSubTypeConfig/FrmUsageSubTypeConfig.jsx";
 import FrmBillingMethodConfig from "./Pages/Configuration/FrmBillingMethodConfig/FrmBillingMethodConfig.jsx";
+import FrmUserList from "./Pages/Master/UserCreation/FrmUserList.jsx";
+import FrmUserMst from "./Pages/Master/UserCreation/FrmUserMst.jsx";
+import FrmWardList from "./Pages/Master/WardMaster/FrmWardList.jsx";
+import FrmWardMst from "./Pages/Master/WardMaster/FrmWardMst.jsx";
+import FrmZoneList from "./Pages/Master/ZoneMaster/FrmZoneList.jsx";
+import FrmZoneMst from "./Pages/Master/ZoneMaster/FrmZoneMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -46,6 +52,12 @@ function App() {
                   <Route path="/Masters/FrmMenuMst" element={<FrmMenuMst />} />
                   <Route path="/Masters/FrmUserAccessNewList" element={<FrmUserAccessNewList />} />
                   <Route path="/Masters/FrmUserAccessNewMst" element={<FrmUserAccessNewMst />} />
+                  <Route path="/Masters/FrmUserList" element={<FrmUserList />} />
+                  <Route path="/Masters/FrmUserMst" element={<FrmUserMst />} />
+                  <Route path="/Masters/FrmWardList" element={<FrmWardList />} />
+                  <Route path="/Masters/FrmWardMst" element={<FrmWardMst />} />
+                  <Route path="/Masters/FrmZoneList" element={<FrmZoneList />} />
+                  <Route path="/Masters/FrmZoneMst" element={<FrmZoneMst />} />
                   
 
                   {/* Water */}
