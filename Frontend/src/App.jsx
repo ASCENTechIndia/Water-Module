@@ -38,6 +38,10 @@ import FrmServiceConfig from "./Pages/Configuration/FrmServiceConfig/FrmServiceC
 import FrmChargesTypeConfig from "./Pages/Configuration/FrmChargesTypeConfig/FrmChargesTypeConfig.jsx";
 import FrmUserCollectionConfig from "./Pages/Configuration/FrmUserCollectionConfig/FrmUserCollectionConfig.jsx";
 import FrmServiceRateConfigList from "./Pages/Configuration/FrmServiceRateConfigList/FrmServiceRateConfigList.jsx";
+import FrmUlbTipList from "./Pages/Master/UlbTipMaster/FrmUlbTipList.jsx";
+import FrmUlbTipMst from "./Pages/Master/UlbTipMaster/FrmUlbTipMst.jsx";
+import FrmUsageTypeList from "./Pages/Master/UsageType/FrmUsageTypeList.jsx";
+import FrmUsageTypeMst from "./Pages/Master/UsageType/FrmUsageTypeMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -145,6 +149,10 @@ function App() {
                   <Route path="/Masters/FrmBankMst" element={<FrmBankMst />} />
                   <Route path="/Masters/FrmRateList" element={<FrmRateList />} />
                   <Route path="/Masters/FrmRateMst" element={<FrmRateMst />} />
+                  <Route path="/Masters/FrmUlbTipList" element={<FrmUlbTipList />} />
+                  <Route path="/Masters/FrmUlbTipMst" element={<FrmUlbTipMst />} />
+                  <Route path="/Masters/FrmUsageTypeList" element={<FrmUsageTypeList />} />
+                  <Route path="/Masters/FrmUsageTypeMst" element={<FrmUsageTypeMst />} />
                   
 
                   {/* Water */}

@@ -61,6 +61,16 @@ const STATIC_MENU = [
         MENUTITLE: "Rate Master",
         PAGEPATH: "/Masters/FrmRateList",
       },
+      {
+        MENUID: 109,
+        MENUTITLE: "ULB Tip Master",
+        PAGEPATH: "/Masters/FrmUlbTipList",
+      },
+      {
+        MENUID: 110,
+        MENUTITLE: "Usage Type Master",
+        PAGEPATH: "/Masters/FrmUsageTypeList",
+      },
     ],
   },
   {
@@ -70,90 +80,90 @@ const STATIC_MENU = [
       {
         MENUID: 201,
         MENUTITLE: "Premise Type Configuration",
-        PAGEPATH: "/Masters/FrmPremiseTypeConfig"
+        PAGEPATH: "/Masters/FrmPremiseTypeConfig",
       },
       {
         MENUID: 202,
         MENUTITLE: "Usage Type Configuration",
-        PAGEPATH: "/Masters/FrmUsageTypeConfig"
+        PAGEPATH: "/Masters/FrmUsageTypeConfig",
       },
       {
         MENUID: 203,
         MENUTITLE: "Usage Subtype Configuration",
-        PAGEPATH: "/Masters/FrmUsageSubTypeConfig"
+        PAGEPATH: "/Masters/FrmUsageSubTypeConfig",
       },
       {
         MENUID: 204,
         MENUTITLE: "Billing Method Configuration",
-        PAGEPATH: "/Masters/FrmBillingMethodConfig"
+        PAGEPATH: "/Masters/FrmBillingMethodConfig",
       },
       {
         MENUID: 205,
         MENUTITLE: "Consumer Type Configuration",
-        PAGEPATH: "/Masters/FrmConsumerTypeConfig"
+        PAGEPATH: "/Masters/FrmConsumerTypeConfig",
       },
       {
         MENUID: 206,
         MENUTITLE: "Conn Code Configuration",
-        PAGEPATH: "/Masters/FrmConnCodeConfig"
+        PAGEPATH: "/Masters/FrmConnCodeConfig",
       },
       {
         MENUID: 207,
         MENUTITLE: "Meter Owner Configuration",
-        PAGEPATH: "/Masters/FrmMeterOwnerConfig"
+        PAGEPATH: "/Masters/FrmMeterOwnerConfig",
       },
       {
         MENUID: 208,
         MENUTITLE: "Bank Configuration",
-        PAGEPATH: "/Masters/FrmBankConfig"
+        PAGEPATH: "/Masters/FrmBankConfig",
       },
       {
         MENUID: 209,
         MENUTITLE: "Billing Frequency Configuration",
-        PAGEPATH: "/Masters/FrmBillingFrequencyConfig"
+        PAGEPATH: "/Masters/FrmBillingFrequencyConfig",
       },
       {
         MENUID: 210,
         MENUTITLE: "Connection Size Configuration",
-        PAGEPATH: "/Masters/FrmConnSizeConfig"
+        PAGEPATH: "/Masters/FrmConnSizeConfig",
       },
       {
         MENUID: 211,
         MENUTITLE: "Connection Status Configuration",
-        PAGEPATH: "/Masters/FrmConnStatusConfig"
+        PAGEPATH: "/Masters/FrmConnStatusConfig",
       },
       {
         MENUID: 212,
         MENUTITLE: "Meter Gap Code Configuration",
-        PAGEPATH: "/Masters/FrmConnStatusConfig"
+        PAGEPATH: "/Masters/FrmConnStatusConfig",
       },
       {
         MENUID: 213,
         MENUTITLE: "Tax Configuration",
-        PAGEPATH: "/Masters/FrmTaxMasterConfig"
+        PAGEPATH: "/Masters/FrmTaxMasterConfig",
       },
       {
         MENUID: 214,
         MENUTITLE: "Connection Type Configuration",
-        PAGEPATH: "/Masters/FrmConnTypeConfig"
+        PAGEPATH: "/Masters/FrmConnTypeConfig",
       },
       {
         MENUID: 215,
         MENUTITLE: "Collection Center Configuration",
-        PAGEPATH: "/Masters/FrmCollcenterConfig"
+        PAGEPATH: "/Masters/FrmCollcenterConfig",
       },
       {
         MENUID: 216,
         MENUTITLE: "Service Configuration",
-        PAGEPATH: "/Masters/FrmServiceConfig"
+        PAGEPATH: "/Masters/FrmServiceConfig",
       },
       {
         MENUID: 217,
         MENUTITLE: "Charges Type Configuration",
-        PAGEPATH: "/Masters/FrmChargesTypeConfig"
+        PAGEPATH: "/Masters/FrmChargesTypeConfig",
       },
-    ]
-  }
+    ],
+  },
 ];
 
 const Navbar = ({ title = "Water", isOpen, onClose }) => {
@@ -249,7 +259,7 @@ const Navbar = ({ title = "Water", isOpen, onClose }) => {
                   {/* Children */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out
-                      ${isOpenSection ? "max-h-[600px] opacity-100 mt-1" : "max-h-0 opacity-0"}`}
+                      ${isOpenSection ? "opacity-100 mt-1" : "max-h-0 opacity-0"}`}
                   >
                     <div className="ml-3 pl-3 border-l border-slate-200 space-y-1">
                       {(section.children || []).map((item) => {
