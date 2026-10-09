@@ -9,15 +9,27 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmServiceConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            serviceName: "Re-Water Connection"
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            serviceName: "Water No Dues Certificate"
+        },
+        {
+            id: 3,
+            serviceName: "Change in Water Connection Usage"
+        },
+        {
+            id: 4,
+            serviceName: "Connection / Disconnection"
+        },
+        {
+            id: 5,
+            serviceName: "Change Water connection size"
         }
     ]);
 
@@ -26,7 +38,7 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            serviceName: "सेवेचे नांव"
         },
     };
 
@@ -161,11 +173,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="नगरपालिका सेवेची तयारी"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "नगरपालिका सेवेची तयारी",
             }}
         >
             <form
@@ -231,4 +243,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmServiceConfig;

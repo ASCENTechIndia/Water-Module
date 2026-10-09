@@ -57,6 +57,71 @@ const STATIC_MENU = [
         MENUTITLE: "Billing Method Configuration",
         PAGEPATH: "/Masters/FrmBillingMethodConfig"
       },
+      {
+        MENUID: 205,
+        MENUTITLE: "Consumer Type Configuration",
+        PAGEPATH: "/Masters/FrmConsumerTypeConfig"
+      },
+      {
+        MENUID: 206,
+        MENUTITLE: "Conn Code Configuration",
+        PAGEPATH: "/Masters/FrmConnCodeConfig"
+      },
+      {
+        MENUID: 207,
+        MENUTITLE: "Meter Owner Configuration",
+        PAGEPATH: "/Masters/FrmMeterOwnerConfig"
+      },
+      {
+        MENUID: 208,
+        MENUTITLE: "Bank Configuration",
+        PAGEPATH: "/Masters/FrmBankConfig"
+      },
+      {
+        MENUID: 209,
+        MENUTITLE: "Billing Frequency Configuration",
+        PAGEPATH: "/Masters/FrmBillingFrequencyConfig"
+      },
+      {
+        MENUID: 210,
+        MENUTITLE: "Connection Size Configuration",
+        PAGEPATH: "/Masters/FrmConnSizeConfig"
+      },
+      {
+        MENUID: 211,
+        MENUTITLE: "Connection Status Configuration",
+        PAGEPATH: "/Masters/FrmConnStatusConfig"
+      },
+      {
+        MENUID: 212,
+        MENUTITLE: "Meter Gap Code Configuration",
+        PAGEPATH: "/Masters/FrmConnStatusConfig"
+      },
+      {
+        MENUID: 213,
+        MENUTITLE: "Tax Configuration",
+        PAGEPATH: "/Masters/FrmTaxMasterConfig"
+      },
+      {
+        MENUID: 214,
+        MENUTITLE: "Connection Type Configuration",
+        PAGEPATH: "/Masters/FrmConnTypeConfig"
+      },
+      {
+        MENUID: 215,
+        MENUTITLE: "Collection Center Configuration",
+        PAGEPATH: "/Masters/FrmCollcenterConfig"
+      },
+      {
+        MENUID: 216,
+        MENUTITLE: "Service Configuration",
+        PAGEPATH: "/Masters/FrmServiceConfig"
+      },
+      {
+        MENUID: 217,
+        MENUTITLE: "Charges Type Configuration",
+        PAGEPATH: "/Masters/FrmChargesTypeConfig"
+      },
     ]
   }
 ];

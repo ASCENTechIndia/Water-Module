@@ -9,15 +9,27 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmConnStatusConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            connectionStatus: "connStatus1",
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            connectionStatus: "connStatus2"
+        },
+        {
+            id: 3,
+            connectionStatus: "connStatus3"
+        },
+        {
+            id: 4,
+            connectionStatus: "connStatus4"
+        },
+        {
+            id: 5,
+            connectionStatus: "connStatus5"
         }
     ]);
 
@@ -26,7 +38,7 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            connectionStatus: "Connection Status Name",
         },
     };
 
@@ -161,11 +173,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Connection Status Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Connection Status Configuration",
             }}
         >
             <form
@@ -231,4 +243,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmConnStatusConfig;

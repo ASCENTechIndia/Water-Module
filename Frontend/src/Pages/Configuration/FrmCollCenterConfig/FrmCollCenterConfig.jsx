@@ -9,15 +9,27 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmCollCenterConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            collcenterName: "भाईंदर पश्चिम"
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            collcenterName: "राई मुर्धे विभाग"
+        },
+        {
+            id: 3,
+            collcenterName: "मिरा विभाग"
+        },
+        {
+            id: 4,
+            collcenterName: "Vishrambag, Prabhag Samiti 2 Office,"
+        },
+        {
+            id: 5,
+            collcenterName: "Ho"
         }
     ]);
 
@@ -26,7 +38,7 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            collcenterName: "Collection Center Name"
         },
     };
 
@@ -161,11 +173,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Collection Center Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Collection Center Configuration",
             }}
         >
             <form
@@ -231,4 +243,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmCollCenterConfig;

@@ -9,15 +9,39 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 
-const FrmBillingMethodConfig = () => {
+const FrmMeterOwnerConfig = () => {
     const [rows, setRows] = useState([
         {
             id: 1,
-            documentName: "Individual Billing",
+            meterOwnerName: "Self (Private Meter)",
         },
         {
             id: 2,
-            documentName: "Whole Billing"
+            meterOwnerName: "CITIZEN"
+        },
+        {
+            id: 3,
+            meterOwnerName: "AGENCY"
+        },
+        {
+            id: 4,
+            meterOwnerName: "Not Stated"
+        },
+        {
+            id: 5,
+            meterOwnerName: "ULB"
+        },
+        {
+            id: 6,
+            meterOwnerName: "ABCDE"
+        },
+        {
+            id: 7,
+            meterOwnerName: "म.न.पा. (Municipal Corporation Meter)"
+        },
+        {
+            id: 8,
+            meterOwnerName: "NA"
         }
     ]);
 
@@ -26,7 +50,7 @@ const FrmBillingMethodConfig = () => {
     const tableKeyMapping = {
         id: "id",
         columns: {
-            documentName: "Document Name",
+            meterOwnerName: "Meter Owner Name",
         },
     };
 
@@ -161,11 +185,11 @@ const FrmBillingMethodConfig = () => {
 
     return (
         <Layout
-            title="Billing Method Configuration"
+            title="Meter Owner Configuration"
             breadcrumb={{
                 homeLink: "/dashboard",
                 homeText: "Home",
-                current: "Billing Method Configuration",
+                current: "Meter Owner Configuration",
             }}
         >
             <form
@@ -231,4 +255,4 @@ const FrmBillingMethodConfig = () => {
 
 };
 
-export default FrmBillingMethodConfig;
+export default FrmMeterOwnerConfig;
