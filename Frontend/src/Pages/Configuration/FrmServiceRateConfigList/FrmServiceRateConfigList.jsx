@@ -8,13 +8,64 @@ import { useLocation, useNavigate } from "react-router-dom";
 import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
+import Table from "../../../Components/Table.jsx";
 
 const FrmServiceRateConfigList = () => {
     const { user } = useAuth();
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
-    const [tableData, setTableData] = useState([]);
+    const [tableData, setTableData] = useState([
+        [
+            <span
+                className="text-blue-400 underline cursor-pointer"
+                onClick={() => { 
+                    navigate("/Masters/FrmServiceRateConfigMst", {
+                        state: {
+                            mode: 2
+                        }
+                    })
+                 }}
+            >
+                Select
+            </span>,
+            "Re-Water Connection",
+            "Re-Water Connection",
+            "Re-Water Connection Fee",
+            "Fix",
+            "01-04-2023"
+        ],
+        [
+            <span
+                className="text-blue-400 underline cursor-pointer"
+                onClick={() => {
+                    navigate("/Masters/FrmServiceRateConfigMst", {
+                        state: {
+                            mode: "2",
+                            applicationNumber: ""
+                        }
+                    })
+
+                 }}
+            >
+                Select
+            </span>,
+            "Re-Water Connection",
+            "Re-Water Connection",
+            "Re-Water Connection Fee",
+            "Fix",
+            "01-04-2023"
+        ]
+    ]);
+    const [tableHeader, setTableHeader] = useState([
+        "निवडा",
+        "Service Eng Name",
+        "Service Mar Name",
+        "Charges Type",
+        "Value Name",
+        "Effective Date"
+    ]);
+
 
     const {
         register,
@@ -26,7 +77,7 @@ const FrmServiceRateConfigList = () => {
         watch,
     } = useForm({
         defaultValues: {
-            ulbName: "1",
+            ulbName: "",
         },
     });
 
@@ -62,16 +113,38 @@ const FrmServiceRateConfigList = () => {
         }
     };
 
+    const fetchTableData = async () => {
+        try {
+            setLoading(true);
+
+            const payload = {};
+
+            // const response = await apiService.post("", payload);
+
+            // console.log(response);
+
+            // if (response.data.success && Array.isArray(response.data.data)) {
+            //     setTableData(response.data.data);
+            // } else {
+            //     setTableData([]);
+            // }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const onSubmit = async (values) => {
         try {
             setLoading(true);
 
 
-            const docStr = values.documentStr.join("$");
+            // const docStr = values.documentStr.join("$");
 
             const payload = {
                 ulbName: values.ulbName,
-                usageStr: docStr,
+                // usageStr: docStr,
             };
 
             console.log("Form Values:", values);
@@ -110,9 +183,8 @@ const FrmServiceRateConfigList = () => {
                         />
 
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm bg-slate-100 cursor-not-allowed"
+                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
                             {...register("ulbName")}
-                            disabled
                         >
                             <option value="">
                                 -- Select --
@@ -132,15 +204,27 @@ const FrmServiceRateConfigList = () => {
                         <Button
                             type="button"
                             onClick={() => {
-
+                                navigate("/Masters/FrmServiceRateConfigMst", {
+                                    state: {
+                                        mode: 1
+                                    }
+                                })
                             }}
                         >
                             नविन माहिती जोडा
                         </Button>
                     </div>
                 </div>
+                {tableData.length > 0 &&
+                    <div className="mt-3">
+                        <Table
+                            headers={tableHeader}
+                            data={tableData}
+                        />
+                    </div>
+                }
                 <div className="mt-3">
-                    
+
                 </div>
             </form>
         </Layout>

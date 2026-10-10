@@ -42,6 +42,13 @@ import FrmUlbTipList from "./Pages/Master/UlbTipMaster/FrmUlbTipList.jsx";
 import FrmUlbTipMst from "./Pages/Master/UlbTipMaster/FrmUlbTipMst.jsx";
 import FrmUsageTypeList from "./Pages/Master/UsageType/FrmUsageTypeList.jsx";
 import FrmUsageTypeMst from "./Pages/Master/UsageType/FrmUsageTypeMst.jsx";
+import FrmServiceRateConfigMst from "./Pages/Configuration/FrmServiceRateConfigMst/FrmServiceRateConfigMst.jsx";
+import FrmConnectionMst from "./Pages/Water/FrmConnectionMst/FrmConnectionMst.jsx";
+import FrmConnSearch from "./Pages/Water/FrmConnSearch/FrmConnSearch.jsx";
+import FrmSearchReciptList from "./Pages/Search/FrmSearchReciptList/FrmSearchReciptList.jsx";
+import FrmConnectionSearch from "./Pages/Search/FrmConnectionSearch/FrmConnectionSearch.jsx";
+import FrmBillGeneration from "./Pages/Transaction/FrmBillGeneration/FrmBillGeneration.jsx";
+import FrmReceiptDeleteAuthList from "./Pages/Transaction/FrmReceiptDeleteAuthList/FrmReceiptDeleteAuthList.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -132,6 +139,43 @@ function App() {
                     path="/Masters/FrmServiceRateConfigList"
                     element={<FrmServiceRateConfigList />}
                   />
+                  <Route 
+                    path="/Masters/FrmServiceRateConfigMst"
+                    element={<FrmServiceRateConfigMst />}
+                  />
+
+
+                  {/* Water */}
+                  <Route 
+                    path="/Transaction/FrmConnSearch"
+                    element={<FrmConnSearch />}
+                  />
+                  <Route 
+                    path="/Transaction/FrmConnectionMst"
+                    element={<FrmConnectionMst />}
+                  />
+
+                  {/* Search */}
+                  <Route 
+                    path="/Transaction/FrmSearchReciptList"
+                    element={<FrmSearchReciptList />}
+                  />
+                  <Route 
+                    path="/ReportsForm/FrmConnectionSearch"
+                    element={<FrmConnectionSearch />}
+                  />
+
+                  {/* Transaction */}
+                  <Route
+                    path="/Transaction/FrmBillGeneration"
+                    element={<FrmBillGeneration />}
+                  />
+
+                  <Route 
+                    path="/Transaction/FrmReceiptDeleteAuthList"
+                    element={<FrmReceiptDeleteAuthList />}
+                  />
+
                   {/* Master routes */}
                   <Route path="/Masters/FrmMenuList" element={<FrmMenuList />} />
                   <Route path="/Masters/FrmMenuMst" element={<FrmMenuMst />} />

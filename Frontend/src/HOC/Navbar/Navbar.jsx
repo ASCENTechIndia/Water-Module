@@ -162,8 +162,56 @@ const STATIC_MENU = [
         MENUTITLE: "Charges Type Configuration",
         PAGEPATH: "/Masters/FrmChargesTypeConfig",
       },
+      {
+        MENUID: 218,
+        MENUTITLE: "Service Rate Configuration List",
+        PAGEPATH: "/Masters/FrmServiceRateConfigList"
+      }
     ],
   },
+  {
+    MENUID: 3,
+    MENUTITLE: "Water",
+    children: [
+      {
+        MENUID: 301,
+        MENUTITLE: "Connection Master",
+        PAGEPATH: "/Transaction/FrmConnSearch"
+      },
+    ] 
+  },
+  {
+    MENUID: 4,
+    MENUTITLE: "Search",
+    children: [
+      {
+        MENUID: 401,
+        MENUTITLE: "Search Receipt",
+        PAGEPATH: "/Transaction/FrmSearchReciptList"
+      },
+      {
+        MENUID: 402,
+        MENUTITLE: "Connection Search",
+        PAGEPATH: "/ReportsForm/FrmConnectionSearch"
+      }
+    ]
+  },
+  {
+    MENUID: 5,
+    MENUTITLE: "Transaction",
+    children: [
+      {
+        MENUID: 501,
+        MENUTITLE: "Bill Generation",
+        PAGEPATH: "/Transaction/FrmBillGeneration"
+      },
+      {
+        MENUID: 502,
+        MENUTITLE: "Receipt Delete Auth List",
+        PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
+      }
+    ]
+  }
 ];
 
 const Navbar = ({ title = "Water", isOpen, onClose }) => {
