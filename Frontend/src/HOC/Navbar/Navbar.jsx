@@ -91,6 +91,36 @@ const STATIC_MENU = [
         MENUTITLE: "Gap Code List",
         PAGEPATH: "/Masters/FrmGapCodeList",
       },
+      {
+        MENUID: 114,
+        MENUTITLE: "Plumber List",
+        PAGEPATH: "/Masters/FrmPlumberList",
+      },
+      {
+        MENUID: 115,
+        MENUTITLE: "Connection Status",
+        PAGEPATH: "/Masters/FrmConnStatusList",
+      },
+      {
+        MENUID: 116,
+        MENUTITLE: "Tax Master",
+        PAGEPATH: "/Masters/FrmTaxMasterList",
+      },
+      {
+        MENUID: 117,
+        MENUTITLE: "Meter Owner List",
+        PAGEPATH: "/Masters/FrmMeterOwnerList",
+      },
+      {
+        MENUID: 118,
+        MENUTITLE: "Conn Type List",
+        PAGEPATH: "/Masters/FrmConnTypeList",
+      },
+      {
+        MENUID: 119,
+        MENUTITLE: "Conn Code List",
+        PAGEPATH: "/Masters/FrmConnCodeList",
+      },
     ],
   },
   {

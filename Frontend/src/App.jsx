@@ -50,6 +50,18 @@ import FrmUsageSubTypeList from "./Pages/Master/UsageSubType/FrmUsageSubTypeList
 import FrmUsageSubTypeMst from "./Pages/Master/UsageSubType/FrmUsageSubTypeMst.jsx";
 import FrmGapCodeList from "./Pages/Master/GapCode/FrmGapCodeList.jsx";
 import FrmGapCodeMst from "./Pages/Master/GapCode/FrmGapCodeMst.jsx";
+import FrmPlumberList from "./Pages/Master/PlumberList/FrmPlumberList.jsx";
+import FrmPlumberMst from "./Pages/Master/PlumberList/FrmPlumberMst.jsx";
+import FrmConnStatusList from "./Pages/Master/ConnectionStatus/FrmConnStatusList.jsx";
+import FrmConnStatusMst from "./Pages/Master/ConnectionStatus/FrmConnStatusMst.jsx";
+import FrmTaxMasterList from "./Pages/Master/TaxMaster/FrmTaxMasterList.jsx";
+import FrmTaxMasterMst from "./Pages/Master/TaxMaster/FrmTaxMasterMst.jsx";
+import FrmMeterOwnerList from "./Pages/Master/MeterOwner/FrmMeterOwnerList.jsx";
+import FrmMeterOwnerMst from "./Pages/Master/MeterOwner/FrmMeterOwnerMst.jsx";
+import FrmConnTypeList from "./Pages/Master/ConnectionType/FrmConnTypeList.jsx";
+import FrmConnTypeMst from "./Pages/Master/ConnectionType/FrmConnTypeMst.jsx";
+import FrmConnCodeList from "./Pages/Master/ConnCode/FrmConnCodeList.jsx";
+import FrmConnCodeMst from "./Pages/Master/ConnCode/FrmConnCodeMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -169,7 +181,19 @@ function App() {
                   <Route path="/Masters/FrmUsageSubTypeMst" element={<FrmUsageSubTypeMst />} />
                   <Route path="/Masters/FrmGapCodeList" element={<FrmGapCodeList />} />
                   <Route path="/Masters/FrmGapCodeMst" element={<FrmGapCodeMst />} />
-                  
+                  <Route path="/Masters/FrmPlumberList" element={<FrmPlumberList />} />
+                  <Route path="/Masters/FrmPlumberMst" element={<FrmPlumberMst />} />
+                  <Route path="/Masters/FrmConnStatusList" element={<FrmConnStatusList />} />
+                  <Route path="/Masters/FrmConnStatusMst" element={<FrmConnStatusMst />} />
+                  <Route path="/Masters/FrmTaxMasterList" element={<FrmTaxMasterList />} />
+                  <Route path="/Masters/FrmTaxMasterMst" element={<FrmTaxMasterMst />} />
+                  <Route path="/Masters/FrmMeterOwnerList" element={<FrmMeterOwnerList />} />
+                  <Route path="/Masters/FrmMeterOwnerMst" element={<FrmMeterOwnerMst />} />
+                  <Route path="/Masters/FrmConnTypeList" element={<FrmConnTypeList />} />
+                  <Route path="/Masters/FrmConnTypeMst" element={<FrmConnTypeMst />} />
+                  <Route path="/Masters/FrmConnCodeList" element={<FrmConnCodeList />} />
+                  <Route path="/Masters/FrmConnCodeMst" element={<FrmConnCodeMst />} />
+
                   
 
                   {/* Water */}
