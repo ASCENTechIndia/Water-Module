@@ -71,6 +71,26 @@ const STATIC_MENU = [
         MENUTITLE: "Usage Type Master",
         PAGEPATH: "/Masters/FrmUsageTypeList",
       },
+      {
+        MENUID: 111,
+        MENUTITLE: "Consumer List",
+        PAGEPATH: "/Masters/FrmConSumerTypeList",
+      },
+      {
+        MENUID: 112,
+        MENUTITLE: "Bill Frequency List",
+        PAGEPATH: "/Masters/FrmBillFreqList",
+      },
+      {
+        MENUID: 113,
+        MENUTITLE: "Usage Sub Type List",
+        PAGEPATH: "/Masters/FrmUsageSubTypeList",
+      },
+      {
+        MENUID: 113,
+        MENUTITLE: "Gap Code List",
+        PAGEPATH: "/Masters/FrmGapCodeList",
+      },
     ],
   },
   {

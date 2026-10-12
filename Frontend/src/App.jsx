@@ -42,6 +42,14 @@ import FrmUlbTipList from "./Pages/Master/UlbTipMaster/FrmUlbTipList.jsx";
 import FrmUlbTipMst from "./Pages/Master/UlbTipMaster/FrmUlbTipMst.jsx";
 import FrmUsageTypeList from "./Pages/Master/UsageType/FrmUsageTypeList.jsx";
 import FrmUsageTypeMst from "./Pages/Master/UsageType/FrmUsageTypeMst.jsx";
+import FrmConSumerTypeList from "./Pages/Master/ConsumerList/FrmConSumerTypeList.jsx";
+import FrmConSumerTypeMst from "./Pages/Master/ConsumerList/FrmConSumerTypeMst.jsx";
+import FrmBillFreqList from "./Pages/Master/BillFrequency/FrmBillFreqList.jsx";
+import FrmBillFreqMst from "./Pages/Master/BillFrequency/FrmBillFreqMst.jsx";
+import FrmUsageSubTypeList from "./Pages/Master/UsageSubType/FrmUsageSubTypeList.jsx";
+import FrmUsageSubTypeMst from "./Pages/Master/UsageSubType/FrmUsageSubTypeMst.jsx";
+import FrmGapCodeList from "./Pages/Master/GapCode/FrmGapCodeList.jsx";
+import FrmGapCodeMst from "./Pages/Master/GapCode/FrmGapCodeMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -153,6 +161,15 @@ function App() {
                   <Route path="/Masters/FrmUlbTipMst" element={<FrmUlbTipMst />} />
                   <Route path="/Masters/FrmUsageTypeList" element={<FrmUsageTypeList />} />
                   <Route path="/Masters/FrmUsageTypeMst" element={<FrmUsageTypeMst />} />
+                  <Route path="/Masters/FrmConSumerTypeList" element={<FrmConSumerTypeList />} />
+                  <Route path="/Masters/FrmConSumerTypeMst" element={<FrmConSumerTypeMst />} />
+                  <Route path="/Masters/FrmBillFreqList" element={<FrmBillFreqList />} />
+                  <Route path="/Masters/FrmBillFreqMst" element={<FrmBillFreqMst />} />
+                  <Route path="/Masters/FrmUsageSubTypeList" element={<FrmUsageSubTypeList />} />
+                  <Route path="/Masters/FrmUsageSubTypeMst" element={<FrmUsageSubTypeMst />} />
+                  <Route path="/Masters/FrmGapCodeList" element={<FrmGapCodeList />} />
+                  <Route path="/Masters/FrmGapCodeMst" element={<FrmGapCodeMst />} />
+                  
                   
 
                   {/* Water */}
