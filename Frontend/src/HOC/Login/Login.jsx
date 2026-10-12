@@ -56,7 +56,7 @@ const Login = () => {
     }
 
     try {
-      const res = await apiService.post(`login`, formData);
+      const res = await apiService.post(`auth/login`, formData);
       console.log("Form Data:", formData);
       console.log("API Response:", res);
 
