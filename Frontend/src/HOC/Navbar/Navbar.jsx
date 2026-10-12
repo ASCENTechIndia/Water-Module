@@ -214,6 +214,11 @@ const STATIC_MENU = [
         MENUID: 503,
         MENUTITLE: "Meter Reading Entry",
         PAGEPATH: "/Transaction/FrmMeterReadingEntry"
+      },
+      {
+        MENUID: 504,
+        MENUTITLE: "Cheque Bounce",
+        PAGEPATH: "/Transaction/FrmChequeBounce"
       }
     ]
   }

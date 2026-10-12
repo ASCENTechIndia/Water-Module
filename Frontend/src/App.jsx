@@ -50,6 +50,7 @@ import FrmConnectionSearch from "./Pages/Search/FrmConnectionSearch/FrmConnectio
 import FrmBillGeneration from "./Pages/Transaction/FrmBillGeneration/FrmBillGeneration.jsx";
 import FrmReceiptDeleteAuthList from "./Pages/Transaction/FrmReceiptDeleteAuthList/FrmReceiptDeleteAuthList.jsx";
 import FrmMeterReadingEntry from "./Pages/Transaction/FrmMeterReadingEntry/FrmMeterReadingEntry.jsx";
+import FrmChequeBounce from "./Pages/Transaction/FrmChequeBounce/FrmChequeBounce.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -170,6 +171,10 @@ function App() {
                   <Route 
                     path="/Transaction/FrmMeterReadingEntry"
                     element={<FrmMeterReadingEntry />}
+                  />
+                  <Route 
+                    path="/Transaction/FrmChequeBounce"
+                    element={<FrmChequeBounce />}
                   />
 
                   <Route
