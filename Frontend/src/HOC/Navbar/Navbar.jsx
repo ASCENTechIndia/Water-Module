@@ -209,6 +209,11 @@ const STATIC_MENU = [
         MENUID: 502,
         MENUTITLE: "Receipt Delete Auth List",
         PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
+      },
+      {
+        MENUID: 503,
+        MENUTITLE: "Meter Reading Entry",
+        PAGEPATH: "/Transaction/FrmMeterReadingEntry"
       }
     ]
   }

@@ -31,8 +31,24 @@ const FrmConnSearch = () => {
         },
     });
 
-    const [tableHeader, setTableHeader] = useState([]);
-    const [tableData, setTableData] = useState([]);
+    const [tableHeader, setTableHeader] = useState([
+        "Zone",
+        "Ward",
+        "Connection",
+        "Owner",
+        "Building Name",
+        "Mobile Number"
+    ]);
+    const [tableData, setTableData] = useState([
+        [ 
+            "D",
+            "Block",
+            "MBMCDDOB12627011",
+            "Test 4",
+            "Building Name",
+            "Mobile Number"
+        ]
+    ]);
 
     const handleSearch = async (values) => {
         try {
@@ -100,12 +116,21 @@ const FrmConnSearch = () => {
                     </div>
                 </div>
                 {tableData.length > 0 &&
-                    <div className="mt-3">
-                        <Table
-                            headers={tableHeader}
-                            data={tableData}
-                        />
-                    </div>
+                    (
+                        <>
+                            <div className="mt-3">
+                                <h2 className="font-semibold">
+                                    Connection Details
+                                </h2>
+                            </div>
+                            <div className="mt-3">
+                                <Table
+                                    headers={tableHeader}
+                                    data={tableData}
+                                />
+                            </div>
+                        </>
+                    )
                 }
             </form>
         </Layout>

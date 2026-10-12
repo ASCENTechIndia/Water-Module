@@ -49,6 +49,7 @@ import FrmSearchReciptList from "./Pages/Search/FrmSearchReciptList/FrmSearchRec
 import FrmConnectionSearch from "./Pages/Search/FrmConnectionSearch/FrmConnectionSearch.jsx";
 import FrmBillGeneration from "./Pages/Transaction/FrmBillGeneration/FrmBillGeneration.jsx";
 import FrmReceiptDeleteAuthList from "./Pages/Transaction/FrmReceiptDeleteAuthList/FrmReceiptDeleteAuthList.jsx";
+import FrmMeterReadingEntry from "./Pages/Transaction/FrmMeterReadingEntry/FrmMeterReadingEntry.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -166,6 +167,11 @@ function App() {
                   />
 
                   {/* Transaction */}
+                  <Route 
+                    path="/Transaction/FrmMeterReadingEntry"
+                    element={<FrmMeterReadingEntry />}
+                  />
+
                   <Route
                     path="/Transaction/FrmBillGeneration"
                     element={<FrmBillGeneration />}
