@@ -62,6 +62,15 @@ import FrmConnTypeList from "./Pages/Master/ConnectionType/FrmConnTypeList.jsx";
 import FrmConnTypeMst from "./Pages/Master/ConnectionType/FrmConnTypeMst.jsx";
 import FrmConnCodeList from "./Pages/Master/ConnCode/FrmConnCodeList.jsx";
 import FrmConnCodeMst from "./Pages/Master/ConnCode/FrmConnCodeMst.jsx";
+import FrmServiceRateConfigMst from "./Pages/Configuration/FrmServiceRateConfigMst/FrmServiceRateConfigMst.jsx";
+import FrmConnectionMst from "./Pages/Water/FrmConnectionMst/FrmConnectionMst.jsx";
+import FrmConnSearch from "./Pages/Water/FrmConnSearch/FrmConnSearch.jsx";
+import FrmSearchReciptList from "./Pages/Search/FrmSearchReciptList/FrmSearchReciptList.jsx";
+import FrmConnectionSearch from "./Pages/Search/FrmConnectionSearch/FrmConnectionSearch.jsx";
+import FrmBillGeneration from "./Pages/Transaction/FrmBillGeneration/FrmBillGeneration.jsx";
+import FrmReceiptDeleteAuthList from "./Pages/Transaction/FrmReceiptDeleteAuthList/FrmReceiptDeleteAuthList.jsx";
+import FrmMeterReadingEntry from "./Pages/Transaction/FrmMeterReadingEntry/FrmMeterReadingEntry.jsx";
+import FrmChequeBounce from "./Pages/Transaction/FrmChequeBounce/FrmChequeBounce.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -152,6 +161,52 @@ function App() {
                     path="/Masters/FrmServiceRateConfigList"
                     element={<FrmServiceRateConfigList />}
                   />
+                  <Route 
+                    path="/Masters/FrmServiceRateConfigMst"
+                    element={<FrmServiceRateConfigMst />}
+                  />
+
+
+                  {/* Water */}
+                  <Route 
+                    path="/Transaction/FrmConnSearch"
+                    element={<FrmConnSearch />}
+                  />
+                  <Route 
+                    path="/Transaction/FrmConnectionMst"
+                    element={<FrmConnectionMst />}
+                  />
+
+                  {/* Search */}
+                  <Route 
+                    path="/Transaction/FrmSearchReciptList"
+                    element={<FrmSearchReciptList />}
+                  />
+                  <Route 
+                    path="/ReportsForm/FrmConnectionSearch"
+                    element={<FrmConnectionSearch />}
+                  />
+
+                  {/* Transaction */}
+                  <Route 
+                    path="/Transaction/FrmMeterReadingEntry"
+                    element={<FrmMeterReadingEntry />}
+                  />
+                  <Route 
+                    path="/Transaction/FrmChequeBounce"
+                    element={<FrmChequeBounce />}
+                  />
+
+                  <Route
+                    path="/Transaction/FrmBillGeneration"
+                    element={<FrmBillGeneration />}
+                  />
+
+                  <Route 
+                    path="/Transaction/FrmReceiptDeleteAuthList"
+                    element={<FrmReceiptDeleteAuthList />}
+                  />
+
                   {/* Master routes */}
                   <Route path="/Masters/FrmMenuList" element={<FrmMenuList />} />
                   <Route path="/Masters/FrmMenuMst" element={<FrmMenuMst />} />
