@@ -1,5 +1,5 @@
 {
-  "name": "centerbank-node-backend",
+  "name": "water-node-backend",
   "version": "1.0.0",
   "description": "Production-ready Node.js backend for Center Bank migration from ASP.NET WebForms",
   "main": "server.js",
