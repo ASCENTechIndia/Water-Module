@@ -40,6 +40,7 @@ function createApp() {
   // );
 
   app.use("/api", routes);
+  app.use(routes);
 
   app.get("/api/health", async (req, res) => {
     let connection;

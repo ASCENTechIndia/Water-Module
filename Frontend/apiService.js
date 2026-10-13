@@ -32,63 +32,114 @@ const decryptResponse = (payload) => {
   }
 };
 
+const resolveUrl = (endpoint) => {
+  if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
+    return endpoint;
+  }
+  const base = (BASE_API_URL || "").replace(/\/+$/, "");
+  const clean = endpoint.replace(/^\/+/, "");
+
+  if (base.endsWith("/api")) {
+    if (clean.startsWith("api/")) {
+      return `${base}/${clean.slice(4)}`;
+    }
+    return `${base}/${clean}`;
+  }
+
+  if (clean.startsWith("api/")) {
+    return `${base}/${clean}`;
+  }
+  return `${base}/api/${clean}`;
+};
+
 const apiService = {
   post: async (endpoint, data) => {
-    const encryptedData = encryptParams(data);
-    console.log("🔐 Encrypted payload to send:", data);
-    console.log(`🔐 POST: ${BASE_API_URL}/proxy/${btoa(endpoint)}`);
+    const url = resolveUrl(endpoint);
+    console.log(`📡 POST: ${url}`, data);
 
-    return fetch(`${BASE_API_URL}/proxy/${btoa(endpoint)}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ payload: encryptedData }),
-    })
-      .then((res) => res.json())
-      .then((response) => {
-        console.log("backend response :", response)
-        const decrypted = decryptResponse(response.payload);
-        return { data: decrypted };
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(localStorage.getItem("token")
+            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            : {}),
+        },
+        body: JSON.stringify(data),
       });
+
+      const response = await res.json();
+      console.log("backend response :", response);
+
+      // Return { data: ... } for compatibility with component expectations
+      return {
+        data: response.data || response,
+        ...response,
+      };
+    } catch (err) {
+      console.error("API POST error:", err);
+      throw err;
+    }
   },
 
   get: async (endpoint, params = {}) => {
-    const encryptedData = encryptParams(params);
-    console.log("🔐 Encrypted Payload:", encryptedData);
-    console.log(`🔐 GET: ${BASE_API_URL}/proxy/${btoa(endpoint)}`);
-
-    return fetch(
-      `${BASE_API_URL}/proxy/${btoa(endpoint)}?payload=${encodeURIComponent(
-        encryptedData
-      )}`,
-      {
-        method: "GET",
+    const urlObj = new URL(resolveUrl(endpoint));
+    Object.keys(params).forEach((key) => {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlObj.searchParams.append(key, params[key]);
       }
-    )
-      .then((res) => res.json())
-      .then((response) => {
-        const decrypted = decryptResponse(response.payload);
-        return { data: decrypted };
+    });
+
+    console.log(`📡 GET: ${urlObj.toString()}`);
+
+    try {
+      const res = await fetch(urlObj.toString(), {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...(localStorage.getItem("token")
+            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            : {}),
+        },
       });
+
+      const response = await res.json();
+      return {
+        data: response.data || response,
+        ...response,
+      };
+    } catch (err) {
+      console.error("API GET error:", err);
+      throw err;
+    }
   },
 
   delete: async (endpoint, data = {}) => {
-    const encryptedData = encryptParams(data);
-    console.log(`🔐 DELETE: ${BASE_API_URL}/proxy/${btoa(endpoint)}`);
+    const url = resolveUrl(endpoint);
+    console.log(`📡 DELETE: ${url}`);
 
-    return fetch(`${BASE_API_URL}/proxy/${btoa(endpoint)}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ payload: encryptedData }),
-    })
-      .then((res) => res.json())
-      .then((response) => {
-        const decrypted = decryptResponse(response.payload);
-        return { data: decrypted };
+    try {
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(localStorage.getItem("token")
+            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            : {}),
+        },
+        body: JSON.stringify(data),
       });
+
+      const response = await res.json();
+      return {
+        data: response.data || response,
+        ...response,
+      };
+    } catch (err) {
+      console.error("API DELETE error:", err);
+      throw err;
+    }
   },
   getRawFile: async (encodedPath) => {
     try {
