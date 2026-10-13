@@ -141,6 +141,36 @@ const STATIC_MENU = [
         MENUTITLE: "Collection Center",
         PAGEPATH: "/Masters/FrmCollcenterList",
       },
+      {
+        MENUID: 122,
+        MENUTITLE: "Service List",
+        PAGEPATH: "/Masters/FrmServiceList",
+      },
+      {
+        MENUID: 123,
+        MENUTITLE: "Charge Type",
+        PAGEPATH: "/Masters/FrmChargesTypeList",
+      },
+      {
+        MENUID: 124,
+        MENUTITLE: "Account Tax Config",
+        PAGEPATH: "/Masters/FrmAccTaxConfigList",
+      },
+      {
+        MENUID: 123,
+        MENUTITLE: "MICR Code",
+        PAGEPATH: "/Masters/FrmMicrCodeList",
+      },
+      {
+        MENUID: 124,
+        MENUTITLE: "Bill Schedule",
+        PAGEPATH: "/Masters/FrmBillSheduleList",
+      },
+      {
+        MENUID: 125,
+        MENUTITLE: "Connection No Auto Generation",
+        PAGEPATH: "/Masters/FrmConnectionNoList",
+      },
     ],
   },
   {

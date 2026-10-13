@@ -79,6 +79,18 @@ import FrmPremiseTypeList from "./Pages/Master/PremiseType/FrmPremiseTypeList.js
 import FrmPremiseTypeMst from "./Pages/Master/PremiseType/FrmPremiseTypeMst.jsx";
 import FrmCollcenterList from "./Pages/Master/CollectionCenter/FrmCollcenterList.jsx";
 import FrmCollcenterMst from "./Pages/Master/CollectionCenter/FrmCollcenterMst.jsx";
+import FrmServiceList from "./Pages/Master/ServiceList/FrmServiceList.jsx";
+import FrmServiceMst from "./Pages/Master/ServiceList/FrmServiceMst.jsx";
+import FrmChargesTypeList from "./Pages/Master/ChargeType/FrmChargesTypeList.jsx";
+import FrmChargesTypeMst from "./Pages/Master/ChargeType/FrmChargesTypeMst.jsx";
+import FrmAccTaxConfigList from "./Pages/Master/AccountTaxConfig/FrmAccTaxConfigList.jsx";
+import FrmAccTaxConfigMst from "./Pages/Master/AccountTaxConfig/FrmAccTaxConfigMst.jsx";
+import FrmMicrCodeList from "./Pages/Master/MicrCode/FrmMicrCodeList.jsx";
+import FrmMicrCodeMst from "./Pages/Master/MicrCode/FrmMicrCodeMst.jsx";
+import FrmBillSheduleList from "./Pages/Master/BillSchedule/FrmBillSheduleList.jsx";
+import FrmBillSheduleMst from "./Pages/Master/BillSchedule/FrmBillSheduleMst.jsx";
+import FrmConnectionNoList from "./Pages/Master/ConnectioNoAutoGene/FrmConnectionNoList.jsx";
+import FrmConnectionNoMst from "./Pages/Master/ConnectioNoAutoGene/FrmConnectionNoMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -264,6 +276,18 @@ function App() {
                   <Route path="/Masters/FrmPremiseTypeMst" element={<FrmPremiseTypeMst />} />
                   <Route path="/Masters/FrmCollcenterList" element={<FrmCollcenterList />} />
                   <Route path="/Masters/FrmCollcenterMst" element={<FrmCollcenterMst />} />
+                  <Route path="/Masters/FrmServiceList" element={<FrmServiceList />} />
+                  <Route path="/Masters/FrmServiceMst" element={<FrmServiceMst />} />
+                  <Route path="/Masters/FrmChargesTypeList" element={<FrmChargesTypeList />} />
+                  <Route path="/Masters/FrmChargesTypeMst" element={<FrmChargesTypeMst />} />
+                  <Route path="/Masters/FrmAccTaxConfigList" element={<FrmAccTaxConfigList />} />
+                  <Route path="/Masters/FrmAccTaxConfigMst" element={<FrmAccTaxConfigMst />} />
+                  <Route path="/Masters/FrmMicrCodeList" element={<FrmMicrCodeList />} />
+                  <Route path="/Masters/FrmMicrCodeMst" element={<FrmMicrCodeMst />} />
+                  <Route path="/Masters/FrmBillSheduleList" element={<FrmBillSheduleList />} />
+                  <Route path="/Masters/FrmBillSheduleMst" element={<FrmBillSheduleMst />} />
+                  <Route path="/Masters/FrmConnectionNoList" element={<FrmConnectionNoList />} />
+                  <Route path="/Masters/FrmConnectionNoMst" element={<FrmConnectionNoMst />} />
 
                   
 
