@@ -91,6 +91,10 @@ import FrmBillSheduleList from "./Pages/Master/BillSchedule/FrmBillSheduleList.j
 import FrmBillSheduleMst from "./Pages/Master/BillSchedule/FrmBillSheduleMst.jsx";
 import FrmConnectionNoList from "./Pages/Master/ConnectioNoAutoGene/FrmConnectionNoList.jsx";
 import FrmConnectionNoMst from "./Pages/Master/ConnectioNoAutoGene/FrmConnectionNoMst.jsx";
+import FrmProvChequeList from "./Pages/Master/ProvisionalChequeConfig/FrmProvChequeList.jsx";
+import FrmProvChequeMst from "./Pages/Master/ProvisionalChequeConfig/FrmProvChequeMst.jsx";
+import FrmuserallList from "./Pages/Master/UserAll/FrmuserallList.jsx";
+import FrmuserallMst from "./Pages/Master/UserAll/FrmuserallMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -288,6 +292,10 @@ function App() {
                   <Route path="/Masters/FrmBillSheduleMst" element={<FrmBillSheduleMst />} />
                   <Route path="/Masters/FrmConnectionNoList" element={<FrmConnectionNoList />} />
                   <Route path="/Masters/FrmConnectionNoMst" element={<FrmConnectionNoMst />} />
+                  <Route path="/Masters/FrmProvChequeList" element={<FrmProvChequeList />} />
+                  <Route path="/Masters/FrmProvChequeMst" element={<FrmProvChequeMst />} />
+                  <Route path="/Masters/FrmuserallList" element={<FrmuserallList />} />
+                  <Route path="/Masters/FrmuserallMst" element={<FrmuserallMst />} />
 
                   
 

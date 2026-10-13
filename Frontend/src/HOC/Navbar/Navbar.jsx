@@ -171,6 +171,16 @@ const STATIC_MENU = [
         MENUTITLE: "Connection No Auto Generation",
         PAGEPATH: "/Masters/FrmConnectionNoList",
       },
+      {
+        MENUID: 126,
+        MENUTITLE: "Provisional Cheque Config",
+        PAGEPATH: "/Masters/FrmProvChequeList"
+      },
+      {
+        MENUID: 127,
+        MENUTITLE: "All User List",
+        PAGEPATH: "/Masters/FrmuserallList"
+      },
     ],
   },
   {
