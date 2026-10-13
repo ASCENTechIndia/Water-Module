@@ -4,8 +4,11 @@ const {
   bucketSetter,
   fetchUsersWithPincodes,
   unassignCases,
-  matrixDistanceInsertion,  getaccCount, accountAllocation
-} = require('./Admin.repo');
+  matrixDistanceInsertion,
+  getaccCount,
+  accountAllocation,
+  fetchCorporationDetails,
+} = require("./Admin.repo");
 
 async function locationTrackingService(userId, cDate) {
   return getUserLocationTracking(userId, cDate);
@@ -39,11 +42,18 @@ async function allocateAccService() {
   return accountAllocation();
 }
 
+async function fetchCorporationDetailsService(payload) {
+  return fetchCorporationDetails(payload);
+}
+
 module.exports = {
   locationTrackingService,
   lastLoginService,
   bucketSetterService,
   getUsersWithPincodesService,
   unassignCasesService,
-  matrixDistanceInsertionService, accCountService, allocateAccService
-}
+  matrixDistanceInsertionService,
+  accCountService,
+  allocateAccService,
+  fetchCorporationDetailsService,
+};

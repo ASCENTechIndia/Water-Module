@@ -87,7 +87,7 @@ const STATIC_MENU = [
         PAGEPATH: "/Masters/FrmUsageSubTypeList",
       },
       {
-        MENUID: 113,
+        MENUID: 123,
         MENUTITLE: "Gap Code List",
         PAGEPATH: "/Masters/FrmGapCodeList",
       },
@@ -120,6 +120,26 @@ const STATIC_MENU = [
         MENUID: 119,
         MENUTITLE: "Conn Code List",
         PAGEPATH: "/Masters/FrmConnCodeList",
+      },
+      {
+        MENUID: 11,
+        MENUTITLE: "Conn Size",
+        PAGEPATH: "/Masters/FrmConnSizeList",
+      },
+      {
+        MENUID: 120,
+        MENUTITLE: "Billing Method",
+        PAGEPATH: "/Masters/FrmBillingMethodList",
+      },
+      {
+        MENUID: 121,
+        MENUTITLE: "Premise Type List",
+        PAGEPATH: "/Masters/FrmPremiseTypeList",
+      },
+      {
+        MENUID: 122,
+        MENUTITLE: "Collection Center",
+        PAGEPATH: "/Masters/FrmCollcenterList",
       },
     ],
   },

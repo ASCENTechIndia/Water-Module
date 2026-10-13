@@ -1,9 +1,9 @@
-const oracledb = require('oracledb');
-const { executeQuery } = require('../../db/queryExecutor');
-const { executeProcedure } = require('../../db/procedureExecutor');
+const oracledb = require("oracledb");
+const { executeQuery } = require("../../db/queryExecutor");
+const { executeProcedure } = require("../../db/procedureExecutor");
 
 function normalizeNullable(value) {
-  if (value === null || value === undefined || value === '') {
+  if (value === null || value === undefined || value === "") {
     return null;
   }
   return value;
@@ -35,7 +35,7 @@ async function getUserLastLogin(userId) {
     WHERE ROWNUM <= 10
   `;
 
-  const binds = { userId: userId};
+  const binds = { userId: userId };
   const result = await executeQuery(sql, binds);
   return result.rows || [];
 }
@@ -52,7 +52,7 @@ async function bucketSetter() {
 
   const binds = {
     p_output: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    p_updated_count: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+    p_updated_count: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
@@ -70,7 +70,7 @@ async function bucketSetter() {
   return {
     errorcode: output,
     p_updated_count: count,
-    message: message
+    message: message,
   };
 }
 
@@ -90,8 +90,8 @@ async function fetchUsersWithPincodes() {
 
   const grouped = {};
   for (const row of rows) {
-    const userId = String(row.VAR_BANKDATA_USERID || '').trim();
-    const pincode = String(row.NUM_BANKDATA_PINCODE || '').trim();
+    const userId = String(row.VAR_BANKDATA_USERID || "").trim();
+    const pincode = String(row.NUM_BANKDATA_PINCODE || "").trim();
 
     if (!userId) continue;
     if (!grouped[userId]) {
@@ -112,18 +112,22 @@ async function fetchUsersWithPincodes() {
 
 async function unassignCases(selections) {
   if (!selections || !Array.isArray(selections) || selections.length === 0) {
-    throw new Error('No selections provided');
+    throw new Error("No selections provided");
   }
 
   let totalRowsUpdated = 0;
 
   for (const selection of selections) {
-    const userId = String(selection.userId || '').trim();
-    const pincodes = Array.isArray(selection.pincodes) ? selection.pincodes : [];
+    const userId = String(selection.userId || "").trim();
+    const pincodes = Array.isArray(selection.pincodes)
+      ? selection.pincodes
+      : [];
 
     if (!userId || pincodes.length === 0) continue;
 
-    const pincodePlaceholders = pincodes.map((_, i) => `:pincode${i}`).join(',');
+    const pincodePlaceholders = pincodes
+      .map((_, i) => `:pincode${i}`)
+      .join(",");
     const binds = { userId };
 
     pincodes.forEach((pincode, i) => {
@@ -149,14 +153,14 @@ async function unassignCases(selections) {
 }
 
 function parseLatLong(text) {
-  const value = String(text || '').trim();
-  if (!value || !value.includes(',')) {
+  const value = String(text || "").trim();
+  if (!value || !value.includes(",")) {
     return null;
   }
 
-  const [latRaw, lngRaw] = value.split(',');
-  const lat = Number.parseFloat(String(latRaw || '').trim());
-  const lng = Number.parseFloat(String(lngRaw || '').trim());
+  const [latRaw, lngRaw] = value.split(",");
+  const lat = Number.parseFloat(String(latRaw || "").trim());
+  const lng = Number.parseFloat(String(lngRaw || "").trim());
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return null;
@@ -166,7 +170,7 @@ function parseLatLong(text) {
 }
 
 async function getLatLongFromAddress(address, apiKey) {
-  const cleanAddress = String(address || '').trim();
+  const cleanAddress = String(address || "").trim();
   if (!cleanAddress || !apiKey) {
     return null;
   }
@@ -177,13 +181,13 @@ async function getLatLongFromAddress(address, apiKey) {
   });
 
   const url = `https://maps.googleapis.com/maps/api/geocode/json?${params.toString()}`;
-  const response = await fetch(url, { method: 'GET' });
+  const response = await fetch(url, { method: "GET" });
   if (!response.ok) {
     return null;
   }
 
   const payload = await response.json();
-  if (payload?.status !== 'OK') {
+  if (payload?.status !== "OK") {
     return null;
   }
 
@@ -210,18 +214,18 @@ async function getDistanceInKm(origin, destination, apiKey) {
   });
 
   const url = `https://maps.googleapis.com/maps/api/distancematrix/json?${params.toString()}`;
-  const response = await fetch(url, { method: 'GET' });
+  const response = await fetch(url, { method: "GET" });
   if (!response.ok) {
     return 0;
   }
 
   const payload = await response.json();
-  if (payload?.status !== 'OK') {
+  if (payload?.status !== "OK") {
     return 0;
   }
 
   const element = payload?.rows?.[0]?.elements?.[0];
-  if (!element || element.status !== 'OK') {
+  if (!element || element.status !== "OK") {
     return 0;
   }
 
@@ -256,7 +260,10 @@ async function matrixDistanceInsertion() {
   let rowsProcessed = 0;
 
   if (errorCode === 9999) {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.GOOGLE_DISTANCE_API_KEY || '';
+    const apiKey =
+      process.env.GOOGLE_MAPS_API_KEY ||
+      process.env.GOOGLE_DISTANCE_API_KEY ||
+      "";
 
     const selectSql = `
       SELECT
@@ -309,7 +316,7 @@ async function matrixDistanceInsertion() {
     message:
       errorCode === 9999
         ? `Total updated transactions distance: ${totalRowsAffected}`
-        : 'Matrix insertion procedure did not return success code 9999',
+        : "Matrix insertion procedure did not return success code 9999",
   };
 }
 
@@ -348,17 +355,21 @@ async function accountAllocation(payload) {
  );
     END;
   `;
-    const binds = {
+  const binds = {
     // in_UserId: payload.userId,
     IN_UserName: 1,
     OUT_ERRCODE: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-    OUT_ERRTEXT: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 1000 },
+    OUT_ERRTEXT: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
     OUT_ASSIGN_COUNT: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     OUT_PEN_COUNT: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
     OUT_date: { dir: oracledb.BIND_OUT, type: oracledb.DATE },
     OUT_TOTAL_COUNT: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
   };
-   const result = await executeProcedure({ statement, binds, useTx: false });
+  const result = await executeProcedure({ statement, binds, useTx: false });
 
   const out = result.outBinds;
   if (out.OUT_ERRCODE === 9999) {
@@ -376,22 +387,70 @@ async function accountAllocation(payload) {
       dateVal: { val: out.OUT_date, type: oracledb.DATE },
       total: { val: out.OUT_TOTAL_COUNT, type: oracledb.NUMBER },
       assigned: { val: out.OUT_ASSIGN_COUNT, type: oracledb.NUMBER },
-      pending: { val: out.OUT_PEN_COUNT, type: oracledb.NUMBER }
+      pending: { val: out.OUT_PEN_COUNT, type: oracledb.NUMBER },
     };
     await executeQuery(insertSql, insertBinds);
     return {
       success: true,
       message: "Contract Allocation Successful",
-        total: out.OUT_TOTAL_COUNT,
-        allocated: out.OUT_ASSIGN_COUNT,
-        unallocated: out.OUT_PEN_COUNT,
-        date: out.OUT_date
+      total: out.OUT_TOTAL_COUNT,
+      allocated: out.OUT_ASSIGN_COUNT,
+      unallocated: out.OUT_PEN_COUNT,
+      date: out.OUT_date,
     };
   }
   return {
     success: false,
-    message: out.OUT_ERRTEXT || "Something went wrong"
+    message: out.OUT_ERRTEXT || "Something went wrong",
   };
+}
+
+async function fetchCorporationDetails(payload) {
+  try {
+    const ulbid = payload.ulbid;
+
+    const statement = `SELECT var_corporation_name AS corporationName, blob_corporation_img AS corporationLogo ,
+     var_corporation_mname as corporationEName
+                   FROM admins.aoma_corporation_mas 
+                   WHERE num_corporation_id = :ulbId`;
+
+    const binds = {
+      ulbid: ulbid,
+    };
+    const result = await executeProcedure({ statement, binds, useTx: false });
+    console.log("result :", result);
+    if (result?.rows?.length === 0) {
+      return {
+        success: false,
+        message: "Corporation data not found",
+      };
+    }
+
+    const { CORPORATIONNAME, CORPORATIONLOGO, CORPORATIONENAME } =
+      result.rows[0];
+
+    let logoBase64 = null;
+    if (CORPORATIONLOGO) {
+      const blobData = await CORPORATIONLOGO.getData();
+      logoBase64 = `data:image/png;base64,${Buffer.from(blobData).toString(
+        "base64",
+      )}`;
+    }
+
+    return {
+      success: true,
+      data: {
+        ULBLOGO: logoBase64,
+        ABC_MUNICIPAL_TEXT: CORPORATIONNAME,
+        ABC_MUNICIPAL_ETEXT: CORPORATIONENAME,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message || "Something went wrong",
+    };
+  }
 }
 
 module.exports = {
@@ -400,5 +459,8 @@ module.exports = {
   bucketSetter,
   fetchUsersWithPincodes,
   unassignCases,
-  matrixDistanceInsertion,  getaccCount, accountAllocation
-} 
+  matrixDistanceInsertion,
+  getaccCount,
+  accountAllocation,
+  fetchCorporationDetails,
+};

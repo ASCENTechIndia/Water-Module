@@ -71,6 +71,14 @@ import FrmBillGeneration from "./Pages/Transaction/FrmBillGeneration/FrmBillGene
 import FrmReceiptDeleteAuthList from "./Pages/Transaction/FrmReceiptDeleteAuthList/FrmReceiptDeleteAuthList.jsx";
 import FrmMeterReadingEntry from "./Pages/Transaction/FrmMeterReadingEntry/FrmMeterReadingEntry.jsx";
 import FrmChequeBounce from "./Pages/Transaction/FrmChequeBounce/FrmChequeBounce.jsx";
+import FrmConnSizeList from "./Pages/Master/ConnSize/FrmConnSizeList.jsx";
+import FrmConnSizeMst from "./Pages/Master/ConnSize/FrmConnSizeMst.jsx";
+import FrmBillingMethodList from "./Pages/Master/BillingMethod/FrmBillingMethodList.jsx";
+import FrmBillingMethodMst from "./Pages/Master/BillingMethod/FrmBillingMethodMst.jsx";
+import FrmPremiseTypeList from "./Pages/Master/PremiseType/FrmPremiseTypeList.jsx";
+import FrmPremiseTypeMst from "./Pages/Master/PremiseType/FrmPremiseTypeMst.jsx";
+import FrmCollcenterList from "./Pages/Master/CollectionCenter/FrmCollcenterList.jsx";
+import FrmCollcenterMst from "./Pages/Master/CollectionCenter/FrmCollcenterMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -248,6 +256,14 @@ function App() {
                   <Route path="/Masters/FrmConnTypeMst" element={<FrmConnTypeMst />} />
                   <Route path="/Masters/FrmConnCodeList" element={<FrmConnCodeList />} />
                   <Route path="/Masters/FrmConnCodeMst" element={<FrmConnCodeMst />} />
+                  <Route path="/Masters/FrmConnSizeList" element={<FrmConnSizeList />} />
+                  <Route path="/Masters/FrmConnSizeMst" element={<FrmConnSizeMst />} />
+                  <Route path="/Masters/FrmBillingMethodList" element={<FrmBillingMethodList />} />
+                  <Route path="/Masters/FrmBillingMethodMst" element={<FrmBillingMethodMst />} />
+                  <Route path="/Masters/FrmPremiseTypeList" element={<FrmPremiseTypeList />} />
+                  <Route path="/Masters/FrmPremiseTypeMst" element={<FrmPremiseTypeMst />} />
+                  <Route path="/Masters/FrmCollcenterList" element={<FrmCollcenterList />} />
+                  <Route path="/Masters/FrmCollcenterMst" element={<FrmCollcenterMst />} />
 
                   
 
