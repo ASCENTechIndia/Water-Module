@@ -79,6 +79,9 @@ import FrmPremiseTypeList from "./Pages/Master/PremiseType/FrmPremiseTypeList.js
 import FrmPremiseTypeMst from "./Pages/Master/PremiseType/FrmPremiseTypeMst.jsx";
 import FrmCollcenterList from "./Pages/Master/CollectionCenter/FrmCollcenterList.jsx";
 import FrmCollcenterMst from "./Pages/Master/CollectionCenter/FrmCollcenterMst.jsx";
+import FrmReceiptDeleteList from "./Pages/Transaction/FrmReceiptDeleteList/FrmReceiptDeleteList.jsx";
+import FrmReceiptDeleteMst from "./Pages/Transaction/FrmReceiptDeleteMst/FrmReceiptDeleteMst.jsx";
+import FrmVasuliChalanGenerationMBMC from "./Pages/Transaction/FrmVasuliChalanGenerationMBMC/FrmVasuliChalanGenerationMBMC.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -204,6 +207,14 @@ function App() {
                     path="/Transaction/FrmChequeBounce"
                     element={<FrmChequeBounce />}
                   />
+                  <Route 
+                    path="/Transaction/FrmReceiptDeleteList"
+                    element={<FrmReceiptDeleteList />}
+                  />
+                  <Route 
+                    path="/Transaction/FrmReceiptDeleteMst"
+                    element={<FrmReceiptDeleteMst />}
+                  />
 
                   <Route
                     path="/Transaction/FrmBillGeneration"
@@ -213,6 +224,11 @@ function App() {
                   <Route 
                     path="/Transaction/FrmReceiptDeleteAuthList"
                     element={<FrmReceiptDeleteAuthList />}
+                  />
+
+                  <Route 
+                    path="/Transaction/FrmVasuliChalanGenerationMBMC"
+                    element={<FrmVasuliChalanGenerationMBMC />}
                   />
 
                   {/* Master routes */}
