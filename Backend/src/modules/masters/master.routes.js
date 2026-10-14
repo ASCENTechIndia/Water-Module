@@ -12,8 +12,10 @@ const { wardInsSchema } = require("./master.validation");
 const router = express.Router();
 
 router.get("/getMenuList", getMenuListController);
-router.get("/getUlbDropdownController", getUlbDropdownController);
 router.get("/getUserList", getUserListController);
+
+// Wart Master
+router.get("/getUlbDropdownController", getUlbDropdownController);
 router.get("/getWardList", getWardListController);
 router.post("/aowt_ward_ins", validate(wardInsSchema), wardInsController);
 
