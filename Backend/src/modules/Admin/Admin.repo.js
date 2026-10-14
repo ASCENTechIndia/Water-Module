@@ -418,7 +418,7 @@ async function fetchCorporationDetails(payload) {
       ulbid: ulbid,
     };
     const result = await executeProcedure({ statement, binds, useTx: false });
-    console.log("result :", result);
+    
     if (result?.rows?.length === 0) {
       return {
         success: false,

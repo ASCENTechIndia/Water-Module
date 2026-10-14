@@ -12,7 +12,6 @@ const FrmCollcenterList = () => {
   const { user } = useAuth();
   const userId = user?.userId;
   const ulbid = user?.ulbId;
-  console.log("Ub id", ulbid)
   const { setLoading } = useLoader();
   const navigate = useNavigate();
 

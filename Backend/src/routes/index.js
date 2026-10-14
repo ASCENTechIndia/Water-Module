@@ -1,7 +1,7 @@
 const express = require("express");
 const authRoutes = require("../modules/auth/auth.routes");
 const adminRoutes = require("../modules/Admin/Admin.routes");
-// const usersRoutes = require('../modules/users/users.routes');
+const masterRoutes = require("../modules/masters/master.routes")
 const router = express.Router();
 
 router.get("/health", (req, res) => {
@@ -14,6 +14,6 @@ router.get("/ready", (req, res) => {
 
 router.use("/auth", authRoutes);
 router.use("/admin", adminRoutes);
-// router.use('/users', usersRoutes); one route for reference
+router.use('/master', masterRoutes);
 
 module.exports = router;
