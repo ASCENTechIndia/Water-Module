@@ -8,39 +8,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const FrmPremiseTypeConfig = () => {
 
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            premiseName: "OFFICE",
-        },
-        {
-            id: 2,
-            premiseName: "FACTORY",
-        },
-        {
-            id: 3,
-            premiseName: "SHOP",
-        },
-        {
-            id: 4,
-            premiseName: "apartment",
-        },
-        {
-            id: 5,
-            premiseName: "test1",
-        },
-        {
-            id: 6,
-            premiseName: "retail",
-        },
-        {
-            id: 7,
-            premiseName: "WAREHOUSE",
-        },
-    ]);
+    const [rows, setRows] = useState([]);
 
     const [checkedMap, setCheckedMap] = useState({});
 
@@ -53,6 +26,10 @@ const FrmPremiseTypeConfig = () => {
 
 
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
@@ -66,33 +43,27 @@ const FrmPremiseTypeConfig = () => {
         watch,
     } = useForm({
         defaultValues: {
-            ulbName: "1",
+            ulbName: "",
             premiseTypeStr: [],
         },
     });
 
 
-    const [ulbOptions, setULBOptions] = useState([{
-        label: "मीरा भाईंदर महानगरपालिका", value: "1"
-    }]);
-
+    const [ulbOptions, setULBOptions] = useState([]);
+    const [existingStatusCheckList, setExistingStatusCheckList] = useState([]);
     const fetchULBDropdown = async () => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
-
-            console.log(response);
+            const response = await apiService.get("/config/getULBDropdown");
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.ulbID,
-                    value: item.ulbname,
+                const formatted = response.data.map((item) => ({
+                    label: item.CORPORATIONNAME,
+                    value: item.CORPORATIONID,
                 }));
 
                 setULBOptions(formatted);
@@ -106,6 +77,98 @@ const FrmPremiseTypeConfig = () => {
         }
     };
 
+    const fetchTableData = async () => {
+        try {
+            setLoading(true);
+
+            const payload = {
+                "ulbId": ulbId
+            };
+
+            const response = await apiService.post("/config/getPremiseTypeData", payload);
+
+            if (
+                response?.success &&
+                Array.isArray(response?.data)
+            ) {
+                const formatted = response.data.map((item) => ({
+                    id: item.PRETYPEID,
+                    premiseName: item.PRETYPENAME,
+                    ...item
+                }));
+
+                setRows(formatted);
+            } else {
+                setRows([]);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchPremiseTypeStatus = async () => {
+        try {
+            setLoading(true);
+
+            const payload = {
+                "ulbId": ulbId
+            };
+
+            const response = await apiService.post("/config/getPremiseTypeDataStatus", payload);
+            if (
+                response?.success &&
+                Array.isArray(response?.data)
+            ) {
+                setExistingStatusCheckList(response.data);
+            } else {
+                setExistingStatusCheckList([]);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchULBDropdown();
+            fetchTableData();
+            fetchPremiseTypeStatus();
+        }
+    }, [ulbId]);
+
+    useEffect(() => {
+        const configuredIds = new Set(
+            existingStatusCheckList.map((item) =>
+                String(item.CONFIGPRETYPEID)
+            )
+        );
+
+        const updatedCheckedMap = {};
+
+        const selectedIds = rows
+            .filter((row) => {
+                const isChecked = configuredIds.has(String(row.id));
+
+                if (isChecked) {
+                    updatedCheckedMap[row.id] = true;
+                }
+
+                return isChecked;
+            })
+            .map((row) => row.id);
+
+        setCheckedMap(updatedCheckedMap);
+
+        setValue("premiseTypeStr", selectedIds, {
+            shouldValidate: true,
+            shouldDirty: false,
+        });
+    }, [rows, existingStatusCheckList, setValue]);
+
 
     const handleToggle = (id, checked) => {
         setCheckedMap((prev) => {
@@ -114,12 +177,11 @@ const FrmPremiseTypeConfig = () => {
                 [id]: checked,
             };
 
-            // Get all selected premise IDs
             const selectedIds = rows
                 .filter((row) => updatedMap[row.id])
                 .map((row) => row.id);
 
-            // Store selected IDs in react-hook-form
+           
             setValue("premiseTypeStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
@@ -140,7 +202,7 @@ const FrmPremiseTypeConfig = () => {
 
             setCheckedMap(newCheckedMap);
 
-            // Store all IDs in react-hook-form
+  
             const selectedIds = rows.map((row) => row.id);
 
             setValue("premiseTypeStr", selectedIds, {
@@ -163,28 +225,61 @@ const FrmPremiseTypeConfig = () => {
         try {
             setLoading(true);
 
+            const previouslyConfiguredIds = new Set(
+                existingStatusCheckList.map((item) =>
+                    String(item.CONFIGPRETYPEID)
+                )
+            );
 
-            const premiseStr = values.premiseTypeStr.join("$");
+            const premiseStr = rows
+                .map((row) => {
+                    const id = row.id;
 
+
+                    const previousStatus = previouslyConfiguredIds.has(
+                        String(id)
+                    )
+                        ? "Y"
+                        : "N";
+
+                    const currentStatus = checkedMap[id] ? "Y" : "N";
+
+                    return `${id}#${previousStatus}#${currentStatus}`;
+                })
+                .join("$");
+
+
+            const ipAddress = await GetIPAddress();
             const payload = {
-                ulbName: values.ulbName,
-                premiseStr: premiseStr,
+                in_UserId: userId,
+                in_ULBid: Number(values.ulbName),
+                in_PreTypeStr: premiseStr,
+                in_Mode: existingStatusCheckList.length > 0 ? 2 : 1,
+                in_ipaddress: ipAddress,
+                in_source: config.source
             };
 
-            console.log("Form Values:", values);
-            console.log("Payload:", payload);
+            const response = await apiService.post("/config/premise-type", payload);
 
-            // API call
-            // const response = await apiService.post("", payload);
+            if (response?.success && response?.data?.Out_errorCode === 9999) {
+                alert(response.data.Out_ErrorMsg);
+                fetchTableData();
+                fetchPremiseTypeStatus();
+            }
 
         } catch (error) {
             console.error(error.message);
-
             alert(error.message || "Failed to submit data");
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (ulbOptions.length > 0) {
+            setValue("ulbName", String(ulbId));
+        }
+    }, [ulbOptions])
 
     return (
         <Layout
@@ -207,7 +302,7 @@ const FrmPremiseTypeConfig = () => {
                         />
 
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm bg-slate-100 cursor-not-allowed"
+                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm bg-slate-200 cursor-not-allowed"
                             disabled
                             {...register("ulbName")}
                         >
