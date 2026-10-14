@@ -210,7 +210,7 @@ const FrmVasuliChalanGenerationMBMC = () => {
                     <div>
                         <Label
                             text={"दिनांका पर्यत: "}
-                            required
+                            requiredx
                         />
                         <input
                             type="date"
