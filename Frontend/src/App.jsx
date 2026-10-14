@@ -248,12 +248,14 @@ function App() {
                   />
 
                   {/* Master routes */}
+                  {/* First three list + master pages are pending for now */}
                   <Route path="/Masters/FrmMenuList" element={<FrmMenuList />} />
                   <Route path="/Masters/FrmMenuMst" element={<FrmMenuMst />} />
                   <Route path="/Masters/FrmUserAccessNewList" element={<FrmUserAccessNewList />} />
                   <Route path="/Masters/FrmUserAccessNewMst" element={<FrmUserAccessNewMst />} />
                   <Route path="/Masters/FrmUserList" element={<FrmUserList />} />
                   <Route path="/Masters/FrmUserMst" element={<FrmUserMst />} />
+
                   <Route path="/Masters/FrmWardList" element={<FrmWardList />} />
                   <Route path="/Masters/FrmWardMst" element={<FrmWardMst />} />
                   <Route path="/Masters/FrmZoneList" element={<FrmZoneList />} />

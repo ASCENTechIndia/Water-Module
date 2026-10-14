@@ -28,11 +28,9 @@ const Header = ({ toggleSidebar: parentToggleSidebar }) => {
           body: JSON.stringify({ ulbid: ulbId }),
         });
         const json = await res.json();
-        console.log("logo res :", json);
 
-        // ✅ Outer success + inner success
         if (json?.success && json?.data?.success) {
-          const d = json.data.data; // 👈 THIS is the actual payload
+          const d = json.data.data;
           setCorpName(d.ABC_MUNICIPAL_TEXT || "");
           setCorpEName(d.ABC_MUNICIPAL_ETEXT || "");
           setLogo(d.ULBLOGO || null);
