@@ -329,6 +329,16 @@ const STATIC_MENU = [
         MENUID: 504,
         MENUTITLE: "Cheque Bounce",
         PAGEPATH: "/Transaction/FrmChequeBounce"
+      },
+      {
+        MENUID: 505,
+        MENUTITLE: "Receipt Delete List",
+        PAGEPATH: "/Transaction/FrmReceiptDeleteList"
+      },
+      {
+        MENUID: 506,
+        MENUTITLE: "वसुली चलन निर्मिती",
+        PAGEPATH: "/Transaction/FrmVasuliChalanGenerationMBMC"
       }
     ]
   }

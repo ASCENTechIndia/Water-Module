@@ -46,7 +46,7 @@ const FrmChequeBounce = () => {
         control
     } = useForm({
         defaultValues: {
-            ulbName: "",
+            ulbName: "1",
             zoneName: "",
             chequeNumber: "",
             bankName: "",
@@ -140,6 +140,106 @@ const FrmChequeBounce = () => {
                             ))}
                         </select>
                     </div>
+                    <div>
+                        <Label
+                            text={"Zone: "}
+                            required
+                        />
+
+                        <select
+                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                            {...register("zoneName")}
+                        >
+                            <option value="">
+                                -- Select --
+                            </option>
+
+                            {/* {zoneOptions.map((opt) => (
+                                <option
+                                    key={opt.value}
+                                    value={opt.value}
+                                >
+                                    {opt.label}
+                                </option>
+                            ))} */}
+                        </select>
+                    </div>
+                    <div>
+                        <Label
+                            text={"Cheque Number: "}
+                            required
+                        />
+                        <input
+                            type="text"
+                            className="form-input-box"
+                            {...register("chequeNumber")}
+                        />
+                    </div>
+                    <div>
+                        <Label
+                            text={"Bank: "}
+                            required
+                        />
+
+                        <select
+                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                            {...register("bankName")}
+                        >
+                            <option value="">
+                                -- Select --
+                            </option>
+
+                            {bankOptions.map((opt) => (
+                                <option
+                                    key={opt.value}
+                                    value={opt.value}
+                                >
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <Label
+                            text={"चेक रक्कम: "}
+                            required
+                        />
+                        <input
+                            type="text"
+                            className="form-input-box"
+                            {...register("chequeMoney")}
+                        />
+                    </div>
+                    <div>
+                        <Label
+                            text={"पावती दिनांक: "}
+                        />
+                        <input
+                            type="date"
+                            className="form-input-box"
+                            {...register("receiptDate")}
+                        />
+                    </div>
+                    <div>
+                        <Label
+                            text={"Mobile Number: "}
+                        />
+                        <input
+                            type="text"
+                            className="form-input-box"
+                            {...register("mobileNumber")}
+                        />
+                    </div>
+                </div>
+                <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
+                    <Button 
+                        type="button"
+                        onClick={() => { 
+                            // handleSearch();
+                        }}
+                    >
+                        Search
+                    </Button>
                 </div>
             </form>
         </Layout>
