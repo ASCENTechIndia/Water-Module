@@ -181,7 +181,7 @@ const FrmPremiseTypeConfig = () => {
                 .filter((row) => updatedMap[row.id])
                 .map((row) => row.id);
 
-           
+
             setValue("premiseTypeStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
@@ -202,7 +202,7 @@ const FrmPremiseTypeConfig = () => {
 
             setCheckedMap(newCheckedMap);
 
-  
+
             const selectedIds = rows.map((row) => row.id);
 
             setValue("premiseTypeStr", selectedIds, {
@@ -224,6 +224,11 @@ const FrmPremiseTypeConfig = () => {
     const onSubmit = async (values) => {
         try {
             setLoading(true);
+
+            if (!values.premiseTypeStr || values.premiseTypeStr.length === 0) {
+                alert("Please atleast one checkbox");
+                return;
+            }
 
             const previouslyConfiguredIds = new Set(
                 existingStatusCheckList.map((item) =>
