@@ -109,15 +109,18 @@ const FrmWardMst = () => {
         in_source: config.source,
         in_mode: isEdit ? 2 : 1,
       };
-      console.log("payload :", payload);
+
       const res = await apiService.post("/master/aowt_ward_ins", payload);
-      console.log("res submit :", res);
 
       if (res?.success && res?.data?.out_errorcode === 9999) {
         alert(res.data.out_errormsg || "Ward saved successfully");
         navigate("/Masters/FrmWardList");
       } else {
-        alert(res?.data?.out_errormsg || "Failed to save ward");
+        alert(
+          res?.data?.out_errormsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
       }
     } catch (err) {
       console.error("Error saving ward:", err);
