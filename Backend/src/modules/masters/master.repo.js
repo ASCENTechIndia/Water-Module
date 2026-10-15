@@ -1,14 +1,11 @@
 const { executeQuery } = require("../../db/queryExecutor");
-const { executeProcedure } = require('../../db/procedureExecutor');
+const { executeProcedure } = require("../../db/procedureExecutor");
 const oracledb = require("oracledb");
 
 async function getMenuList(payload) {
   const { deptId } = payload;
   if (!deptId) {
-    return {
-      success: false,
-      message: "Dept Id is required",
-    };
+    throw new Error("Dept Id is required");
   }
   let sql = `
     select distinct menuid,
@@ -142,10 +139,142 @@ async function aowt_ward_ins(payload) {
   return result.outBinds;
 }
 
+async function getZoneList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULBId is required");
+  }
+
+  const sql = `
+    select num_zone_id,
+           var_zone_name,
+           num_zone_wardid,
+           var_ward_name,
+           var_zone_code,
+           case var_zone_activeflag
+             when 'Y' then 'Yes'
+             else 'No'
+           end as activeflag
+      from aowt_zone_mas
+      inner join aowt_ward_mas
+        on num_ward_id = num_zone_wardid
+     where num_ward_ulbid = :ulbId
+     order by num_zone_id desc
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getZoneDetails(payload) {
+  const { zoneId, wardId } = payload;
+
+  if (!zoneId || !wardId) {
+    throw new Error("zoneId and wardId are required");
+  }
+
+  const sql = `
+    select num_zone_id,
+           num_ward_ulbid,
+           var_zone_name,
+           num_zone_wardid,
+           var_ward_name,
+           var_zone_code,
+           var_zone_activeflag
+      from aowt_zone_mas
+      inner join aowt_ward_mas
+        on num_ward_id = num_zone_wardid
+     where num_zone_id = :zoneId
+       and num_zone_wardid = :wardId
+  `;
+
+  const binds = {
+    zoneId: Number(zoneId),
+    wardId: Number(wardId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getWardDropdownByUlb(payload) {
+  const { ulbid } = payload;
+
+  if (!ulbid) {
+    throw new Error("ulbid is required");
+  }
+
+  const sql = `
+    select var_ward_name,
+           num_ward_id
+      from aowt_ward_mas
+     where var_ward_activeflag = 'Y'
+       and num_ward_ulbid = :ulbid
+     order by var_ward_name
+  `;
+
+  const binds = {
+    ulbid: Number(ulbid),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_zone_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_zone_ins(
+        :in_userid,
+        :in_zoneid,
+        :in_zonename,
+        :in_wardid,
+        :in_zonecode,
+        :in_activeflag,
+        :in_ipaddress,
+        :in_source,
+        :in_mode,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_zoneid: payload.in_zoneid !== null ? Number(payload.in_zoneid) : null,
+    in_zonename: payload.in_zonename,
+    in_wardid: payload.in_wardid != null ? Number(payload.in_wardid) : null,
+    in_zonecode: payload.in_zonecode,
+    in_activeflag: payload.in_activeflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_mode: Number(payload.in_mode),
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
   getUserList,
   getWardList,
   aowt_ward_ins,
+  getZoneList,
+  getZoneDetails,
+  getWardDropdownByUlb,
+  aowt_zone_ins,
 };

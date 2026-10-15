@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Label from "../../../Components/Label";
@@ -10,13 +10,10 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmZoneList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [ulbOptions, setUlbOptions] = useState([]);
-  const [selectedUlb, setSelectedUlb] = useState("");
   const [tableData, setTableData] = useState([]);
 
   const tableHeader = [
@@ -27,134 +24,86 @@ const FrmZoneList = () => {
     "सक्रिय",
   ];
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
+  // ULB dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    setUlbOptions([
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ]);
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       setUlbOptions(
-    //         res.data.data.map((item) => ({
-    //           value: String(item.CORPORATIONID),
-    //           label: item.CORPORATIONNAME,
-    //         })),
-    //       );
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUlbDropdown();
   }, []);
 
-  // ---------- Load zone list when ULB changes (DUMMY) ----------
+  // Zone list
   const fetchZoneList = async () => {
+    if (!ulbid) {
+      alert("UlbId is not set");
+      setTableData([]);
+      return;
+    }
+
     try {
       setLoading(true);
+      const res = await apiService.get(`/master/getZoneList?ulbId=${ulbid}`);
 
-      // 🔸 DUMMY — replace with apiService.post("getZoneList", { ulbId: Number(selectedUlb) })
-      const dummyData = [
-        {
-          ZONEID: 1,
-          WARDNAME: "प्रभाग क्र. १",
-          ZONENAME: "विभाग क्र. १",
-          ZONECODE: "ZONE-A",
-          ISACTIVE: "Y",
-        },
-        {
-          ZONEID: 2,
-          WARDNAME: "प्रभाग क्र. १",
-          ZONENAME: "विभाग क्र. २",
-          ZONECODE: "ZONE-B",
-          ISACTIVE: "N",
-        },
-        {
-          ZONEID: 3,
-          WARDNAME: "प्रभाग क्र. २",
-          ZONENAME: "विभाग क्र. ३",
-          ZONECODE: "ZONE-C",
-          ISACTIVE: "Y",
-        },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.ZONEID}
-            state={{ zoneId: item.ZONEID }}
+            key={item.NUM_ZONE_ID}
+            state={{
+              zoneId: item.NUM_ZONE_ID,
+              wardId: item.NUM_ZONE_WARDID,
+              zoneName: item.VAR_ZONE_NAME,
+              wardName: item.VAR_WARD_NAME,
+              zoneCode: item.VAR_ZONE_CODE,
+              flag: item.ACTIVEFLAG,
+            }}
             to={`/Masters/FrmZoneMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             निवड
           </Link>,
-          item.WARDNAME || "",
-          item.ZONENAME || "",
-          item.ZONECODE || "",
-          item.ISACTIVE === "Y" ? "होय" : "नाही",
+          item.VAR_WARD_NAME || "",
+          item.VAR_ZONE_NAME || "",
+          item.VAR_ZONE_CODE || "",
+          item.ACTIVEFLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("getZoneList", {
-      //   ulbId: Number(selectedUlb),
-      //   userId: String(userId),
-      // });
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.ZONEID}
-      //       state={{ zoneId: item.ZONEID }}
-      //       to={`/Masters/FrmZoneMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       निवड
-      //     </Link>,
-      //     item.WARDNAME || "",
-      //     item.ZONENAME || "",
-      //     item.ZONECODE || "",
-      //     item.ISACTIVE === "Y" ? "होय" : "नाही",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching zone list:", err);
       setTableData([]);
-      console.error("Error fetching zone list:", error);
-      alert("Failed to fetch zone list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!selectedUlb) {
-      setTableData([]);
-      return;
+    if (ulbid) {
+      fetchZoneList();
     }
-    fetchZoneList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedUlb]);
+  }, [ulbid]);
 
   return (
     <Layout
@@ -166,19 +115,17 @@ const FrmZoneList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- ULB Filter ---------- */}
+        {/* ULB Filter */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label text="नगरपालिकेचे नाव : " required />
             <select
+              disabled
               className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
-                focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-              value={selectedUlb}
-              onChange={(e) => setSelectedUlb(e.target.value)}
+                bg-slate-100 cursor-not-allowed"
+              value={ulbid ? String(ulbid) : ""}
             >
-              <option value="" disabled>
-                -- Select ULB --
-              </option>
+              <option value="">-- Select ULB --</option>
               {ulbOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
@@ -188,7 +135,7 @@ const FrmZoneList = () => {
           </div>
         </div>
 
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmZoneMst"}>
             <Button
@@ -201,9 +148,11 @@ const FrmZoneList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

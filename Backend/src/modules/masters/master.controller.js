@@ -4,6 +4,10 @@ const {
   getUserListService,
   getWardListService,
   wardInsService,
+  getZoneListService,
+  getZoneDetailsService,
+  zoneInsService,
+  getWardDropdownByUlbService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -129,10 +133,114 @@ async function wardInsController(req, res, next) {
   }
 }
 
+async function getZoneListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getZoneListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Zone list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone list error");
+    return next(err);
+  }
+}
+
+async function getZoneDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getZoneDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Zone details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone details error");
+    return next(err);
+  }
+}
+
+async function getWardDropdownByUlbController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getWardDropdownByUlbService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Ward dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ward dropdown error");
+    return next(err);
+  }
+}
+
+async function zoneInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await zoneInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { zoneId: payload.in_zoneid },
+        out.out_errormsg || "Zone saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormsg, "Zone insert failed");
+    }
+
+    auditLog({
+      action: payload.in_mode === 2 ? "ZONE_UPDATE" : "ZONE_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "zone",
+      entityId: payload.in_zoneid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
   getUserListController,
   getWardListController,
   wardInsController,
+  getZoneListController,
+  getZoneDetailsController,
+  getWardDropdownByUlbController,
+  zoneInsController,
 };
