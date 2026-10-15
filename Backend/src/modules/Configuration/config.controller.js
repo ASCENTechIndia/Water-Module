@@ -1,91 +1,95 @@
 const { logApiSuccess, logApiError } = require("../../utils/log");
-const { 
-    getULBDropdownService, 
-    getPremiseTypeDataService, 
-    getPremiseTypeDataStatusService, 
-    premiseTypeConfigSubmitService, 
-    getUsageTypeTableDataService, 
-    getUsageTypeTableDataStatusService, 
-    usageTypeConfigSubmitService 
+const {
+    getULBDropdownService,
+    getPremiseTypeDataService,
+    getPremiseTypeDataStatusService,
+    premiseTypeConfigSubmitService,
+    getUsageTypeTableDataService,
+    getUsageTypeTableDataStatusService,
+    usageTypeConfigSubmitService,
+    getUsageTypeDropdownService,
+    getUsageSubTypeTableDataService,
+    usageSubTypeDataSubmitService,
+    getUsageSubTypeTableDataStatusService
 } = require("./config.service");
 
 async function getULBDropdownController(req, res, next) {
-  try {
-    const rows = await getULBDropdownService();
+    try {
+        const rows = await getULBDropdownService();
 
-    logApiSuccess(
-      req,
-      200,
-      { count: rows.length || 0 },
-      "ULB Dropdown fetched",
-    );
+        logApiSuccess(
+            req,
+            200,
+            { count: rows.length || 0 },
+            "ULB Dropdown fetched",
+        );
 
-    return res.ok(rows);
-  } catch (error) {
-    console.error(error);
-    logApiError(req, 500, error.message, "ULB Dropdown error");
-    return next(error);
-  }
+        return res.ok(rows);
+    } catch (error) {
+        console.error(error);
+        logApiError(req, 500, error.message, "ULB Dropdown error");
+        return next(error);
+    }
 }
 
 async function getPremiseTypeDataController(req, res, next) {
-  try {
-    const payload = req.body;
-    const rows = await getPremiseTypeDataService(payload);
+    try {
+        const payload = req.body;
+        const rows = await getPremiseTypeDataService(payload);
 
-    logApiSuccess(
-      req,
-      200,
-      { count: rows?.length || 0 },
-      `Premise Type List retrieved`,
-    );
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Premise Type List retrieved`,
+        );
 
-    return res.ok(rows);
-  } catch (error) {
-    // console.error(error);
-    logApiError(req, 500, error.message, "Premise Type list error");
-    return next(error);
-  }
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Premise Type list error");
+        return next(error);
+    }
 }
 
 async function getPremiseTypeDataStatusController(req, res, next) {
-  try {
-    const payload = req.body;
-    const rows = await getPremiseTypeDataStatusService(payload);
+    try {
+        const payload = req.body;
+        const rows = await getPremiseTypeDataStatusService(payload);
 
-    logApiSuccess(
-      req,
-      200,
-      { count: rows?.length || 0 },
-      `Premise Type Data Status retrieved`,
-    );
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Premise Type Data Status retrieved`,
+        );
 
-    return res.ok(rows);
-  } catch (error) {
-    // console.error(error);
-    logApiError(req, 500, error.message, "Premise Type Data Status list error");
-    return next(error);
-  }
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Premise Type Data Status list error");
+        return next(error);
+    }
 }
 
 async function premiseTypeConfigSubmitController(req, res, next) {
-  try {
-    const payload = req.body;
-    const rows = await premiseTypeConfigSubmitService(payload);
+    try {
+        const payload = req.body;
+        const rows = await premiseTypeConfigSubmitService(payload);
 
-    logApiSuccess(
-      req,
-      200,
-      { count: rows?.length || 0 },
-      `Premise Type Config Submitted successfully`,
-    );
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Premise Type Config Submitted successfully`,
+        );
 
-    return res.ok(rows);
-  } catch (error) {
-    // console.error(error);
-    logApiError(req, 500, error.message, "Premise Type Config submit error");
-    return next(error);
-  }
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Premise Type Config submit error");
+        return next(error);
+    }
 }
 
 // Usage Type Controllers
@@ -152,6 +156,87 @@ async function usageTypeConfigSubmitController(req, res, next) {
     }
 }
 
+// Usage Sub Type Config
+
+async function getUsageTypeDropdownController(req, res, next) {
+    try {
+        const rows = await getUsageTypeDropdownService();
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Usage Type Dropdown successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Usage Type Dropdown fetch error");
+        return next(error);
+    }
+}
+
+async function getUsageSubTypeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getUsageSubTypeTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Usage Sub Type Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Usage Sub Type Data fetch error");
+        return next(error);
+    }
+}
+
+async function getUsageSubTypeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getUsageSubTypeTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Usage Sub Type Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Usage Sub Type Status Data fetch error");
+        return next(error);
+    }
+}
+
+async function usageSubTypeConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await usageSubTypeDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Usage Sub Type Configuration submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Usage Sub Type Config Data Submit  error");
+        return next(error);
+    }
+}
+
 module.exports = {
     getULBDropdownController,
     getPremiseTypeDataController,
@@ -159,5 +244,9 @@ module.exports = {
     premiseTypeConfigSubmitController,
     getUsageTypeTableDataController,
     getUsageTypeTableDataStatusController,
-    usageTypeConfigSubmitController
+    usageTypeConfigSubmitController,
+    getUsageTypeDropdownController,
+    getUsageSubTypeTableDataController,
+    getUsageSubTypeTableDataStatusController,
+    usageSubTypeConfigSubmitController,
 };

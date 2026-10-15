@@ -1,29 +1,33 @@
-const { 
-    getULBDropdownRepo, 
-    getPremiseTypeDataRepo, 
-    getPremiseTypeDataStatusRepo, 
-    premiseTypeConfigSubmitRepo, 
-    getUsageTypeTableDataRepo, 
-    getUsageTypeTableDataStatusRepo, 
-    usageTypeConfigSubmitRepo 
+const {
+    getULBDropdownRepo,
+    getPremiseTypeDataRepo,
+    getPremiseTypeDataStatusRepo,
+    premiseTypeConfigSubmitRepo,
+    getUsageTypeTableDataRepo,
+    getUsageTypeTableDataStatusRepo,
+    usageTypeConfigSubmitRepo,
+    getUsageTypeDropdownRepo,
+    getUsageSubTypeTableDataRepo,
+    usageSubTypeConfigSubmitRepo,
+    getUsageSubTypeTableDataStatusRepo
 } = require("./config.repo");
 
 async function getULBDropdownService() {
-  return getULBDropdownRepo();
+    return getULBDropdownRepo();
 }
 
 // Premise Type Services
 
 async function getPremiseTypeDataService(payload) {
-  return getPremiseTypeDataRepo(payload);
+    return getPremiseTypeDataRepo(payload);
 }
 
 async function getPremiseTypeDataStatusService(payload) {
-  return getPremiseTypeDataStatusRepo(payload);
+    return getPremiseTypeDataStatusRepo(payload);
 }
 
 async function premiseTypeConfigSubmitService(payload) {
-  return premiseTypeConfigSubmitRepo(payload);
+    return premiseTypeConfigSubmitRepo(payload);
 }
 
 // Usage Type services
@@ -40,13 +44,35 @@ async function usageTypeConfigSubmitService(payload) {
     return usageTypeConfigSubmitRepo(payload);
 }
 
+// Usage Sub Type Config
 
-module.exports = { 
-    getULBDropdownService, 
-    getPremiseTypeDataService, 
+async function getUsageTypeDropdownService() {
+    return getUsageTypeDropdownRepo();
+}
+
+async function getUsageSubTypeTableDataService(payload) {
+    return getUsageSubTypeTableDataRepo(payload);
+}
+
+async function getUsageSubTypeTableDataStatusService(payload) {
+    return getUsageSubTypeTableDataStatusRepo(payload);
+}
+
+async function usageSubTypeDataSubmitService(payload) {
+    return usageSubTypeConfigSubmitRepo(payload);
+}
+
+
+module.exports = {
+    getULBDropdownService,
+    getPremiseTypeDataService,
     getPremiseTypeDataStatusService,
     premiseTypeConfigSubmitService,
     getUsageTypeTableDataService,
     getUsageTypeTableDataStatusService,
-    usageTypeConfigSubmitService
+    usageTypeConfigSubmitService,
+    getUsageTypeDropdownService,
+    getUsageSubTypeTableDataService,
+    getUsageSubTypeTableDataStatusService,
+    usageSubTypeDataSubmitService
 };

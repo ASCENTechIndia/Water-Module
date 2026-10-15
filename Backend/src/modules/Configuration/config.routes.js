@@ -6,7 +6,11 @@ const {
     premiseTypeConfigSubmitController,
     getUsageTypeTableDataController,
     getUsageTypeTableDataStatusController,
-    usageTypeConfigSubmitController
+    usageTypeConfigSubmitController,
+    getUsageTypeDropdownController,
+    getUsageSubTypeTableDataController,
+    usageSubTypeConfigSubmitController,
+    getUsageSubTypeTableDataStatusController
 } = require("./config.controller");
 
 const router = express.Router();
@@ -22,5 +26,11 @@ router.post("/premise-type", premiseTypeConfigSubmitController);
 router.post("/getUsageTypeData", getUsageTypeTableDataController);
 router.post("/getUsageTypeDataStatus", getUsageTypeTableDataStatusController);
 router.post("/usage-type", usageTypeConfigSubmitController);
+
+// Usage Sub Type Config
+router.get("/getUsageTypeDropdown", getUsageTypeDropdownController);
+router.get("/getUsageSubTypeData", getUsageSubTypeTableDataController);
+router.get("/getUsageSubTypeDataStatus", getUsageSubTypeTableDataStatusController);
+router.post("/usage-sub-type", usageSubTypeConfigSubmitController);
 
 module.exports = router;
