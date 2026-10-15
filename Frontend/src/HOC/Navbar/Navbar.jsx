@@ -142,12 +142,12 @@ const STATIC_MENU = [
         PAGEPATH: "/Masters/FrmCollcenterList",
       },
       {
-        MENUID: 122,
+        MENUID: 12,
         MENUTITLE: "Service List",
         PAGEPATH: "/Masters/FrmServiceList",
       },
       {
-        MENUID: 123,
+        MENUID: 1233,
         MENUTITLE: "Charge Type",
         PAGEPATH: "/Masters/FrmChargesTypeList",
       },
@@ -157,12 +157,12 @@ const STATIC_MENU = [
         PAGEPATH: "/Masters/FrmAccTaxConfigList",
       },
       {
-        MENUID: 123,
+        MENUID: 3,
         MENUTITLE: "MICR Code",
         PAGEPATH: "/Masters/FrmMicrCodeList",
       },
       {
-        MENUID: 124,
+        MENUID: 14,
         MENUTITLE: "Bill Schedule",
         PAGEPATH: "/Masters/FrmBillSheduleList",
       },

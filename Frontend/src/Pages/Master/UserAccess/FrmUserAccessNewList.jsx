@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Label from "../../../Components/Label";
@@ -10,13 +10,13 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmUserAccessNewList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
+  const deptId = user?.deptId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [ulbOptions, setUlbOptions] = useState([]);
   const [selectedUlb, setSelectedUlb] = useState("");
+  const [isUlbLocked, setIsUlbLocked] = useState(false);
   const [tableData, setTableData] = useState([]);
 
   const tableHeader = [
@@ -29,77 +29,56 @@ const FrmUserAccessNewList = () => {
     "OTP Enable",
   ];
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    const dummyUlbs = [
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ];
-    setUlbOptions(dummyUlbs);
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       setUlbOptions(
-    //         res.data.data.map((item) => ({
-    //           value: String(item.CORPORATIONID),
-    //           label: item.CORPORATIONNAME,
-    //         })),
-    //       );
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUlbDropdown();
   }, []);
 
-  // ---------- Load user list when ULB changes (DUMMY) ----------
+  useEffect(() => {
+    if (ulbid && ulbOptions.length > 0) {
+      const match = ulbOptions.find((o) => o.value === String(ulbid));
+      if (match) {
+        setSelectedUlb(match.value);
+        setIsUlbLocked(true);
+      }
+    }
+  }, [ulbid, ulbOptions]);
+
   const fetchUserList = async () => {
+    if (!selectedUlb || !deptId) {
+      setTableData([]);
+      return;
+    }
+
     try {
       setLoading(true);
+      const res = await apiService.get(
+        `/Master/getUserList?ulbid=${selectedUlb}&deptid=${deptId}`,
+      );
 
-      // 🔸 DUMMY — replace with apiService.post("getUserAccessList", { ulbId: Number(selectedUlb) })
-      const dummyData = [
-        {
-          USERID: 1001,
-          USERNAME: "Rahul Sharma",
-          DEPARTMENT: "Accounts",
-          DESIGNATION: "Clerk",
-          MOBILE: "9876543210",
-          OTP_ENABLE: "Y",
-        },
-        {
-          USERID: 1002,
-          USERNAME: "Priya Patil",
-          DEPARTMENT: "Health",
-          DESIGNATION: "Officer",
-          MOBILE: "9123456780",
-          OTP_ENABLE: "N",
-        },
-        {
-          USERID: 1003,
-          USERNAME: "Amit Deshmukh",
-          DEPARTMENT: "Water Supply",
-          DESIGNATION: "Supervisor",
-          MOBILE: "9988776655",
-          OTP_ENABLE: "Y",
-        },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
             key={item.USERID}
             state={{ userId: item.USERID }}
@@ -110,60 +89,28 @@ const FrmUserAccessNewList = () => {
           </Link>,
           item.USERNAME || "",
           item.USERID || "",
-          item.DEPARTMENT || "-",
-          item.DESIGNATION || "-",
-          item.MOBILE || "-",
-          item.OTP_ENABLE || "-",
+          item.DEPTNAME || "-",
+          item.DESIGNAME || "-",
+          item.MOBNO || "-",
+          item.OTPENABLED || "-",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("No Data Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("getUserAccessList", {
-      //   ulbId: Number(selectedUlb),
-      //   userId: String(userId),
-      // });
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.USERID}
-      //       state={{ userId: item.USERID }}
-      //       to={`/Masters/FrmUserAccessNewMaster`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.USERNAME || "",
-      //     item.USERID || "",
-      //     item.DEPARTMENT || "-",
-      //     item.DESIGNATION || "-",
-      //     item.MOBILE || "-",
-      //     item.OTP_ENABLE || "-",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
     } catch (error) {
+      console.error("Error fetching user list:", error);
       setTableData([]);
-      console.error("Error fetching user access list:", error);
-      alert("Failed to fetch user access list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!selectedUlb) {
-      setTableData([]);
-      return;
-    }
     fetchUserList();
-  }, [selectedUlb]);
+  }, [selectedUlb, deptId]);
 
   return (
     <Layout
@@ -179,8 +126,10 @@ const FrmUserAccessNewList = () => {
           <div>
             <Label text="ULB Name : " required />
             <select
-              className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
-                focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+              disabled={isUlbLocked}
+              className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-blue-500/40
+                ${isUlbLocked ? "bg-slate-100 cursor-not-allowed" : ""}`}
               value={selectedUlb}
               onChange={(e) => setSelectedUlb(e.target.value)}
             >
@@ -207,7 +156,9 @@ const FrmUserAccessNewList = () => {
         </div>
 
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>
