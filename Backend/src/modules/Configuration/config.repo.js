@@ -354,6 +354,221 @@ async function usageSubTypeConfigSubmitRepo(payload) {
     return result.outBinds || [];
 }
 
+// Billing Method Config
+
+async function getBillingMethodTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_billmethod_id billMethodId,
+            var_billmethod_name BillMethodName,
+            'N' previousStatus,
+            'N' currentStatus  
+        from aowt_billmethod_mas
+        left join aowt_billmethodconfig_mas on num_billmethodconfig_billmethid=num_billmethod_id
+        and num_billmethodconfig_ulbid= :ulbId
+        order by var_billmethodconfig_flag     
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getBillingMethodTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_billmethodconfig_id BillMethodConfigId,
+            num_billmethodconfig_billmethid BillMethodIdConfig,
+            num_billmethodconfig_ulbid
+        from aowt_billmethodconfig_mas 
+        where 1=1 and var_billmethodconfig_flag='Y'
+        and num_billmethodconfig_ulbid= :ulbId    
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function billingMethodConfigSubmitRepo(payload) {
+    const {
+        in_userid,
+        in_orgid,
+        in_billmethodstr,
+        in_mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+
+    let sql = `
+        BEGIN
+            water.aowt_billmethodconfig_ins(
+                :in_userid,
+                :in_orgid,
+                :in_billmethodstr,
+                :in_mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_userid,
+        in_orgid: Number(in_orgid),
+        in_billmethodstr,
+        in_mode: Number(in_mode),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Consumer Type Config
+
+async function getConsumerTypeTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_consumertype_id ConsTypeId,
+            var_consumertype_name ConsTypeName, 
+            'N' previousStatus,
+            'N' currentStatus 
+        from aowt_consumertype_mas
+        left join aowt_consumertypeconfig_mas on num_consumertypeconfig_contypeid=num_consumertype_id
+        and num_consumertypeconfig_ulbid= :ulbId
+        where 1=1  order by var_consumertypeconfig_flag  
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}   
+
+async function getConsumerTypeTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_consumertypeconfig_id ConsTypeConId,
+            num_consumertypeconfig_contypeid ConsTypeIdCon,
+            num_consumertypeconfig_ulbid
+        from aowt_consumertypeconfig_mas 
+        where 1=1 and var_consumertypeconfig_flag='Y'
+        and num_consumertypeconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+ 
+async function consumerTypeConfigDataSubmitRepo(payload) {
+    const {
+        in_userid,
+        in_orgid,
+        in_consumertypestr,
+        in_mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    console.log("Payload: ", payload);
+    let sql = `
+        BEGIN
+            water.aowt_consumertypeconfig_ins(
+                :in_userid,
+                :in_orgid,
+                :in_consumertypestr,
+                :in_mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_userid,
+        in_orgid: Number(in_orgid),
+        in_consumertypestr,
+        in_mode: Number(in_mode),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+
 module.exports = {
     getULBDropdownRepo,
     getPremiseTypeDataRepo,
@@ -365,5 +580,11 @@ module.exports = {
     getUsageTypeDropdownRepo,
     getUsageSubTypeTableDataRepo,
     getUsageSubTypeTableDataStatusRepo,
-    usageSubTypeConfigSubmitRepo
+    usageSubTypeConfigSubmitRepo,
+    getBillingMethodTableDataRepo,
+    getBillingMethodTableDataStatusRepo,
+    billingMethodConfigSubmitRepo,
+    getConsumerTypeTableDataRepo,
+    getConsumerTypeTableDataStatusRepo,
+    consumerTypeConfigDataSubmitRepo
 };

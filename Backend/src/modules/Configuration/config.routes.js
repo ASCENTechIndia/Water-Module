@@ -10,7 +10,13 @@ const {
     getUsageTypeDropdownController,
     getUsageSubTypeTableDataController,
     usageSubTypeConfigSubmitController,
-    getUsageSubTypeTableDataStatusController
+    getUsageSubTypeTableDataStatusController,
+    getBillingMethodTableDataController,
+    getBillingMethodTableDataStatusController,
+    billingMethodConfigSubmitController,
+    getConsumerTypeTableDataController,
+    getConsumerTypeTableDataStatusController,
+    consumerTypeConfigSubmitController
 } = require("./config.controller");
 
 const router = express.Router();
@@ -32,5 +38,15 @@ router.get("/getUsageTypeDropdown", getUsageTypeDropdownController);
 router.get("/getUsageSubTypeData", getUsageSubTypeTableDataController);
 router.get("/getUsageSubTypeDataStatus", getUsageSubTypeTableDataStatusController);
 router.post("/usage-sub-type", usageSubTypeConfigSubmitController);
+
+// Billing Method Config
+router.get("/getBillingMethodData", getBillingMethodTableDataController);
+router.get("/getBillingMethodDataStatus", getBillingMethodTableDataStatusController);
+router.post("/billing-method", billingMethodConfigSubmitController);
+
+// Consumer Type Configuration
+router.get("/getConsumerTypeData", getConsumerTypeTableDataController);
+router.get("/getConsumerTypeDataStatus", getConsumerTypeTableDataStatusController);
+router.post("/consumer-type", consumerTypeConfigSubmitController);
 
 module.exports = router;

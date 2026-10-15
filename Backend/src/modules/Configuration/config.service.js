@@ -9,7 +9,13 @@ const {
     getUsageTypeDropdownRepo,
     getUsageSubTypeTableDataRepo,
     usageSubTypeConfigSubmitRepo,
-    getUsageSubTypeTableDataStatusRepo
+    getUsageSubTypeTableDataStatusRepo,
+    getBillingMethodTableDataRepo,
+    getBillingMethodTableDataStatusRepo,
+    billingMethodConfigSubmitRepo,
+    getConsumerTypeTableDataRepo,
+    getConsumerTypeTableDataStatusRepo,
+    consumerTypeConfigDataSubmitRepo
 } = require("./config.repo");
 
 async function getULBDropdownService() {
@@ -62,6 +68,32 @@ async function usageSubTypeDataSubmitService(payload) {
     return usageSubTypeConfigSubmitRepo(payload);
 }
 
+// Billing Method Config
+
+async function getBillingMethodTableDataService(payload) {
+    return getBillingMethodTableDataRepo(payload);
+}
+
+async function getBillingMethodTableDataStatusService(payload) {
+    return getBillingMethodTableDataStatusRepo(payload);
+}
+
+async function billingMethodConfigSubmitService(payload) {
+    return billingMethodConfigSubmitRepo(payload);
+}
+
+async function getConsumerTypeTableDataService(payload) {
+    return getConsumerTypeTableDataRepo(payload);
+}
+
+async function getConsumerTypeTableDataStatusService(payload) {
+    return getConsumerTypeTableDataStatusRepo(payload);
+}
+
+async function consumerTypeConfigDataSubmitService(payload) {
+    return consumerTypeConfigDataSubmitRepo(payload);
+}
+
 
 module.exports = {
     getULBDropdownService,
@@ -74,5 +106,11 @@ module.exports = {
     getUsageTypeDropdownService,
     getUsageSubTypeTableDataService,
     getUsageSubTypeTableDataStatusService,
-    usageSubTypeDataSubmitService
+    usageSubTypeDataSubmitService,
+    getBillingMethodTableDataService,
+    getBillingMethodTableDataStatusService,
+    billingMethodConfigSubmitService,
+    getConsumerTypeTableDataService,
+    getConsumerTypeTableDataStatusService,
+    consumerTypeConfigDataSubmitService
 };

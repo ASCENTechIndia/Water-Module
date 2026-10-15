@@ -10,7 +10,13 @@ const {
     getUsageTypeDropdownService,
     getUsageSubTypeTableDataService,
     usageSubTypeDataSubmitService,
-    getUsageSubTypeTableDataStatusService
+    getUsageSubTypeTableDataStatusService,
+    getBillingMethodTableDataService,
+    getBillingMethodTableDataStatusService,
+    billingMethodConfigSubmitService,
+    getConsumerTypeTableDataService,
+    getConsumerTypeTableDataStatusService,
+    consumerTypeConfigDataSubmitService
 } = require("./config.service");
 
 async function getULBDropdownController(req, res, next) {
@@ -237,6 +243,128 @@ async function usageSubTypeConfigSubmitController(req, res, next) {
     }
 }
 
+// Billing Method Config
+
+async function getBillingMethodTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBillingMethodTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Method Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Method Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getBillingMethodTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBillingMethodTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Method Table Status Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Method Table Status Data fetch error");
+        return next(error);
+    }
+}
+
+async function billingMethodConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await billingMethodConfigSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Method Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Method Config Data submit error");
+        return next(error);
+    }
+}
+
+async function getConsumerTypeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConsumerTypeTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Consumer Type Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Consumer Type Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getConsumerTypeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConsumerTypeTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Consumer Type Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Consumer Type Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function consumerTypeConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await consumerTypeConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Consumer Type Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Consumer Type Config Data submit error");
+        return next(error);
+    }
+}
+
 module.exports = {
     getULBDropdownController,
     getPremiseTypeDataController,
@@ -249,4 +377,10 @@ module.exports = {
     getUsageSubTypeTableDataController,
     getUsageSubTypeTableDataStatusController,
     usageSubTypeConfigSubmitController,
+    getBillingMethodTableDataController,
+    getBillingMethodTableDataStatusController,
+    billingMethodConfigSubmitController,
+    getConsumerTypeTableDataController,
+    getConsumerTypeTableDataStatusController,
+    consumerTypeConfigSubmitController
 };
