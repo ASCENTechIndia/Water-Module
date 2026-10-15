@@ -225,7 +225,9 @@ const FrmPremiseTypeConfig = () => {
         try {
             setLoading(true);
 
-            if (!values.premiseTypeStr || values.premiseTypeStr.length === 0) {
+            const mode = existingStatusCheckList.length > 0 ? 2 : 1;
+
+            if (mode === 1 && (!values.premiseTypeStr || values.premiseTypeStr.length === 0)) {
                 alert("Please atleast one checkbox");
                 return;
             }
@@ -259,7 +261,7 @@ const FrmPremiseTypeConfig = () => {
                 in_UserId: userId,
                 in_ULBid: Number(values.ulbName),
                 in_PreTypeStr: premiseStr,
-                in_Mode: existingStatusCheckList.length > 0 ? 2 : 1,
+                in_Mode: mode,
                 in_ipaddress: ipAddress,
                 in_source: config.source
             };

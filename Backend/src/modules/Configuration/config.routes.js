@@ -3,7 +3,10 @@ const {
     getULBDropdownController,
     getPremiseTypeDataController,
     getPremiseTypeDataStatusController,
-    premiseTypeConfigSubmitController
+    premiseTypeConfigSubmitController,
+    getUsageTypeTableDataController,
+    getUsageTypeTableDataStatusController,
+    usageTypeConfigSubmitController
 } = require("./config.controller");
 
 const router = express.Router();
@@ -14,5 +17,10 @@ router.get("/getULBDropdown", getULBDropdownController);
 router.post("/getPremiseTypeData", getPremiseTypeDataController);
 router.post("/getPremiseTypeDataStatus", getPremiseTypeDataStatusController);
 router.post("/premise-type", premiseTypeConfigSubmitController);
+
+// Usage Type Config
+router.post("/getUsageTypeData", getUsageTypeTableDataController);
+router.post("/getUsageTypeDataStatus", getUsageTypeTableDataStatusController);
+router.post("/usage-type", usageTypeConfigSubmitController);
 
 module.exports = router;
