@@ -85,11 +85,8 @@ const FrmZoneMst = () => {
     const fetchWardDropdown = async () => {
       try {
         setLoading(true);
-        const res = await apiService.get(
-          `/master/getWardName?ulbid=${ulbid}`,
-        );
+        const res = await apiService.get(`/master/getWardName?ulbid=${ulbid}`);
 
-        console.log("res d :", res)
         if (res?.success && Array.isArray(res?.data)) {
           setWardOptions(
             res.data.map((item) => ({
@@ -186,7 +183,9 @@ const FrmZoneMst = () => {
         navigate("/Masters/FrmZoneList");
       } else {
         alert(
-          res?.data?.out_errormsg || res?.message || "Failed to Insert or update",
+          res?.data?.out_errormsg ||
+            res?.message ||
+            "Failed to Insert or update",
         );
       }
     } catch (err) {
