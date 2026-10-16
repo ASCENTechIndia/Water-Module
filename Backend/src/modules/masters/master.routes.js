@@ -22,6 +22,9 @@ const {
   getTaxDropdownController,
   rateInsController,
   getRateDetailsController,
+  getUlbTipListController,
+  ulbTipInsController,
+  getUlbTipDetailsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -30,6 +33,7 @@ const {
   blockInsSchema,
   bankInsSchema,
   rateInsSchema,
+  ulbTipInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -66,4 +70,9 @@ router.get("/getConnectionSize", getConnSizeDropdownController);
 router.get("/getTaxDropdown", getTaxDropdownController);
 router.get("/getRateDetails", getRateDetailsController);
 router.post("/aowt_rate_ins", validate(rateInsSchema), rateInsController);
+
+// ULB Tip master
+router.get("/getUlbTipList", getUlbTipListController);
+router.get("/getUlbTipDetails", getUlbTipDetailsController);
+router.post("/aowt_ulbtip_ins", validate(ulbTipInsSchema), ulbTipInsController);
 module.exports = router;

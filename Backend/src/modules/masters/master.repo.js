@@ -668,6 +668,112 @@ async function aowt_rate_ins(payload) {
   return result.outBinds;
 }
 
+async function getUlbTipList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select num_ulbtip_id,
+           num_ulbtip_ulbid,
+           var_ulbtip_tip,
+           var_ulbtip_slogan,
+           var_ulbtip_active,
+           var_ulbtip_insby,
+           dat_ulbtip_insdate,
+           var_ulbtip_updby,
+           dat_ulbtip_upddate
+      from aowt_ulbtip_det
+     where num_ulbtip_ulbid = :ulbId
+       and var_ulbtip_active = 'Y'
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getUlbTipDetails(payload) {
+  const { tipId } = payload;
+
+  if (!tipId) {
+    throw new Error("tipId is required");
+  }
+
+  const sql = `
+    select num_ulbtip_id,
+           num_ulbtip_ulbid,
+           var_ulbtip_tip,
+           var_ulbtip_slogan,
+           var_ulbtip_active,
+           var_ulbtip_insby,
+           dat_ulbtip_insdate,
+           var_ulbtip_updby,
+           dat_ulbtip_upddate,
+           var_ulbtip_type
+      from aowt_ulbtip_det
+     where var_ulbtip_active = 'Y'
+       and num_ulbtip_id = :tipId
+  `;
+
+  const binds = {
+    tipId: Number(tipId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_ulbtip_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_ulbtip_ins(
+        :in_userid,
+        :in_ulbid,
+        :in_ulbtipid,
+        :in_tip,
+        :in_slogan,
+        :in_status,
+        :in_ipaddress,
+        :in_source,
+        :in_mode,
+        :in_type,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_ulbid: Number(payload.in_ulbid),
+    in_ulbtipid:
+      payload.in_ulbtipid != null ? Number(payload.in_ulbtipid) : null,
+    in_tip: payload.in_tip,
+    in_slogan: payload.in_slogan,
+    in_status: payload.in_status,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_mode: Number(payload.in_mode),
+    in_type: payload.in_type,
+
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -691,4 +797,7 @@ module.exports = {
   getTaxDropdown,
   aowt_rate_ins,
   getRateDetails,
+  getUlbTipList,
+  aowt_ulbtip_ins,
+  getUlbTipDetails,
 };

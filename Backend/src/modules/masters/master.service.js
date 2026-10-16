@@ -21,6 +21,9 @@ const {
   getTaxDropdown,
   aowt_rate_ins,
   getRateDetails,
+  getUlbTipList,
+  aowt_ulbtip_ins,
+  getUlbTipDetails,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -111,6 +114,18 @@ async function rateInsService(payload) {
   return aowt_rate_ins(payload);
 }
 
+async function getUlbTipListService(payload) {
+  return getUlbTipList(payload);
+}
+
+async function getUlbTipDetailsService(payload) {
+  return getUlbTipDetails(payload);
+}
+
+async function ulbTipInsService(payload) {
+  return aowt_ulbtip_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -134,4 +149,7 @@ module.exports = {
   getTaxDropdownService,
   rateInsService,
   getRateDetailsService,
+  getUlbTipListService,
+  getUlbTipDetailsService,
+  ulbTipInsService,
 };

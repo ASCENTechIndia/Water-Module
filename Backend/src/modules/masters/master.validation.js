@@ -375,10 +375,90 @@ const rateInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const ulbTipInsSchema = z.object({
+  in_userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_ulbtipid: z
+    .number({
+      invalid_type_error: "Ulb Tip Id must be a number",
+    })
+    .int("Ulb Tip Id must be an integer")
+    .nullable(),
+
+  in_tip: z
+    .string({
+      required_error: "Tip is required",
+      invalid_type_error: "Tip must be a string",
+    })
+    .trim()
+    .min(1, "Tip is required"),
+
+  in_slogan: z
+    .string({
+      required_error: "Slogan is required",
+      invalid_type_error: "Slogan must be a string",
+    })
+    .trim()
+    .min(1, "Slogan is required"),
+
+  in_status: z
+    .string({
+      required_error: "Status is required",
+      invalid_type_error: "Status must be a string",
+    })
+    .trim()
+    .min(1, "Status is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_type: z
+    .string({
+      required_error: "Type is required",
+      invalid_type_error: "Type must be a string",
+    })
+    .trim()
+    .min(1, "Type is required"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
   blockInsSchema,
   bankInsSchema,
   rateInsSchema,
+  ulbTipInsSchema,
 };

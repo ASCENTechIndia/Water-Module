@@ -21,6 +21,9 @@ const {
   getTaxDropdownService,
   rateInsService,
   getRateDetailsService,
+  getUlbTipListService,
+  ulbTipInsService,
+  getUlbTipDetailsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -564,6 +567,87 @@ async function rateInsController(req, res, next) {
   }
 }
 
+async function getUlbTipListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUlbTipListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Ulb tip list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ulb tip list error");
+    return next(err);
+  }
+}
+
+async function getUlbTipDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUlbTipDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Ulb tip details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ulb tip details error");
+    return next(err);
+  }
+}
+
+async function ulbTipInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await ulbTipInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { tipId: payload.in_ulbtipid },
+        out.out_errormsg || "Ulb tip saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormsg, "Ulb tip insert failed");
+    }
+
+    auditLog({
+      action: payload.in_mode === 2 ? "ULBTIP_UPDATE" : "ULBTIP_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "ulbtip",
+      entityId: payload.in_ulbtipid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ulb tip insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -587,4 +671,7 @@ module.exports = {
   getTaxDropdownController,
   getRateDetailsController,
   rateInsController,
+  getUlbTipListController,
+  getUlbTipDetailsController,
+  ulbTipInsController,
 };
