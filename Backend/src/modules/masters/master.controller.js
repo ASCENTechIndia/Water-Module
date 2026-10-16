@@ -4,6 +4,23 @@ const {
   getUserListService,
   getWardListService,
   wardInsService,
+  getZoneListService,
+  getZoneDetailsService,
+  zoneInsService,
+  getWardDropdownByUlbService,
+  getBlockListService,
+  getZoneDropdownByWardService,
+  blockInsService,
+  getBankListService,
+  bankInsService,
+  getRateListService,
+  getUsageTypeDropdownService,
+  getUsageSubTypeDropdownService,
+  getConnTypeDropdownService,
+  getConnSizeDropdownService,
+  getTaxDropdownService,
+  rateInsService,
+  getRateDetailsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -129,10 +146,445 @@ async function wardInsController(req, res, next) {
   }
 }
 
+async function getZoneListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getZoneListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Zone list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone list error");
+    return next(err);
+  }
+}
+
+async function getZoneDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getZoneDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Zone details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone details error");
+    return next(err);
+  }
+}
+
+async function getWardDropdownByUlbController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getWardDropdownByUlbService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Ward dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ward dropdown error");
+    return next(err);
+  }
+}
+
+async function zoneInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await zoneInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { zoneId: payload.in_zoneid },
+        out.out_errormsg || "Zone saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormsg, "Zone insert failed");
+    }
+
+    auditLog({
+      action: payload.in_mode === 2 ? "ZONE_UPDATE" : "ZONE_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "zone",
+      entityId: payload.in_zoneid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone insert error");
+    return next(err);
+  }
+}
+
+async function getBlockListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getBlockListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Block list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Block list error");
+    return next(err);
+  }
+}
+
+async function getZoneDropdownByWardController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getZoneDropdownByWardService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Zone dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone dropdown error");
+    return next(err);
+  }
+}
+
+async function blockInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await blockInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { blockId: payload.in_blockid },
+        out.out_errormsg || "Block saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormsg, "Block insert failed");
+    }
+
+    auditLog({
+      action: payload.in_mode === 2 ? "BLOCK_UPDATE" : "BLOCK_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "block",
+      entityId: payload.in_blockid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Block insert error");
+    return next(err);
+  }
+}
+
+async function getBankListController(req, res, next) {
+  try {
+    const rows = await getBankListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Bank list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bank list error");
+    return next(err);
+  }
+}
+
+async function bankInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await bankInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { bankId: payload.in_bankid },
+        out.Out_ErrorMsg || "Bank saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Bank insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "BANK_UPDATE" : "BANK_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "bank",
+      entityId: payload.in_bankid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bank insert error");
+    return next(err);
+  }
+}
+
+async function getRateListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getRateListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Rate list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Rate list error");
+    return next(err);
+  }
+}
+
+async function getUsageTypeDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUsageTypeDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage type dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage type dropdown error");
+    return next(err);
+  }
+}
+
+async function getUsageSubTypeDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUsageSubTypeDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage sub type dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage sub type dropdown error");
+    return next(err);
+  }
+}
+
+async function getConnTypeDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getConnTypeDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection type dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection type dropdown error");
+    return next(err);
+  }
+}
+
+async function getConnSizeDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getConnSizeDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection size dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection size dropdown error");
+    return next(err);
+  }
+}
+
+async function getTaxDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getTaxDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Tax dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Tax dropdown error");
+    return next(err);
+  }
+}
+
+async function getRateDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getRateDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Rate details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Rate details error");
+    return next(err);
+  }
+}
+
+async function rateInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await rateInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { ulbId: payload.in_ulbid },
+        out.Out_ErrorMsg || "Rate saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Rate insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "RATE_UPDATE" : "RATE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "rate",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Rate insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
   getUserListController,
   getWardListController,
   wardInsController,
+  getZoneListController,
+  getZoneDetailsController,
+  getWardDropdownByUlbController,
+  zoneInsController,
+  getBlockListController,
+  getZoneDropdownByWardController,
+  blockInsController,
+  getBankListController,
+  bankInsController,
+  getRateListController,
+  getUsageTypeDropdownController,
+  getUsageSubTypeDropdownController,
+  getConnTypeDropdownController,
+  getConnSizeDropdownController,
+  getTaxDropdownController,
+  getRateDetailsController,
+  rateInsController,
 };

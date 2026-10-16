@@ -10,9 +10,30 @@ import apiService from "../../../../apiService.js";
 import GetIPAddress from "../../../utils/ipHelper.jsx";
 import config from "../../../utils/config.jsx";
 
-// Local-date today (YYYY-MM-DD)
 const todayISO = () => {
   const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const toDateInput = (dateStr) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "";
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const addOneYearMinusOneDay = (dateStr) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "";
+  d.setFullYear(d.getFullYear() + 1);
+  d.setDate(d.getDate() - 1);
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
@@ -30,12 +51,12 @@ const FrmRateMst = () => {
   const rateId = state?.rateId;
   const isEdit = !!rateId;
 
-  // ---------- Dropdown state ----------
   const [usageTypeOptions, setUsageTypeOptions] = useState([]);
   const [usageSubTypeOptions, setUsageSubTypeOptions] = useState([]);
   const [connectionTypeOptions, setConnectionTypeOptions] = useState([]);
   const [connectionSizeOptions, setConnectionSizeOptions] = useState([]);
   const [taxOptions, setTaxOptions] = useState([]);
+  const [rateDetail, setRateDetail] = useState(null);
 
   const {
     register,
@@ -53,6 +74,7 @@ const FrmRateMst = () => {
       connectionSize: "",
       effectiveFrom: todayISO(),
       tax: "",
+      valueType: "F",
       tableFields: [{ from: "", to: "", rate: "", minimumAmt: "" }],
     },
   });
@@ -62,184 +84,187 @@ const FrmRateMst = () => {
   const watchUsageType = watch("usageType");
   const watchTableFields = watch("tableFields");
 
-  // ---------- Load all dropdowns (DUMMY) ----------
+  // Load all dropdowns
   useEffect(() => {
-    // 🔸 DUMMY DATA — replace with real APIs later
-    setUsageTypeOptions([
-      { value: "1", label: "Residential" },
-      { value: "2", label: "Commercial" },
-      { value: "3", label: "Industrial" },
-    ]);
+    if (!ulbid) return;
 
-    setConnectionTypeOptions([
-      { value: "1", label: "Metered" },
-      { value: "2", label: "Non-Metered" },
-    ]);
+    const fetchAllDropdowns = async () => {
+      try {
+        setLoading(true);
+        const results = await Promise.allSettled([
+          apiService.get(`/master/getUsageTypeDropdown?ulbId=${ulbid}`),
+          apiService.get(`/master/getConnectionTypeDropdown?ulbId=${ulbid}`),
+          apiService.get(`/master/getConnectionSize?ulbId=${ulbid}`),
+          apiService.get(`/master/getTaxDropdown?ulbId=${ulbid}`),
+        ]);
 
-    setConnectionSizeOptions([
-      { value: "1", label: "15mm" },
-      { value: "2", label: "20mm" },
-      { value: "3", label: "25mm" },
-      { value: "4", label: "40mm" },
-    ]);
+        const [utRes, ctRes, csRes, taxRes] = results;
 
-    setTaxOptions([
-      { value: "1", label: "5%" },
-      { value: "2", label: "12%" },
-      { value: "3", label: "18%" },
-      { value: "4", label: "0%" },
-    ]);
+        if (utRes.status === "fulfilled" && utRes.value?.success) {
+          setUsageTypeOptions(
+            utRes.value.data.map((item) => ({
+              value: String(item.USAGETYPEID),
+              label: item.USAGETYPENAME,
+            })),
+          );
+        }
 
-    // 🔸 REAL API — uncomment when ready
-    // const loadAll = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const [ut, ct, cs, tax] = await Promise.all([
-    //       apiService.get("getUsageTypeDropdown"),
-    //       apiService.get("getConnectionTypeDropdown"),
-    //       apiService.get("getConnectionSizeDropdown"),
-    //       apiService.get("getTaxDropdown"),
-    //     ]);
-    //     const map = (res, k, l) =>
-    //       res?.data?.success
-    //         ? res.data.data.map((i) => ({ value: String(i[k]), label: i[l] }))
-    //         : [];
-    //     setUsageTypeOptions(map(ut, "ID", "NAME"));
-    //     setConnectionTypeOptions(map(ct, "ID", "NAME"));
-    //     setConnectionSizeOptions(map(cs, "ID", "NAME"));
-    //     setTaxOptions(map(tax, "ID", "NAME"));
-    //   } catch (err) {
-    //     console.error("Dropdown load error:", err);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // loadAll();
-  }, []);
+        if (ctRes.status === "fulfilled" && ctRes.value?.success) {
+          setConnectionTypeOptions(
+            ctRes.value.data.map((item) => ({
+              value: String(item.CONNTYPEID),
+              label: item.CONNTYPE,
+            })),
+          );
+        }
 
-  // ---------- Load Usage Sub-Type when Usage Type changes (DUMMY) ----------
+        if (csRes.status === "fulfilled" && csRes.value?.success) {
+          setConnectionSizeOptions(
+            csRes.value.data.map((item) => ({
+              value: String(item.CONNSIZEID),
+              label: item.CONNSIZENAME,
+            })),
+          );
+        }
+
+        if (taxRes.status === "fulfilled" && taxRes.value?.success) {
+          setTaxOptions(
+            taxRes.value.data.map((item) => ({
+              value: String(item.NUM_TAX_ID),
+              label: item.VAR_TAX_ENAME,
+            })),
+          );
+        }
+      } catch (err) {
+        console.error("Dropdown load error:", err);
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllDropdowns();
+  }, [ulbid]);
+
+  // Usage Sub Type dropdown
   useEffect(() => {
     setUsageSubTypeOptions([]);
     setValue("usageSubType", "");
 
-    if (!watchUsageType) return;
+    if (!watchUsageType || !ulbid) return;
 
-    // 🔸 DUMMY — keyed by usage type
-    const dummySubTypes = {
-      1: [
-        { value: "1", label: "Domestic" },
-        { value: "2", label: "Slum" },
-      ],
-      2: [
-        { value: "3", label: "Shop" },
-        { value: "4", label: "Hotel" },
-      ],
-      3: [{ value: "5", label: "Factory" }],
+    const fetchUsageSubTypes = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getUsageSubTypeDropdown?ulbId=${ulbid}&usageTypeId=${watchUsageType}`,
+        );
+        if (res?.success && Array.isArray(res.data)) {
+          setUsageSubTypeOptions(
+            res.data.map((item) => ({
+              value: String(item.USAGESUBTYPEID),
+              label: item.USAGESUBTYPENAME,
+            })),
+          );
+        } else {
+          setUsageSubTypeOptions([]);
+        }
+      } catch (err) {
+        console.error("Usage sub type dropdown error:", err);
+        alert(err.message);
+        setUsageSubTypeOptions([]);
+      } finally {
+        setLoading(false);
+      }
     };
-    setUsageSubTypeOptions(dummySubTypes[watchUsageType] || []);
+    fetchUsageSubTypes();
+  }, [watchUsageType, ulbid, setValue]);
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchSubTypes = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getUsageSubTypeDropdown", {
-    //       usageTypeId: Number(watchUsageType),
-    //     });
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       setUsageSubTypeOptions(
-    //         res.data.data.map((item) => ({
-    //           value: String(item.ID),
-    //           label: item.NAME,
-    //         })),
-    //       );
-    //     } else {
-    //       setUsageSubTypeOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("Usage Sub Type dropdown error:", err);
-    //     setUsageSubTypeOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchSubTypes();
-  }, [watchUsageType, setValue]);
-
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Rate details
   useEffect(() => {
     if (!rateId) return;
 
-    // 🔸 DUMMY — replace with apiService.post("getRateDetail", { rateId: Number(rateId) })
-    const dummyDetail = {
-      NUM_RATE_ID: rateId,
-      NUM_USAGE_TYPE: "1",
-      NUM_USAGE_SUBTYPE: "1",
-      NUM_CONNECTION_TYPE: "1",
-      NUM_CONNECTION_SIZE: "1",
-      DATE_EFFECTIVE_FROM: "2024-04-01",
-      NUM_TAX: "1",
-      NUM_FROM: "0",
-      NUM_TO: "10",
-      NUM_RATE: "12.50",
-      NUM_MINIMUM_AMT: "100",
+    const fetchRateDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getRateDetails?rateId=${rateId}`,
+        );
+        if (res?.success && res?.data?.length > 0) {
+          setRateDetail(res.data[0]);
+        } else {
+          alert("Data Not Found");
+        }
+      } catch (err) {
+        console.error("Rate details error:", err);
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchRateDetails();
+  }, [rateId]);
 
-    reset({
-      usageType: String(dummyDetail.NUM_USAGE_TYPE || ""),
-      usageSubType: String(dummyDetail.NUM_USAGE_SUBTYPE || ""),
-      connectionType: String(dummyDetail.NUM_CONNECTION_TYPE || ""),
-      connectionSize: String(dummyDetail.NUM_CONNECTION_SIZE || ""),
-      effectiveFrom: dummyDetail.DATE_EFFECTIVE_FROM || todayISO(),
-      tax: String(dummyDetail.NUM_TAX || ""),
-      tableFields: [
-        {
-          from: String(dummyDetail.NUM_FROM || ""),
-          to: String(dummyDetail.NUM_TO || ""),
-          rate: String(dummyDetail.NUM_RATE || ""),
-          minimumAmt: String(dummyDetail.NUM_MINIMUM_AMT || ""),
-        },
-      ],
-    });
+  // Prefill fields
+  useEffect(() => {
+    if (!rateDetail) return;
+    setValue("effectiveFrom", toDateInput(rateDetail.DAT_RATE_FRMDT));
+    setValue("valueType", rateDetail.VAR_RATE_VALUETYPE || "F");
+    setValue("tableFields", [
+      {
+        from: String(rateDetail.NUM_RATE_FRMVALUE ?? ""),
+        to: String(rateDetail.NUM_RATE_TOVALUE ?? ""),
+        rate: String(rateDetail.NUM_RATE_RATEAMT ?? ""),
+        minimumAmt: String(rateDetail.NUM_RATE_MINAMT ?? ""),
+      },
+    ]);
+  }, [rateDetail, setValue]);
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getRateDetail", {
-    //       rateId: Number(rateId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         usageType: String(d.NUM_USAGE_TYPE || ""),
-    //         usageSubType: String(d.NUM_USAGE_SUBTYPE || ""),
-    //         connectionType: String(d.NUM_CONNECTION_TYPE || ""),
-    //         connectionSize: String(d.NUM_CONNECTION_SIZE || ""),
-    //         effectiveFrom: d.DATE_EFFECTIVE_FROM || todayISO(),
-    //         tax: String(d.NUM_TAX || ""),
-    //         tableFields: [
-    //           {
-    //             from: String(d.NUM_FROM || ""),
-    //             to: String(d.NUM_TO || ""),
-    //             rate: String(d.NUM_RATE || ""),
-    //             minimumAmt: String(d.NUM_MINIMUM_AMT || ""),
-    //           },
-    //         ],
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Rate detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Rate detail error:", err);
-    //     alert("Failed to fetch rate detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [rateId, reset]);
+  // Prefill Usage Type
+  useEffect(() => {
+    if (!rateDetail || usageTypeOptions.length === 0) return;
+    const id = String(rateDetail.NUM_RATE_USAGEID || "");
+    if (usageTypeOptions.some((o) => o.value === id)) {
+      setValue("usageType", id);
+    }
+  }, [rateDetail, usageTypeOptions, setValue]);
 
-  // ---------- Submit ----------
+  // Prefill Usage Sub Type
+  useEffect(() => {
+    if (!rateDetail || usageSubTypeOptions.length === 0) return;
+    const id = String(rateDetail.NUM_RATE_USAGESUBID || "");
+    if (usageSubTypeOptions.some((o) => o.value === id)) {
+      setValue("usageSubType", id);
+    }
+  }, [rateDetail, usageSubTypeOptions, setValue]);
+
+  // Prefill Connection Type
+  useEffect(() => {
+    if (!rateDetail || connectionTypeOptions.length === 0) return;
+    const id = String(rateDetail.NUM_RATE_CONNTYPEID || "");
+    if (connectionTypeOptions.some((o) => o.value === id)) {
+      setValue("connectionType", id);
+    }
+  }, [rateDetail, connectionTypeOptions, setValue]);
+
+  // Prefill Connection Size
+  useEffect(() => {
+    if (!rateDetail || connectionSizeOptions.length === 0) return;
+    const id = String(rateDetail.NUM_RATE_CONNSIZEID || "");
+    if (connectionSizeOptions.some((o) => o.value === id)) {
+      setValue("connectionSize", id);
+    }
+  }, [rateDetail, connectionSizeOptions, setValue]);
+
+  // Prefill Tax
+  useEffect(() => {
+    if (!rateDetail || taxOptions.length === 0) return;
+    const id = String(rateDetail.NUM_RATE_TAXID || "");
+    if (taxOptions.some((o) => o.value === id)) {
+      setValue("tax", id);
+    }
+  }, [rateDetail, taxOptions, setValue]);
+
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -252,51 +277,45 @@ const FrmRateMst = () => {
 
       const row = data.tableFields?.[0] || {};
 
+      const rateStr = `${row.from}#${row.to}#${row.rate}#${row.minimumAmt}`;
+
       const payload = {
         in_UserId: userId,
+        in_UsageTypeId: Number(data.usageType),
+        in_UsageSubTypeId: Number(data.usageSubType),
+        in_conntypeid: Number(data.connectionType),
+        in_connsizeid: Number(data.connectionSize),
+        in_valuetype: data.valueType,
+        in_frmdt: data.effectiveFrom,
+        in_todt: addOneYearMinusOneDay(data.effectiveFrom),
+        in_ulbid: Number(ulbid),
+        in_Rate_Str: rateStr,
         in_Mode: isEdit ? 2 : 1,
-        in_RateId: isEdit ? Number(rateId) : null,
-        in_UlbId: Number(ulbid),
-        in_UsageType: Number(data.usageType),
-        in_UsageSubType: Number(data.usageSubType),
-        in_ConnectionType: Number(data.connectionType),
-        in_ConnectionSize: Number(data.connectionSize),
-        in_EffectiveFrom: data.effectiveFrom,
-        in_Tax: Number(data.tax),
-        in_From: Number(row.from),
-        in_To: Number(row.to),
-        in_Rate: Number(row.rate),
-        in_MinimumAmt: Number(row.minimumAmt),
-        in_ipaddress: ip,
+        in_TaxId: Number(data.tax),
+        in_ipaddr: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Rate payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmRateList");
+      const res = await apiService.post("/master/aowt_rate_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_rate_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmRateList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save rate",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving rate:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Rate saved successfully");
+        navigate("/Masters/FrmRateList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving rate:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------- Input sanitizers ----------
   const allowOnlyDigits = (e) => {
     e.target.value = e.target.value.replace(/\D/g, "");
   };
@@ -317,9 +336,8 @@ const FrmRateMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* ---------- 6 Form Fields (2 per row) ---------- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Usage Type */}
+          {/* Usage Type */}
           <div>
             <Label text="Usage Type : " required />
             <select
@@ -344,7 +362,7 @@ const FrmRateMst = () => {
             )}
           </div>
 
-          {/* 2. Usage Sub-Type */}
+          {/* Usage Sub Type */}
           <div>
             <Label text="Usage Sub-Type : " required />
             <select
@@ -375,7 +393,7 @@ const FrmRateMst = () => {
             )}
           </div>
 
-          {/* 3. Connection Type */}
+          {/* Connection Type */}
           <div>
             <Label text="Connection Type : " required />
             <select
@@ -400,7 +418,7 @@ const FrmRateMst = () => {
             )}
           </div>
 
-          {/* 4. Connection Size */}
+          {/* Connection Size */}
           <div>
             <Label text="Connection Size : " required />
             <select
@@ -425,7 +443,7 @@ const FrmRateMst = () => {
             )}
           </div>
 
-          {/* 5. Effective From */}
+          {/* Effective From */}
           <div>
             <Label text="Effective From : " required />
             <input
@@ -444,7 +462,7 @@ const FrmRateMst = () => {
             )}
           </div>
 
-          {/* 6. Tax */}
+          {/* Tax */}
           <div>
             <Label text="Tax : " required />
             <select
@@ -464,9 +482,43 @@ const FrmRateMst = () => {
               <p className="text-sm text-red-500 mt-1">{errors.tax.message}</p>
             )}
           </div>
+
+          {/* Value Type */}
+          <div>
+            <Label text="Value Type : " required />
+            <div className="flex flex-wrap items-center gap-6 mt-2">
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                <input
+                  type="radio"
+                  value="F"
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                  {...register("valueType", {
+                    required: "Value Type is required",
+                  })}
+                />
+                <span>Fixed</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+                <input
+                  type="radio"
+                  value="S"
+                  className="w-4 h-4 accent-blue-600 cursor-pointer"
+                  {...register("valueType", {
+                    required: "Value Type is required",
+                  })}
+                />
+                <span>Slab</span>
+              </label>
+            </div>
+            {errors.valueType && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.valueType.message}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* ---------- Slab Table (single row) ---------- */}
+        {/* Slab Table */}
         <div className="mt-3">
           <div className="rounded-xl border border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
@@ -486,7 +538,6 @@ const FrmRateMst = () => {
                 <tbody>
                   {fields.map((field, index) => (
                     <tr key={field.id} className="border-b border-slate-100">
-                      {/* From */}
                       <td className="px-3 py-2 align-top">
                         <input
                           type="text"
@@ -509,7 +560,6 @@ const FrmRateMst = () => {
                         )}
                       </td>
 
-                      {/* To */}
                       <td className="px-3 py-2 align-top">
                         <input
                           type="text"
@@ -542,7 +592,6 @@ const FrmRateMst = () => {
                         )}
                       </td>
 
-                      {/* Rate */}
                       <td className="px-3 py-2 align-top">
                         <input
                           type="text"
@@ -565,7 +614,6 @@ const FrmRateMst = () => {
                         )}
                       </td>
 
-                      {/* Minimum Amount */}
                       <td className="px-3 py-2 align-top">
                         <input
                           type="text"
@@ -595,7 +643,6 @@ const FrmRateMst = () => {
           </div>
         </div>
 
-        {/* ---------- Buttons ---------- */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}
