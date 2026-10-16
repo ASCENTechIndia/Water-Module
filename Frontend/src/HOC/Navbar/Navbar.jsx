@@ -245,7 +245,7 @@ const STATIC_MENU = [
       {
         MENUID: 212,
         MENUTITLE: "Meter Gap Code Configuration",
-        PAGEPATH: "/Masters/FrmConnStatusConfig",
+        PAGEPATH: "/Masters/FrmMeterGapCodeConfig",
       },
       {
         MENUID: 213,

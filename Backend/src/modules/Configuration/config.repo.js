@@ -494,7 +494,7 @@ async function getConsumerTypeTableDataRepo(payload) {
     const result = await executeQuery(sql, binds);
 
     return result.rows || [];
-}   
+}
 
 async function getConsumerTypeTableDataStatusRepo(payload) {
     const {
@@ -526,7 +526,7 @@ async function getConsumerTypeTableDataStatusRepo(payload) {
 
     return result.rows || [];
 }
- 
+
 async function consumerTypeConfigDataSubmitRepo(payload) {
     const {
         in_userid,
@@ -536,7 +536,7 @@ async function consumerTypeConfigDataSubmitRepo(payload) {
         in_ipaddress,
         in_source,
     } = payload;
-    console.log("Payload: ", payload);
+
     let sql = `
         BEGIN
             water.aowt_consumertypeconfig_ins(
@@ -568,6 +568,851 @@ async function consumerTypeConfigDataSubmitRepo(payload) {
     return result.outBinds || [];
 }
 
+// Conn Code Config
+
+async function getConnCodeTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_conncode_id ConnCodeId,
+            var_conncode_name ConnCodeName, 
+            'N' previousStatus,
+            'N' currentStatus 
+        from aowt_ConnCode_mas
+        left join aowt_ConnCodeconfig_mas on num_conncodeconfig_conncodeid=num_conncode_id
+        and num_conncodeconfig_ulbid=:ulbId
+        order by var_conncodeconfig_flag
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getConnCodeTableeDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_conncodeconfig_id ConnCodeConfId,
+            num_conncodeconfig_conncodeid ConnCodeIdConf,
+            num_conncodeconfig_ulbid
+        from aowt_ConnCodeconfig_mas 
+        where 1=1 and var_conncodeconfig_flag='Y'
+        and num_conncodeconfig_ulbid= :ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function connCodeConfigDataSubmitRepo(payload) {
+    const {
+        in_userid,
+        in_orgid,
+        in_ConnCodestr,
+        in_mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_ConnCodeconfig_ins(
+                :in_userid,
+                :in_orgid,
+                :in_ConnCodestr,
+                :in_mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_userid,
+        in_orgid: Number(in_orgid),
+        in_ConnCodestr,
+        in_mode: Number(in_mode),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Meter Owner Configuration
+
+async function getMeterOwnerTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_meterowner_id MeterOwnerId,
+            var_meterowner_name MeterOwnerName, 
+            'N' previousStatus,
+            'N' currentStatus 
+        from aowt_meterOwner_mas
+        left join aowt_meterOwnerconfig_mas on num_meterownerconfig_meterownerid=num_meterowner_id 
+        and num_meterownerconfig_ulbid= :ulbId
+        where 1=1  order by var_meterownerconfig_flag
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getMeterOwnerTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_meterownerconfig_id MeterOwnerConfId,
+            num_meterownerconfig_meterownerid MeterOwnerIdConf,
+            num_meterownerconfig_ulbid
+        from aowt_meterOwnerconfig_mas 
+        where 1=1 and var_meterownerconfig_flag='Y'
+        and num_meterownerconfig_ulbid= :ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function meterOwnerConfigDataSubmitRepo(payload) {
+    const {
+        in_userid,
+        in_orgid,
+        in_MeterOwnerstr,
+        in_mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_MeterOwnerconfig_ins(
+                :in_userid,
+                :in_orgid,
+                :in_MeterOwnerstr,
+                :in_mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_userid,
+        in_orgid: Number(in_orgid),
+        in_MeterOwnerstr,
+        in_mode: Number(in_mode),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Bank Config
+
+async function getBankTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_bank_id,
+            var_bank_name 
+        from aowt_bank_mas
+        left join aowt_bank_config c on num_bank_bankid = num_bank_id and c.num_bank_ulbid = :ulbId
+        where 1=1 
+        order by var_bank_flag
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getBankTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_bank_bankid confibank_id,
+            var_bank_name  
+        from aowt_bank_mas
+        inner join  aowt_bank_config cbm  on cbm.num_bank_bankid = num_bank_id
+        where cbm.var_bank_flag = 'Y' and cbm.num_bank_ulbid = :ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function bankConfigDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ulbid,
+        in_bankStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_bankConfigMas_ins(
+                :in_UserId,
+                :in_ulbid,
+                :in_bankStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ulbid: Number(in_ulbid),
+        in_bankStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Billing Frequency 
+
+async function getBillingFrequencyTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select distinct 
+            (num_billfreq_id) billfreqid,
+            var_billfreq_name ,
+            'N' previousStatus,
+            'N' currentStatus   
+        from aowt_billfreq_mas
+        left join aowt_billfreqconfig_mas on num_billfreqconfig_billfreqid=num_billfreq_id
+        and num_billfreqconfig_ulbid= :ulbId
+        where 1=1  
+        order by billfreqid
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getBillingFrequencyTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_billfreqconfig_id, 
+            num_billfreqconfig_billfreqid billfreqidconfig, 
+            num_billfreqconfig_ulbid 
+        from aowt_billfreqconfig_mas  
+        where var_billfreqconfig_flag='Y' 
+        and num_billfreqconfig_ulbid= :ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function billingFrequencyDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ULBid,
+        in_billfrequencyStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_billfrequencyconfig_ins(
+                :in_UserId,
+                :in_ULBid,
+                :in_billfrequencyStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ULBid: Number(in_ULBid),
+        in_billfrequencyStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Connection Size Config
+
+async function getConnectionSizeTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select distinct 
+            (num_connsize_id) connsizeid,var_connsize_name ,
+            'N' previousStatus,
+            'N' currentStatus , 
+            var_connsize_activeflag 
+        from aowt_connsize_mas
+        left join aowt_connsizeconfig_mas on num_connsizeconfig_connsizeid=num_connsize_id
+        and num_connsizeconfig_ulbid=:ulbId
+        where 1=1  order by connsizeid
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getConnectionSizeTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_connsizeconfig_id, 
+            num_connsizeconfig_connsizeid connsizeidconfig, 
+            num_connsizeconfig_ulbid 
+        from aowt_connsizeconfig_mas  
+        where var_connsizeconfig_flag='Y'
+        and num_connsizeconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function connectionSizeDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ULBid,
+        in_ConnSizeStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_connsizeconfig_ins(
+                :in_UserId,
+                :in_ULBid,
+                :in_ConnSizeStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ULBid: Number(in_ULBid),
+        in_ConnSizeStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Connection Status Config
+
+async function getConnectionStatusTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+         select distinct
+            (num_connstatus_id) connstatusid,
+            var_connstatus_name,
+            'N' previousStatus,
+            'N' currentStatus   
+        from aowt_connstatus_mas
+        left join aowt_connstatusconfig_mas on num_connstatusconfig_connstatusid = num_connstatus_id
+        and num_connstatusconfig_ulbid=:ulbId
+        order by connstatusid
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getConnectionStatusTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_connstatusconfig_id,
+            num_connstatusconfig_connstatusid connstatusidConfig,
+            num_connstatusconfig_ulbid 
+            from aowt_connstatusconfig_mas  
+        where var_connstatusconfig_flag='Y'
+        and num_connstatusconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function connectionStatusDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ULBid,
+        in_ConnStatusStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_connstatusconfig_ins(
+                :in_UserId,
+                :in_ULBid,
+                :in_ConnStatusStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ULBid: Number(in_ULBid),
+        in_ConnStatusStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Meter Gap Code Config
+
+async function getMeterGapCodeTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+         select distinct 
+            (num_gapcode_id) gapcodeid,
+            var_gapcode_name ,
+            'N' previousStatus,
+            'N' currentStatus   
+        from aowt_gapcode_mas
+        left join aowt_gapcodeconfig_mas on num_gapcodeconfig_gapid=num_gapcode_id
+        and num_gapcodeconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getMeterGapCodeTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_gapcodeconfig_id,
+            num_gapcodeconfig_gapid gapcodeidconfig,
+            num_gapcodeconfig_ulbid 
+        from aowt_gapcodeconfig_mas  
+        where var_gapcodeconfig_flag='Y'
+        and num_gapcodeconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function meterGapCodeDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ULBid,
+        in_gapCodeStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_gapcodeconfig_ins(
+                :in_UserId,
+                :in_ULBid,
+                :in_gapCodeStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ULBid: Number(in_ULBid),
+        in_gapCodeStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Tax Config
+
+async function getTaxConfigTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select distinct
+            (num_tax_id) taxid,
+            var_tax_ename,
+            var_tax_code,
+            'N' previousStatus,
+            'N' currentStatus   
+        from aowt_tax_mas
+        left join aowt_taxconfig_mas on num_taxconfig_taxid = num_tax_id
+        and num_taxconfig_ulbid=:ulbId
+        order by taxid
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getTaxConfigTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_taxconfig_id,
+            num_taxconfig_taxid taxconfigid,
+            num_taxconfig_ulbid 
+        from aowt_taxconfig_mas  
+        where var_taxconfig_flag='Y'
+        and num_taxconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function taxConfigDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ULBid,
+        in_TaxStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_Taxconfig_ins(
+                :in_UserId,
+                :in_ULBid,
+                :in_TaxStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ULBid: Number(in_ULBid),
+        in_TaxStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
 
 module.exports = {
     getULBDropdownRepo,
@@ -586,5 +1431,29 @@ module.exports = {
     billingMethodConfigSubmitRepo,
     getConsumerTypeTableDataRepo,
     getConsumerTypeTableDataStatusRepo,
-    consumerTypeConfigDataSubmitRepo
+    consumerTypeConfigDataSubmitRepo,
+    getConnCodeTableDataRepo,
+    getConnCodeTableeDataStatusRepo,
+    connCodeConfigDataSubmitRepo,
+    getMeterOwnerTableDataRepo,
+    getMeterOwnerTableDataStatusRepo,
+    meterOwnerConfigDataSubmitRepo,
+    getBankTableDataRepo,
+    getBankTableDataStatusRepo,
+    bankConfigDataSubmitRepo,
+    getBillingFrequencyTableDataRepo,
+    getBillingFrequencyTableDataStatusRepo,
+    billingFrequencyDataSubmitRepo,
+    getConnectionSizeTableDataRepo,
+    getConnectionSizeTableDataStatusRepo,
+    connectionSizeDataSubmitRepo,
+    getConnectionStatusTableDataRepo,
+    getConnectionStatusTableDataStatusRepo,
+    connectionStatusDataSubmitRepo,
+    getMeterGapCodeTableDataRepo,
+    getMeterGapCodeTableDataStatusRepo,
+    meterGapCodeDataSubmitRepo,
+    getTaxConfigTableDataRepo,
+    getTaxConfigTableDataStatusRepo,
+    taxConfigDataSubmitRepo
 };
