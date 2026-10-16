@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
@@ -9,10 +9,8 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmBillFreqList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
@@ -21,58 +19,34 @@ const FrmBillFreqList = () => {
   const fetchBillFreqList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/getBillFrequencyList");
 
-      // 🔸 DUMMY — replace with apiService.get("getBillFreqList")
-      const dummyData = [
-        { BILLFREQID: 1, BILLFREQNAME: "Monthly", ISACTIVE: "Y" },
-        { BILLFREQID: 2, BILLFREQNAME: "Quarterly", ISACTIVE: "Y" },
-        { BILLFREQID: 3, BILLFREQNAME: "Half Yearly", ISACTIVE: "N" },
-        { BILLFREQID: 4, BILLFREQNAME: "Yearly", ISACTIVE: "Y" },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.BILLFREQID}
-            state={{ billFreqId: item.BILLFREQID }}
+            key={item.NUM_BILLFREQ_ID}
+            state={{
+              billFreqId: item.NUM_BILLFREQ_ID,
+              billFreqName: item.VAR_BILLFREQ_NAME,
+              flag: item.ACTIVEFLAG,
+            }}
             to={`/Masters/FrmBillFreqMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.BILLFREQNAME || "",
-          item.ISACTIVE === "Y" ? "Yes" : "No",
+          item.VAR_BILLFREQ_NAME || "",
+          item.ACTIVEFLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getBillFreqList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.BILLFREQID}
-      //       state={{ billFreqId: item.BILLFREQID }}
-      //       to={`/Masters/FrmBillFreqMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.BILLFREQNAME || "",
-      //     item.ISACTIVE === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching bill frequency list:", err);
       setTableData([]);
-      console.error("Error fetching bill frequency list:", error);
-      alert("Failed to fetch bill frequency list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -80,7 +54,6 @@ const FrmBillFreqList = () => {
 
   useEffect(() => {
     fetchBillFreqList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -93,7 +66,7 @@ const FrmBillFreqList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmBillFreqMst"}>
             <Button
@@ -106,9 +79,11 @@ const FrmBillFreqList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

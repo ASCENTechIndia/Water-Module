@@ -826,6 +826,124 @@ async function aowt_usagetype_ins(payload) {
   return result.outBinds;
 }
 
+async function getConsumerTypeList() {
+  const sql = `
+    select num_consumertype_id,
+           var_consumertype_name,
+           case var_consumertype_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_consumertype_insdt,
+           var_consumertype_insby,
+           dat_consumertype_updt,
+           var_consumertype_updby
+      from aowt_consumertype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_consumertype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_consumertype_ins(
+        :in_UserId,
+        :in_ConsumerTypeTd,
+        :in_Mode,
+        :in_ConsumerTypeName,
+        :in_ConsumerTypeActivelag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_ConsumerTypeTd:
+      payload.in_ConsumerTypeTd != null
+        ? Number(payload.in_ConsumerTypeTd)
+        : null,
+    in_Mode: Number(payload.in_Mode),
+    in_ConsumerTypeName: payload.in_ConsumerTypeName,
+    in_ConsumerTypeActivelag: payload.in_ConsumerTypeActivelag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getBillFreqList() {
+  const sql = `
+    select num_billfreq_id,
+           var_billfreq_name,
+           case var_billfreq_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_billfreq_insdt,
+           var_billfreq_insby,
+           dat_billfreq_updt,
+           var_billfreq_updby
+      from aowt_billfreq_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_billfreq_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_billfreq_ins(
+        :in_UserId,
+        :in_billfreqid,
+        :in_billfreqname,
+        :in_activeflag,
+        :in_ipaddress,
+        :in_source,
+        :in_Mode,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_billfreqid:
+      payload.in_billfreqid != null ? Number(payload.in_billfreqid) : null,
+    in_billfreqname: payload.in_billfreqname,
+    in_activeflag: payload.in_activeflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_Mode: Number(payload.in_Mode),
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -854,4 +972,8 @@ module.exports = {
   getUlbTipDetails,
   getUsageTypeList,
   aowt_usagetype_ins,
+  getConsumerTypeList,
+  aowt_consumertype_ins,
+  getBillFreqList,
+  aowt_billfreq_ins,
 };

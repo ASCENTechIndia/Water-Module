@@ -26,6 +26,10 @@ const {
   getUlbTipDetailsService,
   getUsageTypeListService,
   usageTypeInsService,
+  getConsumerTypeListService,
+  consumerTypeInsService,
+  getBillFreqListService,
+  billFreqInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -711,6 +715,129 @@ async function usageTypeInsController(req, res, next) {
   }
 }
 
+async function getConsumerTypeListController(req, res, next) {
+  try {
+    const rows = await getConsumerTypeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Consumer type list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Consumer type list error");
+    return next(err);
+  }
+}
+
+async function consumerTypeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await consumerTypeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { consumerTypeId: payload.in_ConsumerTypeTd },
+        out.Out_ErrorMsg || "Consumer type saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Consumer type insert failed");
+    }
+
+    auditLog({
+      action:
+        payload.in_Mode === 2 ? "CONSUMERTYPE_UPDATE" : "CONSUMERTYPE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "consumertype",
+      entityId: payload.in_ConsumerTypeTd || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Consumer type insert error");
+    return next(err);
+  }
+}
+
+async function getBillFreqListController(req, res, next) {
+  try {
+    const rows = await getBillFreqListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Bill frequency list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill frequency list error");
+    return next(err);
+  }
+}
+
+async function billFreqInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await billFreqInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { billFreqId: payload.in_billfreqid },
+        out.Out_ErrorMsg || "Bill frequency saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Bill frequency insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "BILLFREQ_UPDATE" : "BILLFREQ_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "billfreq",
+      entityId: payload.in_billfreqid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill frequency insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -739,4 +866,8 @@ module.exports = {
   ulbTipInsController,
   getUsageTypeListController,
   usageTypeInsController,
+  getConsumerTypeListController,
+  consumerTypeInsController,
+  getBillFreqListController,
+  billFreqInsController,
 };

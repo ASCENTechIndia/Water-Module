@@ -502,6 +502,118 @@ const usageTypeInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const consumerTypeInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ConsumerTypeTd: z
+    .number({
+      invalid_type_error: "Consumer Type Id must be a number",
+    })
+    .int("Consumer Type Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_ConsumerTypeName: z
+    .string({
+      required_error: "Consumer Type name is required",
+      invalid_type_error: "Consumer Type name must be a string",
+    })
+    .trim()
+    .min(1, "Consumer Type name is required"),
+
+  in_ConsumerTypeActivelag: z
+    .string({
+      required_error: "Consumer Type active flag is required",
+      invalid_type_error: "Consumer Type active flag must be a string",
+    })
+    .trim()
+    .min(1, "Consumer Type active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const billFreqInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_billfreqid: z
+    .number({
+      invalid_type_error: "Bill Frequency Id must be a number",
+    })
+    .int("Bill Frequency Id must be an integer")
+    .nullable(),
+
+  in_billfreqname: z
+    .string({
+      required_error: "Bill Frequency name is required",
+      invalid_type_error: "Bill Frequency name must be a string",
+    })
+    .trim()
+    .min(1, "Bill Frequency name is required"),
+
+  in_activeflag: z
+    .string({
+      required_error: "Active flag is required",
+      invalid_type_error: "Active flag must be a string",
+    })
+    .trim()
+    .min(1, "Active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
@@ -510,4 +622,6 @@ module.exports = {
   rateInsSchema,
   ulbTipInsSchema,
   usageTypeInsSchema,
+  consumerTypeInsSchema,
+  billFreqInsSchema,
 };

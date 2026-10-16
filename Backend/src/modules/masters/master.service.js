@@ -26,6 +26,10 @@ const {
   getUlbTipDetails,
   getUsageTypeList,
   aowt_usagetype_ins,
+  getConsumerTypeList,
+  aowt_consumertype_ins,
+  getBillFreqList,
+  aowt_billfreq_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -136,6 +140,22 @@ async function usageTypeInsService(payload) {
   return aowt_usagetype_ins(payload);
 }
 
+async function getConsumerTypeListService() {
+  return getConsumerTypeList();
+}
+
+async function consumerTypeInsService(payload) {
+  return aowt_consumertype_ins(payload);
+}
+
+async function getBillFreqListService() {
+  return getBillFreqList();
+}
+
+async function billFreqInsService(payload) {
+  return aowt_billfreq_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -164,4 +184,8 @@ module.exports = {
   ulbTipInsService,
   getUsageTypeListService,
   usageTypeInsService,
+  getConsumerTypeListService,
+  consumerTypeInsService,
+  getBillFreqListService,
+  billFreqInsService,
 };

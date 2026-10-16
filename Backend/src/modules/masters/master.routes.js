@@ -27,6 +27,10 @@ const {
   getUlbTipDetailsController,
   getUsageTypeListController,
   usageTypeInsController,
+  getConsumerTypeListController,
+  consumerTypeInsController,
+  getBillFreqListController,
+  billFreqInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -37,6 +41,8 @@ const {
   rateInsSchema,
   ulbTipInsSchema,
   usageTypeInsSchema,
+  consumerTypeInsSchema,
+  billFreqInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -85,5 +91,21 @@ router.post(
   "/aowt_usagetype_ins",
   validate(usageTypeInsSchema),
   usageTypeInsController,
+);
+
+// Consumer type master
+router.get("/getConsumerTypeList", getConsumerTypeListController);
+router.post(
+  "/aowt_consumertype_ins",
+  validate(consumerTypeInsSchema),
+  consumerTypeInsController,
+);
+
+// Bill frequency list
+router.get("/getBillFrequencyList", getBillFreqListController);
+router.post(
+  "/aowt_billfreq_ins",
+  validate(billFreqInsSchema),
+  billFreqInsController,
 );
 module.exports = router;
