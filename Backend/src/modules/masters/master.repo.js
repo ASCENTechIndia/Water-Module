@@ -774,6 +774,58 @@ async function aowt_ulbtip_ins(payload) {
   return result.outBinds;
 }
 
+async function getUsageTypeList() {
+  const sql = `
+    select num_usagetype_id,
+           var_usagetype_name,
+           dat_usagetype_insdt,
+           var_usagetype_insby,
+           dat_usagetype_updt,
+           var_usagetype_updby
+      from aowt_usagetype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_usagetype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_usagetype_ins(
+        :in_Userid,
+        :in_Usagetypeid,
+        :in_Mode,
+        :in_Usagetypename,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_Userid: payload.in_Userid,
+    in_Usagetypeid:
+      payload.in_Usagetypeid != null ? Number(payload.in_Usagetypeid) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_Usagetypename: payload.in_Usagetypename,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -800,4 +852,6 @@ module.exports = {
   getUlbTipList,
   aowt_ulbtip_ins,
   getUlbTipDetails,
+  getUsageTypeList,
+  aowt_usagetype_ins,
 };

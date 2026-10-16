@@ -24,7 +24,7 @@ const FrmUsageTypeMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -32,46 +32,13 @@ const FrmUsageTypeMst = () => {
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!usageTypeId) return;
+    if (!isEdit) return;
+    setValue("usageTypeName", state?.usageTypeName || "");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getUsageTypeDetail", { usageTypeId: Number(usageTypeId) })
-    const dummyDetail = {
-      NUM_USAGETYPE_ID: usageTypeId,
-      VAR_USAGETYPE_NAME: "Residential",
-    };
-
-    reset({
-      usageTypeName: dummyDetail.VAR_USAGETYPE_NAME || "",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getUsageTypeDetail", {
-    //       usageTypeId: Number(usageTypeId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         usageTypeName: d.VAR_USAGETYPE_NAME || "",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Usage type detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Usage type detail error:", err);
-    //     alert("Failed to fetch usage type detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [usageTypeId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -83,35 +50,29 @@ const FrmUsageTypeMst = () => {
       const ip = await GetIPAddress();
 
       const payload = {
-        in_UserId: userId,
+        in_Userid: userId,
+        in_Usagetypeid: isEdit ? Number(usageTypeId) : null,
         in_Mode: isEdit ? 2 : 1,
-        in_UsageTypeId: isEdit ? Number(usageTypeId) : null,
-        in_UsageTypeName: data.usageTypeName.trim(),
-        in_UlbId: Number(ulbid),
+        in_Usagetypename: data.usageTypeName.trim(),
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Usage Type payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmUsageTypeList");
+      const res = await apiService.post("/master/aowt_usagetype_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_usagetype_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmUsageTypeList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save usage type",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving usage type:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_ErrorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmUsageTypeList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving usage type:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -127,8 +88,8 @@ const FrmUsageTypeMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* Single field — half width on desktop */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Usage Type Name */}
           <div>
             <Label text="Usage Type Name : " required />
             <input
@@ -151,7 +112,6 @@ const FrmUsageTypeMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

@@ -24,6 +24,8 @@ const {
   getUlbTipList,
   aowt_ulbtip_ins,
   getUlbTipDetails,
+  getUsageTypeList,
+  aowt_usagetype_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -126,6 +128,14 @@ async function ulbTipInsService(payload) {
   return aowt_ulbtip_ins(payload);
 }
 
+async function getUsageTypeListService() {
+  return getUsageTypeList();
+}
+
+async function usageTypeInsService(payload) {
+  return aowt_usagetype_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -152,4 +162,6 @@ module.exports = {
   getUlbTipListService,
   getUlbTipDetailsService,
   ulbTipInsService,
+  getUsageTypeListService,
+  usageTypeInsService,
 };

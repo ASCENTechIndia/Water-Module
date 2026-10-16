@@ -24,6 +24,8 @@ const {
   getUlbTipListService,
   ulbTipInsService,
   getUlbTipDetailsService,
+  getUsageTypeListService,
+  usageTypeInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -648,6 +650,67 @@ async function ulbTipInsController(req, res, next) {
   }
 }
 
+async function getUsageTypeListController(req, res, next) {
+  try {
+    const rows = await getUsageTypeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage type list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage type list error");
+    return next(err);
+  }
+}
+
+async function usageTypeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await usageTypeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { usageTypeId: payload.in_Usagetypeid },
+        out.Out_ErrorMsg || "Usage type saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Usage type insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "USAGETYPE_UPDATE" : "USAGETYPE_CREATE",
+      actor: req.user?.userId || payload.in_Userid || "system",
+      module: "usagetype",
+      entityId: payload.in_Usagetypeid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage type insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -674,4 +737,6 @@ module.exports = {
   getUlbTipListController,
   getUlbTipDetailsController,
   ulbTipInsController,
+  getUsageTypeListController,
+  usageTypeInsController,
 };

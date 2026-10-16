@@ -25,6 +25,8 @@ const {
   getUlbTipListController,
   ulbTipInsController,
   getUlbTipDetailsController,
+  getUsageTypeListController,
+  usageTypeInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -34,6 +36,7 @@ const {
   bankInsSchema,
   rateInsSchema,
   ulbTipInsSchema,
+  usageTypeInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -75,4 +78,12 @@ router.post("/aowt_rate_ins", validate(rateInsSchema), rateInsController);
 router.get("/getUlbTipList", getUlbTipListController);
 router.get("/getUlbTipDetails", getUlbTipDetailsController);
 router.post("/aowt_ulbtip_ins", validate(ulbTipInsSchema), ulbTipInsController);
+
+// Usage Type master
+router.get("/usageTypeList", getUsageTypeListController);
+router.post(
+  "/aowt_usagetype_ins",
+  validate(usageTypeInsSchema),
+  usageTypeInsController,
+);
 module.exports = router;
