@@ -614,6 +614,61 @@ const billFreqInsSchema = z.object({
     .int("Mode must be an integer"),
 });
 
+const usageSubTypeInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_Usagesubtypeid: z
+    .number({
+      invalid_type_error: "Usage Sub Type Id must be a number",
+    })
+    .int("Usage Sub Type Id must be an integer")
+    .nullable(),
+
+  in_Usagetypeid: z
+    .number({
+      required_error: "Usage Type Id is required",
+      invalid_type_error: "Usage Type Id must be a number",
+    })
+    .int("Usage Type Id must be an integer"),
+
+  in_mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_Usagesubtypename: z
+    .string({
+      required_error: "Usage Sub Type name is required",
+      invalid_type_error: "Usage Sub Type name must be a string",
+    })
+    .trim()
+    .min(1, "Usage Sub Type name is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
@@ -624,4 +679,5 @@ module.exports = {
   usageTypeInsSchema,
   consumerTypeInsSchema,
   billFreqInsSchema,
+  usageSubTypeInsSchema,
 };

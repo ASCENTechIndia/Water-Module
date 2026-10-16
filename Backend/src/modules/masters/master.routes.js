@@ -31,6 +31,9 @@ const {
   consumerTypeInsController,
   getBillFreqListController,
   billFreqInsController,
+  getUsageTypeDropdownMasController,
+  getUsageSubTypeListController,
+  usageSubTypeInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -43,6 +46,7 @@ const {
   usageTypeInsSchema,
   consumerTypeInsSchema,
   billFreqInsSchema,
+  usageSubTypeInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -101,11 +105,20 @@ router.post(
   consumerTypeInsController,
 );
 
-// Bill frequency list
+// Bill frequency master
 router.get("/getBillFrequencyList", getBillFreqListController);
 router.post(
   "/aowt_billfreq_ins",
   validate(billFreqInsSchema),
   billFreqInsController,
+);
+
+// Usage sub type master
+router.get("/getUsageTypeDd", getUsageTypeDropdownMasController);
+router.get("/getUsageSubTypeList", getUsageSubTypeListController);
+router.post(
+  "/aowt_usagesubtype_ins",
+  validate(usageSubTypeInsSchema),
+  usageSubTypeInsController,
 );
 module.exports = router;

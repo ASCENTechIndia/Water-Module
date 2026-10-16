@@ -30,6 +30,9 @@ const {
   consumerTypeInsService,
   getBillFreqListService,
   billFreqInsService,
+  getUsageTypeDropdownMasService,
+  getUsageSubTypeListService,
+  usageSubTypeInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -838,6 +841,87 @@ async function billFreqInsController(req, res, next) {
   }
 }
 
+async function getUsageTypeDropdownMasController(req, res, next) {
+  try {
+    const rows = await getUsageTypeDropdownMasService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage type dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage type dropdown error");
+    return next(err);
+  }
+}
+
+async function getUsageSubTypeListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUsageSubTypeListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage sub type list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage sub type list error");
+    return next(err);
+  }
+}
+
+async function usageSubTypeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await usageSubTypeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { usageSubTypeId: payload.in_Usagesubtypeid },
+        out.Out_ErrorMsg || "Usage sub type saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Usage sub type insert failed");
+    }
+
+    auditLog({
+      action:
+        payload.in_mode === 2 ? "USAGESUBTYPE_UPDATE" : "USAGESUBTYPE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "usagesubtype",
+      entityId: payload.in_Usagesubtypeid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage sub type insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -870,4 +954,7 @@ module.exports = {
   consumerTypeInsController,
   getBillFreqListController,
   billFreqInsController,
+  getUsageTypeDropdownMasController,
+  getUsageSubTypeListController,
+  usageSubTypeInsController,
 };

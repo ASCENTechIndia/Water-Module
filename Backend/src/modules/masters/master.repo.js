@@ -944,6 +944,85 @@ async function aowt_billfreq_ins(payload) {
   return result.outBinds;
 }
 
+async function getUsageTypeDropdownMas() {
+  const sql = `
+    select var_usagetype_name,
+           num_usagetype_id
+      from aowt_usagetype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getUsageSubTypeList(payload) {
+  const { usageId } = payload;
+
+  if (!usageId) {
+    throw new Error("usageId is required");
+  }
+
+  const sql = `
+    select num_usagesubtype_id,
+           num_usagesubtype_usagetypeid,
+           var_usagesubtype_name,
+           dat_usagesubtype_insdt,
+           var_usagesubtype_insby,
+           dat_usagesubtype_updt,
+           var_usagesubtype_updby
+      from aowt_usagesubtype_mas
+     where num_usagesubtype_usagetypeid = :usageId
+  `;
+
+  const binds = {
+    usageId: Number(usageId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_usagesubtype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_usagesubtype_ins(
+        :in_UserId,
+        :in_Usagesubtypeid,
+        :in_Usagetypeid,
+        :in_mode,
+        :in_Usagesubtypename,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_Usagesubtypeid:
+      payload.in_Usagesubtypeid != null
+        ? Number(payload.in_Usagesubtypeid)
+        : null,
+    in_Usagetypeid: Number(payload.in_Usagetypeid),
+    in_mode: Number(payload.in_mode),
+    in_Usagesubtypename: payload.in_Usagesubtypename,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -976,4 +1055,7 @@ module.exports = {
   aowt_consumertype_ins,
   getBillFreqList,
   aowt_billfreq_ins,
+  getUsageTypeDropdownMas,
+  getUsageSubTypeList,
+  aowt_usagesubtype_ins,
 };
