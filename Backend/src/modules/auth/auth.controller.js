@@ -1,6 +1,6 @@
 const { loginUser } = require('./auth.service');
 const { logApiSuccess, logApiError } = require('../../utils/log');
-const { decryptPassword } = require('../../utils/login-password-crypto');
+const { decryptPassword, encryptPassword } = require('../../utils/login-password-crypto');
 const jwt = require('jsonwebtoken');
 const { config } = require('../../config/env');
 const { sendEmail, getForgotPasswordTemplate } = require('../../utils/email');
@@ -9,29 +9,38 @@ const { generateResetToken, resetPasswordWithDbToken } = require('./auth.repo');
 async function login(req, res, next) {
   try {
     const payload = req.body;
+    const rawPassword = payload.password || payload.in_password;
+    const userId = payload.userId || payload.in_UserId;
 
-    // let decryptedPassword;
-    // try {
-    //   decryptedPassword = decryptPassword(payload.password);
-    // } catch (_error) {
-    //   logApiError(req, 400, 'Invalid encrypted password', 'Login failed: invalid encrypted password payload');
-    //   return res.fail('Invalid encrypted password', 400);
-    // }
+    let plainPassword;
+    try {
+      plainPassword = encryptPassword(rawPassword);
+      console.log("passdec", plainPassword)
+    } catch (_error) {
+      // In case password was provided as plain text or already decrypted
+      plainPassword = rawPassword;
+    }
 
-    const normalizedUserId = payload.userId.startsWith('E')
-      ? payload.userId
-      : `E${payload.userId}`;
 
-    const result = await loginUser(normalizedUserId, payload.password);
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || req.ip || '127.0.0.1';
+    const extra = {
+      in_macaddr: payload.in_macaddr || 'NA',
+      in_ipaddr: payload.in_ipaddr || clientIp,
+      in_hostname: payload.in_hostname || req.hostname,
+      in_source: payload.in_source || 'RW',
+      in_deptid:62,
+    };
+
+    const result = await loginUser(userId, plainPassword, extra);
 
     if (!result.success) {
-      logApiError(req, 401, result.message, `Login failed for user: ${normalizedUserId}`);
+      logApiError(req, 401, result.message, `Login failed for user: ${userId}`);
       return res.fail(result.message, 401, { errorCode: result.errorCode });
     }
 
     logApiSuccess(req, 200, { userId: result.user.userId, userName: result.user.userName }, `Login successful for user: ${result.user.userName}`);
 
-    return res.ok({ token: result.token, user: result.user });
+    return res.ok({ token: result.token, user: result.user, result: result.user });
   } catch (error) {
     logApiError(req, 500, error.message, 'Login controller error');
     return next(error);
