@@ -10,7 +10,37 @@ const {
     getUsageTypeDropdownController,
     getUsageSubTypeTableDataController,
     usageSubTypeConfigSubmitController,
-    getUsageSubTypeTableDataStatusController
+    getUsageSubTypeTableDataStatusController,
+    getBillingMethodTableDataController,
+    getBillingMethodTableDataStatusController,
+    billingMethodConfigSubmitController,
+    getConsumerTypeTableDataController,
+    getConsumerTypeTableDataStatusController,
+    consumerTypeConfigSubmitController,
+    getConnCodeTableDataController,
+    getConnCodeTableDataStatusController,
+    connCodeConfigSubmitController,
+    getMeterOwnerTableDataController,
+    getMeterOwnerTableDataStatusController,
+    meterOwnerConfigSubmitController,
+    getBankTableDataController,
+    getBankTableDataStatusController,
+    bankConfigSubmitController,
+    getBillingFrequecyTableDataController,
+    billingFrequencyConfigSubmitController,
+    getBillingFrequencyTableDataStatusController,
+    getConnectionSizeTableDataController,
+    getConnectionSizeTableDataStatusController,
+    connectionSizeConfigSubmitController,
+    getConnectionStatusTableDataController,
+    getConnectionStatusTableDataStatusController,
+    connectionStatusConfigSubmitController,
+    getMeterGapCodeTableDataController,
+    getMeterGapCodeTableDataStatusController,
+    meterGapCodeConfigSubmitController,
+    getTaxConfigTableDataController,
+    getTaxConfigTableDataStatusController,
+    taxConfigSubmitController
 } = require("./config.controller");
 
 const router = express.Router();
@@ -32,5 +62,55 @@ router.get("/getUsageTypeDropdown", getUsageTypeDropdownController);
 router.get("/getUsageSubTypeData", getUsageSubTypeTableDataController);
 router.get("/getUsageSubTypeDataStatus", getUsageSubTypeTableDataStatusController);
 router.post("/usage-sub-type", usageSubTypeConfigSubmitController);
+
+// Billing Method Config
+router.get("/getBillingMethodData", getBillingMethodTableDataController);
+router.get("/getBillingMethodDataStatus", getBillingMethodTableDataStatusController);
+router.post("/billing-method", billingMethodConfigSubmitController);
+
+// Consumer Type Configuration
+router.get("/getConsumerTypeData", getConsumerTypeTableDataController);
+router.get("/getConsumerTypeDataStatus", getConsumerTypeTableDataStatusController);
+router.post("/consumer-type", consumerTypeConfigSubmitController);
+
+// Conn Code Config
+router.get("/getConnCodeTableData", getConnCodeTableDataController);
+router.get("/getConnCodeTableDataStatus", getConnCodeTableDataStatusController);
+router.post("/conn-code", connCodeConfigSubmitController);
+
+// Meter Owner Config
+router.get("/getMeterOwnerTableData", getMeterOwnerTableDataController);
+router.get("/getMeterOwnerTableDataStatus", getMeterOwnerTableDataStatusController);
+router.post("/meter-owner", meterOwnerConfigSubmitController);
+
+// Bank Config
+router.get("/getBankTableData", getBankTableDataController);
+router.get("/getBankTableDataStatus", getBankTableDataStatusController);
+router.post("/bank-config", bankConfigSubmitController);
+
+// Billing Frequency Config
+router.get("/getBillingFreqTableData", getBillingFrequecyTableDataController);
+router.get("/getBillingFrequencyTableDataStatus", getBillingFrequencyTableDataStatusController);
+router.post("/billing-frequency", billingFrequencyConfigSubmitController);
+
+// Connection Size Config
+router.get("/getConnectionSizeTableData", getConnectionSizeTableDataController);
+router.get("/getConnectionSizeTableDataStatus", getConnectionSizeTableDataStatusController);
+router.post("/connection-size", connectionSizeConfigSubmitController);
+
+// Connection Status Config
+router.get("/getConnectionStatusTableData", getConnectionStatusTableDataController);
+router.get("/getConnectionStatusTableDataStatus", getConnectionStatusTableDataStatusController);
+router.post("/connection-status", connectionStatusConfigSubmitController);
+
+// Meter Gap Code Config
+router.get("/getMeterGapCodeTableData", getMeterGapCodeTableDataController);
+router.get("/getMeterGapCodeTableDataStatus", getMeterGapCodeTableDataStatusController);
+router.post("/meter-gap-code", meterGapCodeConfigSubmitController);
+
+// Tax Config
+router.get("/getTaxConfigTableData", getTaxConfigTableDataController);
+router.get("/getTaxConfigTableDataStatus", getTaxConfigTableDataStatusController);
+router.post("/tax-config", taxConfigSubmitController);
 
 module.exports = router;

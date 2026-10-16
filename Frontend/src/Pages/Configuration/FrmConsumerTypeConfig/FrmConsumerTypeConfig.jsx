@@ -8,37 +8,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const FrmConsumerTypeConfig = () => {
     const [rows, setRows] = useState([
-        {
-            id: 1,
-            documentName: "Individual Connection",
-        },
-        {
-            id: 2,
-            documentName: "Group Connection"
-        },
-        {
-            id: 3,
-            documentName: "Not Stated"
-        },
-        {
-            id: 4,
-            documentName: "Ahmednagar Corporation"
-        },
-        {
-            id: 5,
-            documentName: "Old"
-        },
-        {
-            id: 6,
-            documentName: "म.न.पा. (Municipal Corporation Meter)"
-        },
-        {
-            id: 7,
-            documentName: "NA"
-        }
     ]);
 
     const [checkedMap, setCheckedMap] = useState({});
@@ -51,6 +25,10 @@ const FrmConsumerTypeConfig = () => {
     };
 
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
@@ -69,25 +47,24 @@ const FrmConsumerTypeConfig = () => {
         },
     });
 
-    const [ulbOptions, setULBOptions] = useState([{
-        label: "मीरा भाईंदर महानगरपालिका", value: "1"
-    }]);
+    const watchULB = watch("ulbName");
+
+    const [ulbOptions, setULBOptions] = useState([]);
+    const [existingStatusCheckList, setExistingStatusCheckList] = useState([]);
 
     const fetchULBDropdown = async () => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
+            const response = await apiService.get("/config/getULBDropdown");
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.ulbID,
-                    value: item.ulbname,
+                const formatted = response.data.map((item) => ({
+                    label: item.CORPORATIONNAME,
+                    value: item.CORPORATIONID,
                 }));
 
                 setULBOptions(formatted);
@@ -95,11 +72,87 @@ const FrmConsumerTypeConfig = () => {
                 setULBOptions([]);
             }
         } catch (error) {
+            setULBOptions([]);
             console.error(error);
         } finally {
             setLoading(false);
         }
     };
+
+    const fetchTableData = async () => {
+        try {
+            setLoading(true);
+
+            const url = `/config/getConsumerTypeData?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (response?.success && Array.isArray(response?.data)) {
+                const formatted = response.data.map((item) => ({
+                    ...item,
+                    id: item.CONSTYPEID,
+                    documentName: item.CONSTYPENAME,
+                }));
+
+                setRows(formatted);
+            } else {
+                setRows([]);
+            }
+        } catch (error) {
+            setRows([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchConfigTypeTableDataStatus = async () => {
+        try {
+            setLoading(true);
+
+            const url = `/config/getConsumerTypeDataStatus?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (response?.success && Array.isArray(response?.data)) {
+                setExistingStatusCheckList(response.data);
+            } else {
+                setExistingStatusCheckList([]);
+            }
+        } catch (error) {
+            setExistingStatusCheckList([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const configuredIds = new Set(
+            existingStatusCheckList.map((item) =>
+                String(item.CONSTYPEIDCON)
+            )
+        );
+
+        const updatedCheckedMap = {};
+
+        const selectedIds = rows
+            .filter((row) => {
+                const isChecked = configuredIds.has(String(row.id));
+
+                if (isChecked) {
+                    updatedCheckedMap[row.id] = true;
+                }
+
+                return isChecked;
+            })
+            .map((row) => row.id);
+
+        setCheckedMap(updatedCheckedMap);
+
+        setValue("documentStr", selectedIds, {
+            shouldValidate: true,
+            shouldDirty: false,
+        });
+    }, [rows, existingStatusCheckList, setValue]);
 
     const handleToggle = (id, checked) => {
         setCheckedMap((prev) => {
@@ -155,30 +208,105 @@ const FrmConsumerTypeConfig = () => {
     const onSubmit = async (values) => {
         try {
             setLoading(true);
+            const mode = existingStatusCheckList.length > 0 ? 2 : 1;
+
+            if (mode === 1 && (!values.documentStr || values.documentStr.length === 0)) {
+                alert("Please atleast one checkbox");
+                return;
+            }
+
+            const previouslyConfiguredIds = new Set(
+                existingStatusCheckList.map((item) =>
+                    String(item.CONSTYPEIDCON)
+                )
+            );
+
+            const consumerTypeStr = rows
+                .map((row) => {
+                    const id = row.id;
 
 
-            const docStr = values.documentStr.join("$");
+                    const previousStatus = previouslyConfiguredIds.has(
+                        String(id)
+                    )
+                        ? "Y"
+                        : "N";
 
+                    const currentStatus = checkedMap[id] ? "Y" : "N";
+
+                    return `${id}#${previousStatus}#${currentStatus}`;
+                })
+                .join("$");
+
+
+            const ipAddress = await GetIPAddress();
             const payload = {
-                ulbName: values.ulbName,
-                usageStr: docStr,
+                in_userid: userId,
+                in_orgid: Number(values.ulbName),
+                in_consumertypestr: consumerTypeStr,
+                in_mode: mode,
+                in_ipaddress: ipAddress,
+                in_source: config.source
             };
 
-            console.log("Form Values:", values);
-            console.log("Payload:", payload);
+            const response = await apiService.post("/config/consumer-type", payload);
 
-            // API call
-            // const response = await apiService.post("", payload);
+            if (
+                response?.success &&
+                response?.data?.Out_errorCode === 9999
+            ) {
+                alert(response.data.Out_ErrorMsg);
+
+                setRows([]);
+                setCheckedMap({});
+                setExistingStatusCheckList([]);
+
+                setValue("documentStr", [], {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                });
+
+                // await Promise.all([
+                await fetchTableData();
+                await fetchConfigTypeTableDataStatus();
+                // ]);
+            } else {
+                alert(response?.data?.Out_ErrorMsg || "Submission failed");
+            }
 
         } catch (error) {
             console.error(error.message);
-
             alert(error.message || "Failed to submit data");
         } finally {
             setLoading(false);
         }
     };
 
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchULBDropdown();
+        }
+    }, [ulbId]);
+
+    useEffect(() => {
+        if (ulbOptions.length > 0 && ulbId) {
+            setValue("ulbName", String(ulbId));
+        }
+    }, [ulbOptions, ulbId, setValue]);
+
+    useEffect(() => {
+        if (!watchULB) {
+            setRows([]);
+            setCheckedMap({});
+            setExistingStatusCheckList([]);
+            setValue("documentStr", []);
+            return;
+        }
+
+        fetchTableData();
+        fetchConfigTypeTableDataStatus();
+    }, [watchULB]);
     return (
         <Layout
             title="Consumer Type Configuration"

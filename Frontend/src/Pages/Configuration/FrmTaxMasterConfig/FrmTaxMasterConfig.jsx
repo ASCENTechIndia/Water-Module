@@ -8,35 +8,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const FrmTaxMasterConfig = () => {
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            taxName: "Water Tax",
-            taxCode: "WTS"
-        },
-        {
-            id: 2,
-            taxName: "Cheque Bounce",
-            taxCode: "tt"
-        },
-        {
-            id: 3,
-            taxName: "Dpc",
-            taxCode: "t"
-        },
-        {
-            id: 4,
-            taxName: "Notfee",
-            taxCode: "t"
-        },
-        {
-            id: 5,
-            taxName: "Security Deposit",
-            taxCode: "SD"
-        }
-    ]);
+    const [rows, setRows] = useState([]);
 
     const [checkedMap, setCheckedMap] = useState({});
 
@@ -49,6 +25,10 @@ const FrmTaxMasterConfig = () => {
     };
 
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
@@ -62,30 +42,28 @@ const FrmTaxMasterConfig = () => {
         watch,
     } = useForm({
         defaultValues: {
-            ulbName: "1",
-            documentStr: [],
+            ulbName: "",
+            taxStr: [],
         },
     });
 
-    const [ulbOptions, setULBOptions] = useState([{
-        label: "मीरा भाईंदर महानगरपालिका", value: "1"
-    }]);
+    const watchULB = watch("ulbName");
+    const [ulbOptions, setULBOptions] = useState([]);
+    const [existingStatusCheckList, setExistingStatusCheckList] = useState([]);
 
     const fetchULBDropdown = async () => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
+            const response = await apiService.get("/config/getULBDropdown");
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.ulbID,
-                    value: item.ulbname,
+                const formatted = response.data.map((item) => ({
+                    label: item.CORPORATIONNAME,
+                    value: item.CORPORATIONID,
                 }));
 
                 setULBOptions(formatted);
@@ -93,11 +71,88 @@ const FrmTaxMasterConfig = () => {
                 setULBOptions([]);
             }
         } catch (error) {
+            setULBOptions([]);
             console.error(error);
         } finally {
             setLoading(false);
         }
     };
+
+    const fetchTableData = async () => {
+        try {
+            setLoading(true);
+
+            const url = `/config/getTaxConfigTableData?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (response?.success && Array.isArray(response?.data)) {
+                const formatted = response.data.map((item) => ({
+                    ...item,
+                    id: item.TAXID,
+                    taxName: item.VAR_TAX_ENAME,
+                    taxCode: item.VAR_TAX_CODE
+                }));
+
+                setRows(formatted);
+            } else {
+                setRows([]);
+            }
+        } catch (error) {
+            setRows([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchTaxConfigTableDataStatus = async () => {
+        try {
+            setLoading(true);
+
+            const url = `/config/getTaxConfigTableDataStatus?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (response?.success && Array.isArray(response?.data)) {
+                setExistingStatusCheckList(response.data);
+            } else {
+                setExistingStatusCheckList([]);
+            }
+        } catch (error) {
+            setExistingStatusCheckList([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const configuredIds = new Set(
+            existingStatusCheckList.map((item) =>
+                String(item.TAXCONFIGID)
+            )
+        );
+
+        const updatedCheckedMap = {};
+
+        const selectedIds = rows
+            .filter((row) => {
+                const isChecked = configuredIds.has(String(row.id));
+
+                if (isChecked) {
+                    updatedCheckedMap[row.id] = true;
+                }
+
+                return isChecked;
+            })
+            .map((row) => row.id);
+
+        setCheckedMap(updatedCheckedMap);
+
+        setValue("taxStr", selectedIds, {
+            shouldValidate: true,
+            shouldDirty: false,
+        });
+    }, [rows, existingStatusCheckList, setValue]);
 
     const handleToggle = (id, checked) => {
         setCheckedMap((prev) => {
@@ -112,7 +167,7 @@ const FrmTaxMasterConfig = () => {
                 .map((row) => row.id);
 
             // Store selected IDs in react-hook-form
-            setValue("documentStr", selectedIds, {
+            setValue("taxStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -135,7 +190,7 @@ const FrmTaxMasterConfig = () => {
             // Store all IDs in react-hook-form
             const selectedIds = rows.map((row) => row.id);
 
-            setValue("documentStr", selectedIds, {
+            setValue("taxStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -143,7 +198,7 @@ const FrmTaxMasterConfig = () => {
             setCheckedMap({});
 
             // Clear selected IDs from react-hook-form
-            setValue("documentStr", [], {
+            setValue("taxStr", [], {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -153,29 +208,103 @@ const FrmTaxMasterConfig = () => {
     const onSubmit = async (values) => {
         try {
             setLoading(true);
+            const mode = existingStatusCheckList.length > 0 ? 2 : 1;
+
+            if (mode === 1 && (!values.taxStr || values.taxStr.length === 0)) {
+                alert("Please atleast one checkbox");
+                return;
+            }
 
 
-            const docStr = values.documentStr.join("$");
+            const previouslyConfiguredIds = new Set(
+                existingStatusCheckList.map((item) =>
+                    String(item.TAXCONFIGID)
+                )
+            );
 
+            const taxStr = rows
+                .map((row) => {
+                    const id = row.id;
+
+
+                    const previousStatus = previouslyConfiguredIds.has(
+                        String(id)
+                    )
+                        ? "Y"
+                        : "N";
+
+                    const currentStatus = checkedMap[id] ? "Y" : "N";
+
+                    return `${id}#${previousStatus}#${currentStatus}`;
+                })
+                .join("$");
+
+
+            const ipAddress = await GetIPAddress();
             const payload = {
-                ulbName: values.ulbName,
-                usageStr: docStr,
+                in_UserId: userId,
+                in_ULBid: Number(values.ulbName),
+                in_TaxStr: taxStr,
+                in_Mode: mode,
+                in_ipaddress: ipAddress,
+                in_source: config.source
             };
 
-            console.log("Form Values:", values);
-            console.log("Payload:", payload);
+            const response = await apiService.post("/config/tax-config", payload);
 
-            // API call
-            // const response = await apiService.post("", payload);
+            if (
+                response?.success &&
+                response?.data?.Out_errorCode === 9999
+            ) {
+                alert(response.data.Out_ErrorMsg);
+
+                setRows([]);
+                setCheckedMap({});
+                setExistingStatusCheckList([]);
+
+                setValue("meterGapCodeStr", [], {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                });
+
+                await fetchTableData();
+                await fetchTaxConfigTableDataStatus();
+            } else {
+                alert(response?.data?.Out_ErrorMsg || "Submission failed");
+            }
 
         } catch (error) {
             console.error(error.message);
-
             alert(error.message || "Failed to submit data");
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchULBDropdown();
+        }
+    }, [ulbId]);
+
+    useEffect(() => {
+        if (ulbOptions.length > 0 && ulbId) {
+            setValue("ulbName", String(ulbId));
+        }
+    }, [ulbOptions, ulbId, setValue]);
+
+    useEffect(() => {
+        if (!watchULB) {
+            setRows([]);
+            setCheckedMap({});
+            setExistingStatusCheckList([]);
+            setValue("meterGapCodeStr", []);
+            return;
+        }
+
+        fetchTableData();
+        fetchTaxConfigTableDataStatus();
+    }, [watchULB]);
 
     return (
         <Layout

@@ -10,7 +10,37 @@ const {
     getUsageTypeDropdownService,
     getUsageSubTypeTableDataService,
     usageSubTypeDataSubmitService,
-    getUsageSubTypeTableDataStatusService
+    getUsageSubTypeTableDataStatusService,
+    getBillingMethodTableDataService,
+    getBillingMethodTableDataStatusService,
+    billingMethodConfigSubmitService,
+    getConsumerTypeTableDataService,
+    getConsumerTypeTableDataStatusService,
+    consumerTypeConfigDataSubmitService,
+    getConnCodeTableDataService,
+    getConnCodeTableeDataStatusService,
+    connCodeConfigDataSubmitService,
+    getMeterOwnerTableDataService,
+    getMeterOwnerTableDataStatusService,
+    meterOwnerConfigDataSubmitService,
+    getBankTableDataService,
+    getBankTableDataStatusService,
+    bankConfigDataSubmitService,
+    getBillingFrequencyTableDataStatusService,
+    billingFrequencyDataSubmitService,
+    getBillingFrequencyTableDataService,
+    getConnectionSizeTableDataService,
+    getConnectionSizeTableDataStatusService,
+    connectionSizeDataSubmitService,
+    getConnectionStatusTableDataService,
+    getConnectionStatusTableDataStatusService,
+    connectionStatusDataSubmitService,
+    getMeterGapCodeTableDataService,
+    getMeterGapCodeTableStatusService,
+    meterGapCodeDataSubmitService,
+    getTaxConfigTableDataService,
+    getTaxConfigTableDataStatusService,
+    taxConfigDataSubmitService
 } = require("./config.service");
 
 async function getULBDropdownController(req, res, next) {
@@ -237,6 +267,624 @@ async function usageSubTypeConfigSubmitController(req, res, next) {
     }
 }
 
+// Billing Method Config
+
+async function getBillingMethodTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBillingMethodTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Method Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Method Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getBillingMethodTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBillingMethodTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Method Table Status Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Method Table Status Data fetch error");
+        return next(error);
+    }
+}
+
+async function billingMethodConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await billingMethodConfigSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Method Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Method Config Data submit error");
+        return next(error);
+    }
+}
+
+async function getConsumerTypeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConsumerTypeTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Consumer Type Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Consumer Type Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getConsumerTypeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConsumerTypeTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Consumer Type Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Consumer Type Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function consumerTypeConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await consumerTypeConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Consumer Type Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Consumer Type Config Data submit error");
+        return next(error);
+    }
+}
+
+// Conn Code Config
+
+async function getConnCodeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnCodeTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Conn Code Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Conn Code Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getConnCodeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnCodeTableeDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Conn Code Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Conn Code Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function connCodeConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await connCodeConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Conn Code Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Conn Code Config Data submit error");
+        return next(error);
+    }
+}
+
+// Meter Owner Config
+
+async function getMeterOwnerTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getMeterOwnerTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Meter Owner Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Meter Owner Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getMeterOwnerTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getMeterOwnerTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Meter Owner Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Meter Owner Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function meterOwnerConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await meterOwnerConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Meter Owner Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Meter Owner Config Data submit error");
+        return next(error);
+    }
+}
+
+// Bank Config
+
+async function getBankTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBankTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Bank Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Bank Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getBankTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBankTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Bank Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Bank Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function bankConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await bankConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Bank Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Bank Config Data submit error");
+        return next(error);
+    }
+}
+
+// Billing Frequency 
+
+async function getBillingFrequecyTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBillingFrequencyTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Frequency Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Frequency Data fetch error");
+        return next(error);
+    }
+}
+
+async function getBillingFrequencyTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getBillingFrequencyTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Frequency Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Frequency Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function billingFrequencyConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await billingFrequencyDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Billing Frequency Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Billing Frequency Config Data submit error");
+        return next(error);
+    }
+}
+
+// Connection Size controller
+
+async function getConnectionSizeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnectionSizeTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Size Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Size Data fetch error");
+        return next(error);
+    }
+}
+
+async function getConnectionSizeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnectionSizeTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Size Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Size Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function connectionSizeConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await connectionSizeDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Size Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Size Config Data submit error");
+        return next(error);
+    }
+}
+
+// Connection Status Config 
+
+async function getConnectionStatusTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnectionStatusTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Status Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Status Data fetch error");
+        return next(error);
+    }
+}
+
+async function getConnectionStatusTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnectionStatusTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Status Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Status Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function connectionStatusConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await connectionStatusDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Status Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Status Config Data submit error");
+        return next(error);
+    }
+}
+
+// Meter Gap Code Config
+
+async function getMeterGapCodeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getMeterGapCodeTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Meter Gap Code Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Meter Gap Code Data fetch error");
+        return next(error);
+    }
+}
+
+async function getMeterGapCodeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getMeterGapCodeTableStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Meter Gap Code Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Meter Gap Code Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function meterGapCodeConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await meterGapCodeDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Meter Gap Code Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Meter Gap Code Config Data submit error");
+        return next(error);
+    }
+}
+
+// Tax Config
+
+async function getTaxConfigTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getTaxConfigTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Tax Config Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Tax Config Data fetch error");
+        return next(error);
+    }
+}
+
+async function getTaxConfigTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getTaxConfigTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Tax Config Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Tax Config Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function taxConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await taxConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Tax Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Tax Config Data submit error");
+        return next(error);
+    }
+}
+
 module.exports = {
     getULBDropdownController,
     getPremiseTypeDataController,
@@ -249,4 +897,34 @@ module.exports = {
     getUsageSubTypeTableDataController,
     getUsageSubTypeTableDataStatusController,
     usageSubTypeConfigSubmitController,
+    getBillingMethodTableDataController,
+    getBillingMethodTableDataStatusController,
+    billingMethodConfigSubmitController,
+    getConsumerTypeTableDataController,
+    getConsumerTypeTableDataStatusController,
+    consumerTypeConfigSubmitController,
+    getConnCodeTableDataController,
+    getConnCodeTableDataStatusController,
+    connCodeConfigSubmitController,
+    getMeterOwnerTableDataController,
+    getMeterOwnerTableDataStatusController,
+    meterOwnerConfigSubmitController,
+    getBankTableDataController,
+    getBankTableDataStatusController,
+    bankConfigSubmitController,
+    getBillingFrequecyTableDataController,
+    getBillingFrequencyTableDataStatusController,
+    billingFrequencyConfigSubmitController,
+    getConnectionSizeTableDataController,
+    getConnectionSizeTableDataStatusController,
+    connectionSizeConfigSubmitController,
+    getConnectionStatusTableDataController,
+    getConnectionStatusTableDataStatusController,
+    connectionStatusConfigSubmitController,
+    getMeterGapCodeTableDataController,
+    getMeterGapCodeTableDataStatusController,
+    meterGapCodeConfigSubmitController,
+    getTaxConfigTableDataController,
+    getTaxConfigTableDataStatusController,
+    taxConfigSubmitController
 };
