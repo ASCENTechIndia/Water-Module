@@ -12,9 +12,7 @@ import {
 } from "lucide-react";
 import SidebarItem from "../../Components/SidebarItem";
 
-// 🔹 Icon mapping by menu label
 const iconMap = {
-  // Home: LayoutDashboard,
   Default: Shapes,
 };
 
@@ -22,31 +20,345 @@ const STATIC_MENU = [
   {
     MENUID: 1,
     MENUTITLE: "Master",
-    children: [{ MENUID: 101, MENUTITLE: "Temporary", PAGEPATH: "" }],
+    children: [
+      {
+        MENUID: 101,
+        MENUTITLE: "Menu Master",
+        PAGEPATH: "/Masters/FrmMenuList",
+      },
+      {
+        MENUID: 102,
+        MENUTITLE: "User Access",
+        PAGEPATH: "/Masters/FrmUserAccessNewList",
+      },
+      {
+        MENUID: 103,
+        MENUTITLE: "User Creation",
+        PAGEPATH: "/Masters/FrmUserList",
+      },
+      {
+        MENUID: 104,
+        MENUTITLE: "Ward Master",
+        PAGEPATH: "/Masters/FrmWardList",
+      },
+      {
+        MENUID: 105,
+        MENUTITLE: "Zone Master",
+        PAGEPATH: "/Masters/FrmZoneList",
+      },
+      {
+        MENUID: 106,
+        MENUTITLE: "Block Master",
+        PAGEPATH: "/Masters/FrmBlockList",
+      },
+      {
+        MENUID: 107,
+        MENUTITLE: "Bank List",
+        PAGEPATH: "/Masters/FrmBankList",
+      },
+      {
+        MENUID: 108,
+        MENUTITLE: "Rate Master",
+        PAGEPATH: "/Masters/FrmRateList",
+      },
+      {
+        MENUID: 109,
+        MENUTITLE: "ULB Tip Master",
+        PAGEPATH: "/Masters/FrmUlbTipList",
+      },
+      {
+        MENUID: 110,
+        MENUTITLE: "Usage Type Master",
+        PAGEPATH: "/Masters/FrmUsageTypeList",
+      },
+      {
+        MENUID: 111,
+        MENUTITLE: "Consumer List",
+        PAGEPATH: "/Masters/FrmConSumerTypeList",
+      },
+      {
+        MENUID: 112,
+        MENUTITLE: "Bill Frequency List",
+        PAGEPATH: "/Masters/FrmBillFreqList",
+      },
+      {
+        MENUID: 113,
+        MENUTITLE: "Usage Sub Type List",
+        PAGEPATH: "/Masters/FrmUsageSubTypeList",
+      },
+      {
+        MENUID: 123,
+        MENUTITLE: "Gap Code List",
+        PAGEPATH: "/Masters/FrmGapCodeList",
+      },
+      {
+        MENUID: 114,
+        MENUTITLE: "Plumber List",
+        PAGEPATH: "/Masters/FrmPlumberList",
+      },
+      {
+        MENUID: 115,
+        MENUTITLE: "Connection Status",
+        PAGEPATH: "/Masters/FrmConnStatusList",
+      },
+      {
+        MENUID: 116,
+        MENUTITLE: "Tax Master",
+        PAGEPATH: "/Masters/FrmTaxMasterList",
+      },
+      {
+        MENUID: 117,
+        MENUTITLE: "Meter Owner List",
+        PAGEPATH: "/Masters/FrmMeterOwnerList",
+      },
+      {
+        MENUID: 118,
+        MENUTITLE: "Conn Type List",
+        PAGEPATH: "/Masters/FrmConnTypeList",
+      },
+      {
+        MENUID: 119,
+        MENUTITLE: "Conn Code List",
+        PAGEPATH: "/Masters/FrmConnCodeList",
+      },
+      {
+        MENUID: 11,
+        MENUTITLE: "Conn Size",
+        PAGEPATH: "/Masters/FrmConnSizeList",
+      },
+      {
+        MENUID: 120,
+        MENUTITLE: "Billing Method",
+        PAGEPATH: "/Masters/FrmBillingMethodList",
+      },
+      {
+        MENUID: 121,
+        MENUTITLE: "Premise Type List",
+        PAGEPATH: "/Masters/FrmPremiseTypeList",
+      },
+      {
+        MENUID: 122,
+        MENUTITLE: "Collection Center",
+        PAGEPATH: "/Masters/FrmCollcenterList",
+      },
+      {
+        MENUID: 12,
+        MENUTITLE: "Service List",
+        PAGEPATH: "/Masters/FrmServiceList",
+      },
+      {
+        MENUID: 1233,
+        MENUTITLE: "Charge Type",
+        PAGEPATH: "/Masters/FrmChargesTypeList",
+      },
+      {
+        MENUID: 124,
+        MENUTITLE: "Account Tax Config",
+        PAGEPATH: "/Masters/FrmAccTaxConfigList",
+      },
+      {
+        MENUID: 3,
+        MENUTITLE: "MICR Code",
+        PAGEPATH: "/Masters/FrmMicrCodeList",
+      },
+      {
+        MENUID: 14,
+        MENUTITLE: "Bill Schedule",
+        PAGEPATH: "/Masters/FrmBillSheduleList",
+      },
+      {
+        MENUID: 125,
+        MENUTITLE: "Connection No Auto Generation",
+        PAGEPATH: "/Masters/FrmConnectionNoList",
+      },
+      {
+        MENUID: 126,
+        MENUTITLE: "Provisional Cheque Config",
+        PAGEPATH: "/Masters/FrmProvChequeList"
+      },
+      {
+        MENUID: 127,
+        MENUTITLE: "All User List",
+        PAGEPATH: "/Masters/FrmuserallList"
+      },
+    ],
   },
+  {
+    MENUID: 2,
+    MENUTITLE: "Configuration",
+    children: [
+      {
+        MENUID: 201,
+        MENUTITLE: "Premise Type Configuration",
+        PAGEPATH: "/Masters/FrmPremiseTypeConfig",
+      },
+      {
+        MENUID: 202,
+        MENUTITLE: "Usage Type Configuration",
+        PAGEPATH: "/Masters/FrmUsageTypeConfig",
+      },
+      {
+        MENUID: 203,
+        MENUTITLE: "Usage Subtype Configuration",
+        PAGEPATH: "/Masters/FrmUsageSubTypeConfig",
+      },
+      {
+        MENUID: 204,
+        MENUTITLE: "Billing Method Configuration",
+        PAGEPATH: "/Masters/FrmBillingMethodConfig",
+      },
+      {
+        MENUID: 205,
+        MENUTITLE: "Consumer Type Configuration",
+        PAGEPATH: "/Masters/FrmConsumerTypeConfig",
+      },
+      {
+        MENUID: 206,
+        MENUTITLE: "Conn Code Configuration",
+        PAGEPATH: "/Masters/FrmConnCodeConfig",
+      },
+      {
+        MENUID: 207,
+        MENUTITLE: "Meter Owner Configuration",
+        PAGEPATH: "/Masters/FrmMeterOwnerConfig",
+      },
+      {
+        MENUID: 208,
+        MENUTITLE: "Bank Configuration",
+        PAGEPATH: "/Masters/FrmBankConfig",
+      },
+      {
+        MENUID: 209,
+        MENUTITLE: "Billing Frequency Configuration",
+        PAGEPATH: "/Masters/FrmBillingFrequencyConfig",
+      },
+      {
+        MENUID: 210,
+        MENUTITLE: "Connection Size Configuration",
+        PAGEPATH: "/Masters/FrmConnSizeConfig",
+      },
+      {
+        MENUID: 211,
+        MENUTITLE: "Connection Status Configuration",
+        PAGEPATH: "/Masters/FrmConnStatusConfig",
+      },
+      {
+        MENUID: 212,
+        MENUTITLE: "Meter Gap Code Configuration",
+        PAGEPATH: "/Masters/FrmConnStatusConfig",
+      },
+      {
+        MENUID: 213,
+        MENUTITLE: "Tax Configuration",
+        PAGEPATH: "/Masters/FrmTaxMasterConfig",
+      },
+      {
+        MENUID: 214,
+        MENUTITLE: "Connection Type Configuration",
+        PAGEPATH: "/Masters/FrmConnTypeConfig",
+      },
+      {
+        MENUID: 215,
+        MENUTITLE: "Collection Center Configuration",
+        PAGEPATH: "/Masters/FrmCollcenterConfig",
+      },
+      {
+        MENUID: 216,
+        MENUTITLE: "Service Configuration",
+        PAGEPATH: "/Masters/FrmServiceConfig",
+      },
+      {
+        MENUID: 217,
+        MENUTITLE: "Charges Type Configuration",
+        PAGEPATH: "/Masters/FrmChargesTypeConfig",
+      },
+      {
+        MENUID: 218,
+        MENUTITLE: "Service Rate Configuration List",
+        PAGEPATH: "/Masters/FrmServiceRateConfigList"
+      }
+    ],
+  },
+  {
+    MENUID: 3,
+    MENUTITLE: "Water",
+    children: [
+      {
+        MENUID: 301,
+        MENUTITLE: "Connection Master",
+        PAGEPATH: "/Transaction/FrmConnSearch"
+      },
+    ] 
+  },
+  {
+    MENUID: 4,
+    MENUTITLE: "Search",
+    children: [
+      {
+        MENUID: 401,
+        MENUTITLE: "Search Receipt",
+        PAGEPATH: "/Transaction/FrmSearchReciptList"
+      },
+      {
+        MENUID: 402,
+        MENUTITLE: "Connection Search",
+        PAGEPATH: "/ReportsForm/FrmConnectionSearch"
+      }
+    ]
+  },
+  {
+    MENUID: 5,
+    MENUTITLE: "Transaction",
+    children: [
+      {
+        MENUID: 501,
+        MENUTITLE: "Bill Generation",
+        PAGEPATH: "/Transaction/FrmBillGeneration"
+      },
+      {
+        MENUID: 502,
+        MENUTITLE: "Receipt Delete Auth List",
+        PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
+      },
+      {
+        MENUID: 503,
+        MENUTITLE: "Meter Reading Entry",
+        PAGEPATH: "/Transaction/FrmMeterReadingEntry"
+      },
+      {
+        MENUID: 504,
+        MENUTITLE: "Cheque Bounce",
+        PAGEPATH: "/Transaction/FrmChequeBounce"
+      },
+      {
+        MENUID: 505,
+        MENUTITLE: "Receipt Delete List",
+        PAGEPATH: "/Transaction/FrmReceiptDeleteList"
+      },
+      {
+        MENUID: 506,
+        MENUTITLE: "वसुली चलन निर्मिती",
+        PAGEPATH: "/Transaction/FrmVasuliChalanGenerationMBMC"
+      }
+    ]
+  }
 ];
 
 const Navbar = ({ title = "Water", isOpen, onClose }) => {
-  const [openSections, setOpenSections] = useState({});
+  const [openSectionId, setOpenSectionId] = useState(null);
   const { pathname } = useLocation();
 
-  // 🔹 Auto-open the section containing the active page
   useEffect(() => {
-    STATIC_MENU.forEach((section) => {
-      const hasActive = section.children?.some(
-        (item) => item.PAGEPATH === pathname,
-      );
-      if (hasActive) {
-        setOpenSections((prev) => ({ ...prev, [section.MENUID]: true }));
-      }
-    });
+    const activeSection = STATIC_MENU.find((section) =>
+      section.children?.some((item) => item.PAGEPATH === pathname),
+    );
+    if (activeSection) {
+      setOpenSectionId(activeSection.MENUID);
+    }
   }, [pathname]);
 
   const toggleSection = (menuId) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [menuId]: !prev[menuId],
-    }));
+    setOpenSectionId((prev) => (prev === menuId ? null : menuId));
   };
 
   return (
@@ -100,7 +412,7 @@ const Navbar = ({ title = "Water", isOpen, onClose }) => {
           {/* Accordion Menu */}
           <div className="space-y-1">
             {STATIC_MENU.map((section) => {
-              const isOpenSection = openSections[section.MENUID] ?? false;
+              const isOpenSection = openSectionId === section.MENUID;
 
               return (
                 <div key={section.MENUID}>
@@ -125,7 +437,7 @@ const Navbar = ({ title = "Water", isOpen, onClose }) => {
                   {/* Children */}
                   <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out
-                      ${isOpenSection ? "max-h-[600px] opacity-100 mt-1" : "max-h-0 opacity-0"}`}
+                      ${isOpenSection ? "opacity-100 mt-1" : "max-h-0 opacity-0"}`}
                   >
                     <div className="ml-3 pl-3 border-l border-slate-200 space-y-1">
                       {(section.children || []).map((item) => {

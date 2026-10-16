@@ -134,7 +134,7 @@ async function loginWithStoredProcedure(userId, password, extra = {}) {
     userId: out.Out_userid || userId,
     userName: out.Out_UserName,
     username: out.Out_UserName,
-    acccounttype: out.Out_UserType || out.Out_DesigID || '62',
+    acccounttype: '62',
     deptId: 62,
     deptid: 62,
     ulbId: out.out_OrgId,

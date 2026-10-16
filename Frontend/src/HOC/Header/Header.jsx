@@ -22,16 +22,18 @@ const Header = ({ toggleSidebar: parentToggleSidebar }) => {
     const fetchCorpDetails = async () => {
       if (!ulbId) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/textLogo`, {
+        const res = await fetch(`${API_BASE_URL}/admin/textLogo`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ulbId }),
+          body: JSON.stringify({ ulbid: ulbId }),
         });
-        const data = await res.json();
-        if (data.success) {
-          setCorpName(data.data.ABC_MUNICIPAL_TEXT);
-          setCorpEName(data.data.ABC_MUNICIPAL_ETEXT);
-          setLogo(data.data.ULBLOGO);
+        const json = await res.json();
+
+        if (json?.success && json?.data?.success) {
+          const d = json.data.data;
+          setCorpName(d.ABC_MUNICIPAL_TEXT || "");
+          setCorpEName(d.ABC_MUNICIPAL_ETEXT || "");
+          setLogo(d.ULBLOGO || null);
         }
       } catch (err) {
         console.error("Error fetching corporation details:", err);

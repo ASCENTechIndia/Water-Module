@@ -4,10 +4,13 @@ const {
   bucketSetterService,
   getUsersWithPincodesService,
   unassignCasesService,
-  matrixDistanceInsertionService, accCountService, allocateAccService
-} = require('./Admin.service');
-const { auditLog } = require('../../utils/audit-log');
-const { logApiSuccess, logApiError } = require('../../utils/log');
+  matrixDistanceInsertionService,
+  accCountService,
+  allocateAccService,
+  fetchCorporationDetailsService,
+} = require("./Admin.service");
+const { auditLog } = require("../../utils/audit-log");
+const { logApiSuccess, logApiError } = require("../../utils/log");
 
 function requestMeta(req) {
   return {
@@ -19,24 +22,34 @@ function requestMeta(req) {
 
 async function locationTrackingHandler(req, res, next) {
   try {
-     const { userId, cDate } = req.query; 
+    const { userId, cDate } = req.query;
     const rows = await locationTrackingService(userId, cDate);
-    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Location tracking data retrieved`);
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Location tracking data retrieved`,
+    );
     return res.ok(rows);
   } catch (error) {
-    logApiError(req, 500, error.message, 'Location tracking error');
+    logApiError(req, 500, error.message, "Location tracking error");
     return next(error);
   }
 }
 
 async function lastLoginHandler(req, res, next) {
   try {
-     const { userId } = req.query; 
+    const { userId } = req.query;
     const rows = await lastLoginService(userId);
-    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Last login data retrieved`);
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Last login data retrieved`,
+    );
     return res.ok(rows);
   } catch (error) {
-    logApiError(req, 500, error.message, 'Last login error');
+    logApiError(req, 500, error.message, "Last login error");
     return next(error);
   }
 }
@@ -49,13 +62,12 @@ async function bucketSetterHandler(req, res, next) {
       req,
       200,
       { count: result?.p_updated_count || 0 },
-      result.message || "Bucket Setter completed"
+      result.message || "Bucket Setter completed",
     );
 
     return res.ok(result);
-
   } catch (error) {
-    logApiError(req, 500, error.message, 'Bucket Setter error');
+    logApiError(req, 500, error.message, "Bucket Setter error");
     return next(error);
   }
 }
@@ -67,11 +79,11 @@ async function getUsersWithPincodesHandler(req, res, next) {
       req,
       200,
       { count: users?.length || 0 },
-      'Users with pincodes retrieved'
+      "Users with pincodes retrieved",
     );
     return res.ok(users);
   } catch (error) {
-    logApiError(req, 500, error.message, 'Get users with pincodes error');
+    logApiError(req, 500, error.message, "Get users with pincodes error");
     return next(error);
   }
 }
@@ -83,7 +95,7 @@ async function unassignCasesHandler(req, res, next) {
       req,
       200,
       { rowsUpdated: result?.totalRowsUpdated || 0 },
-      result.message || 'Cases unassigned'
+      result.message || "Cases unassigned",
     );
     return res.ok(result);
   } catch (error) {
@@ -91,11 +103,11 @@ async function unassignCasesHandler(req, res, next) {
     if (status < 500) {
       return res.fail(error.message, status);
     }
-    logApiError(req, 500, error.message, 'Unassign cases error');
+    logApiError(req, 500, error.message, "Unassign cases error");
     return next(error);
   }
 }
-  
+
 async function matrixDistanceInsertionHandler(req, res, next) {
   try {
     const result = await matrixDistanceInsertionService();
@@ -103,11 +115,11 @@ async function matrixDistanceInsertionHandler(req, res, next) {
       req,
       200,
       { rowsUpdated: result?.totalRowsAffected || 0 },
-      result.message || 'Matrix distance insertion completed'
+      result.message || "Matrix distance insertion completed",
     );
     return res.ok(result);
   } catch (error) {
-    logApiError(req, 500, error.message, 'Matrix distance insertion error');
+    logApiError(req, 500, error.message, "Matrix distance insertion error");
     return next(error);
   }
 }
@@ -117,16 +129,16 @@ async function getAccCountHandler(req, res, next) {
     logApiSuccess(req, 200, { count: rows?.length || 0 }, `Counts retrieved`);
     return res.ok(rows);
   } catch (error) {
-    logApiError(req, 500, error.message, 'Counts error');
+    logApiError(req, 500, error.message, "Counts error");
   }
 }
 
 async function allocateAccountHandler(req, res, next) {
-   try {
+  try {
     // const payload = req.body;
     const out = await allocateAccService();
 
-    const isSuccess = String(out.Out_errorCode) === '9999';
+    const isSuccess = String(out.Out_errorCode) === "9999";
     if (isSuccess) {
       logApiSuccess(req, 200, `Account Allocation Successful`);
     } else {
@@ -134,19 +146,34 @@ async function allocateAccountHandler(req, res, next) {
     }
 
     auditLog({
-      action: 'ACCOUNT_ALLOCATION',
-      actor: req.user?.userId || 'system',
- module: 'users',
+      action: "ACCOUNT_ALLOCATION",
+      actor: req.user?.userId || "system",
+      module: "users",
       entityId: out.Out_User,
-      status: isSuccess ? 'SUCCESS' : 'FAILED',
-      details: { outErrorCode: out.Out_errorCode, outErrorMsg: out.Out_ErrorMsg },
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+      },
       requestMeta: requestMeta(req),
     });
 
     return res.ok(out);
   } catch (error) {
-logApiError(req, 500, error.message, 'Account Allocation error');
- return next(error);
+    logApiError(req, 500, error.message, "Account Allocation error");
+    return next(error);
+  }
+}
+
+async function fetchCorporationDetailsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await fetchCorporationDetailsService(payload);
+
+    return res.ok(out);
+  } catch (error) {
+    logApiError(req, 500, error.message, "Failed to fetch corporation logo");
+    return next(error);
   }
 }
 
@@ -156,5 +183,8 @@ module.exports = {
   bucketSetterHandler,
   getUsersWithPincodesHandler,
   unassignCasesHandler,
-  matrixDistanceInsertionHandler, getAccCountHandler, allocateAccountHandler
-}
+  matrixDistanceInsertionHandler,
+  getAccCountHandler,
+  allocateAccountHandler,
+  fetchCorporationDetailsController,
+};

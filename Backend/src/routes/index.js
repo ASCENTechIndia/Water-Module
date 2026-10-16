@@ -1,18 +1,21 @@
-const express = require('express');
-const authRoutes = require('../modules/auth/auth.routes');
-// const usersRoutes = require('../modules/users/users.routes');
+const express = require("express");
+const authRoutes = require("../modules/auth/auth.routes");
+const adminRoutes = require("../modules/Admin/Admin.routes");
+const masterRoutes = require("../modules/masters/master.routes");
+const configRoutes = require("../modules/Configuration/config.routes");
 const router = express.Router();
 
-router.get('/health', (req, res) => {
-  return res.ok(null, 'ok');
+router.get("/health", (req, res) => {
+  return res.ok(null, "ok");
 });
 
-router.get('/ready', (req, res) => {
-  return res.ok(null, 'ready');
+router.get("/ready", (req, res) => {
+  return res.ok(null, "ready");
 });
 
-router.use('/auth', authRoutes);
-// router.use('/users', usersRoutes); one route for reference
-
+router.use("/auth", authRoutes);
+router.use("/admin", adminRoutes);
+router.use('/master', masterRoutes);
+router.use("/config", configRoutes);
 
 module.exports = router;
