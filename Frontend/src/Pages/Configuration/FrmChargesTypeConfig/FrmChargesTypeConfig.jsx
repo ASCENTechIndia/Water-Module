@@ -43,6 +43,10 @@ const FrmChargesTypeConfig = () => {
     };
 
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
@@ -56,8 +60,8 @@ const FrmChargesTypeConfig = () => {
         watch,
     } = useForm({
         defaultValues: {
-            ulbName: "1",
-            documentStr: [],
+            ulbName: "",
+            chargesStr: [],
         },
     });
 
