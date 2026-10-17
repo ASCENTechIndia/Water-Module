@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
@@ -9,10 +9,8 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmConnStatusList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
@@ -21,57 +19,34 @@ const FrmConnStatusList = () => {
   const fetchConnStatusList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/getConnectionList");
 
-      // 🔸 DUMMY — replace with apiService.get("getConnStatusList")
-      const dummyData = [
-        { CONNSTATUSID: 1, CONNSTATUSNAME: "Active", ISACTIVE: "Y" },
-        { CONNSTATUSID: 2, CONNSTATUSNAME: "Inactive", ISACTIVE: "Y" },
-        { CONNSTATUSID: 3, CONNSTATUSNAME: "Disconnected", ISACTIVE: "N" },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.CONNSTATUSID}
-            state={{ connStatusId: item.CONNSTATUSID }}
+            key={item.NUM_CONNSTATUS_ID}
+            state={{
+              connStatusId: item.NUM_CONNSTATUS_ID,
+              connStatusName: item.VAR_CONNSTATUS_NAME,
+              flag: item.ACTIVEFLAG,
+            }}
             to={`/Masters/FrmConnStatusMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.CONNSTATUSNAME || "",
-          item.ISACTIVE === "Y" ? "Yes" : "No",
+          item.VAR_CONNSTATUS_NAME || "",
+          item.ACTIVEFLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getConnStatusList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.CONNSTATUSID}
-      //       state={{ connStatusId: item.CONNSTATUSID }}
-      //       to={`/Masters/FrmConnStatusMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.CONNSTATUSNAME || "",
-      //     item.ISACTIVE === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching conn status list:", err);
       setTableData([]);
-      console.error("Error fetching conn status list:", error);
-      alert("Failed to fetch conn status list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -79,7 +54,6 @@ const FrmConnStatusList = () => {
 
   useEffect(() => {
     fetchConnStatusList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -92,7 +66,7 @@ const FrmConnStatusList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmConnStatusMst"}>
             <Button
@@ -105,9 +79,11 @@ const FrmConnStatusList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

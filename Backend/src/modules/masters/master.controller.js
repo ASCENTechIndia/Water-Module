@@ -37,6 +37,12 @@ const {
   gapCodeInsService,
   getPlumberListService,
   plumberInsService,
+  getConnectionListService,
+  connStatusInsService,
+  getTaxListService,
+  getApplyOnDropdownService,
+  taxInsService,
+  getTaxDetailsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -1048,6 +1054,165 @@ async function plumberInsController(req, res, next) {
   }
 }
 
+async function getConnectionListController(req, res, next) {
+  try {
+    const rows = await getConnectionListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection status list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection status list error");
+    return next(err);
+  }
+}
+
+async function connStatusInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await connStatusInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { connStatusId: payload.in_Connstatusid },
+        out.Out_ErrorMsg || "Connection status saved successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Connection status insert failed",
+      );
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "CONNSTATUS_UPDATE" : "CONNSTATUS_CREATE",
+      actor: req.user?.userId || payload.in_Userid || "system",
+      module: "connstatus",
+      entityId: payload.in_Connstatusid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection status insert error");
+    return next(err);
+  }
+}
+
+async function getTaxListController(req, res, next) {
+  try {
+    const rows = await getTaxListService();
+
+    logApiSuccess(req, 200, { count: rows?.length || 0 }, `Tax list retrieved`);
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Tax list error");
+    return next(err);
+  }
+}
+
+async function getApplyOnDropdownController(req, res, next) {
+  try {
+    const rows = await getApplyOnDropdownService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Tax apply-on dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Tax apply-on dropdown error");
+    return next(err);
+  }
+}
+
+async function getTaxDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getTaxDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Tax details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Tax details error");
+    return next(err);
+  }
+}
+
+async function taxInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await taxInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { taxId: payload.in_taxid },
+        out.Out_ErrorMsg || "Tax saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Tax insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "TAX_UPDATE" : "TAX_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "tax",
+      entityId: payload.in_taxid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Tax insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -1087,4 +1252,10 @@ module.exports = {
   gapCodeInsController,
   getPlumberListController,
   plumberInsController,
+  getConnectionListController,
+  connStatusInsController,
+  getTaxListController,
+  getApplyOnDropdownController,
+  taxInsController,
+  getTaxDetailsController,
 };

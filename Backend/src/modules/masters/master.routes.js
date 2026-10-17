@@ -38,6 +38,12 @@ const {
   gapCodeInsController,
   getPlumberListController,
   plumberInsController,
+  getConnectionListController,
+  connStatusInsController,
+  getTaxListController,
+  getApplyOnDropdownController,
+  taxInsController,
+  getTaxDetailsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -53,6 +59,8 @@ const {
   usageSubTypeInsSchema,
   gapCodeInsSchema,
   plumberInsSchema,
+  connStatusInsSchema,
+  taxInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -137,10 +145,24 @@ router.post(
 );
 
 // Plumber master
-router.get("/getPlumberList", getPlumberListController)
+router.get("/getPlumberList", getPlumberListController);
 router.post(
   "/aowt_plumber_ins",
   validate(plumberInsSchema),
   plumberInsController,
 );
+
+// Connection List
+router.get("/getConnectionList", getConnectionListController);
+router.post(
+  "/aowt_connstatus_ins",
+  validate(connStatusInsSchema),
+  connStatusInsController,
+);
+
+// Tax Master
+router.get("/getTaxList", getTaxListController);
+router.get("/getApplyOnDropdown", getApplyOnDropdownController);
+router.get("/getTaxDetails", getTaxDetailsController);
+router.post("/aowt_tax_ins", validate(taxInsSchema), taxInsController);
 module.exports = router;

@@ -789,6 +789,141 @@ const plumberInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const connStatusInsSchema = z.object({
+  in_Userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_Connstatusid: z
+    .number({
+      invalid_type_error: "Connection Status Id must be a number",
+    })
+    .int("Connection Status Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_Connstatusname: z
+    .string({
+      required_error: "Connection Status name is required",
+      invalid_type_error: "Connection Status name must be a string",
+    })
+    .trim()
+    .min(1, "Connection Status name is required"),
+
+  in_connstatusactiveflag: z
+    .string({
+      required_error: "Connection Status active flag is required",
+      invalid_type_error: "Connection Status active flag must be a string",
+    })
+    .trim()
+    .min(1, "Connection Status active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const taxInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_taxid: z
+    .number({
+      invalid_type_error: "Tax Id must be a number",
+    })
+    .int("Tax Id must be an integer")
+    .nullable(),
+
+  in_ename: z
+    .string({
+      required_error: "Tax name (English) is required",
+      invalid_type_error: "Tax name (English) must be a string",
+    })
+    .trim()
+    .min(1, "Tax name (English) is required"),
+
+  in_mname: z
+    .string({
+      required_error: "Tax name (Marathi) is required",
+      invalid_type_error: "Tax name (Marathi) must be a string",
+    })
+    .trim()
+    .min(1, "Tax name (Marathi) is required"),
+
+  in_code: z
+    .string({
+      required_error: "Tax code is required",
+      invalid_type_error: "Tax code must be a string",
+    })
+    .trim()
+    .min(1, "Tax code is required"),
+
+  in_owner: z
+    .string({
+      required_error: "Tax owner is required",
+      invalid_type_error: "Tax owner must be a string",
+    })
+    .trim()
+    .min(1, "Tax owner is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_ApplyOn: z
+    .number({
+      required_error: "Apply On is required",
+      invalid_type_error: "Apply On must be a number",
+    })
+    .int("Apply On must be an integer"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
@@ -802,4 +937,6 @@ module.exports = {
   usageSubTypeInsSchema,
   gapCodeInsSchema,
   plumberInsSchema,
+  connStatusInsSchema,
+  taxInsSchema,
 };

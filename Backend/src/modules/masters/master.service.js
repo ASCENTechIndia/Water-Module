@@ -37,6 +37,12 @@ const {
   aowt_gapcode_ins,
   getPlumberList,
   aowt_plumber_ins,
+  getConnectionList,
+  aowt_connstatus_ins,
+  getTaxList,
+  getApplyOnDropdown,
+  aowt_tax_ins,
+  getTaxDetails,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -191,6 +197,30 @@ async function plumberInsService(payload) {
   return aowt_plumber_ins(payload);
 }
 
+async function getConnectionListService() {
+  return getConnectionList();
+}
+
+async function connStatusInsService(payload) {
+  return aowt_connstatus_ins(payload);
+}
+
+async function getTaxListService() {
+  return getTaxList();
+}
+
+async function getApplyOnDropdownService() {
+  return getApplyOnDropdown();
+}
+
+async function getTaxDetailsService(payload) {
+  return getTaxDetails(payload);
+}
+
+async function taxInsService(payload) {
+  return aowt_tax_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -230,4 +260,10 @@ module.exports = {
   gapCodeInsService,
   getPlumberListService,
   plumberInsService,
+  getConnectionListService,
+  connStatusInsService,
+  getTaxListService,
+  getApplyOnDropdownService,
+  getTaxDetailsService,
+  taxInsService,
 };

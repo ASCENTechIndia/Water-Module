@@ -21,13 +21,19 @@ const FrmTaxMasterMst = () => {
   const taxId = state?.taxId;
   const isEdit = !!taxId;
 
-  const [taxOwnerOptions, setTaxOwnerOptions] = useState([]);
   const [taxApplyOnOptions, setTaxApplyOnOptions] = useState([]);
+  const [taxDetail, setTaxDetail] = useState(null);
+
+  // Hardcoded Tax Owner
+  const taxOwnerOptions = [
+    { value: "G", label: "Govt" },
+    { value: "V", label: "ULB" },
+  ];
 
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -39,97 +45,77 @@ const FrmTaxMasterMst = () => {
     },
   });
 
-  // ---------- Load dropdowns (DUMMY) ----------
+  // Tax Apply On dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with real APIs later
-    setTaxOwnerOptions([
-      { value: "Govt", label: "Govt" },
-      { value: "ULB", label: "ULB" },
-    ]);
-
-    setTaxApplyOnOptions([
-      { value: "1", label: "Bill" },
-      { value: "2", label: "Receipt" },
-      { value: "3", label: "Both" },
-    ]);
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchTaxApplyOn = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getTaxApplyOnDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       setTaxApplyOnOptions(
-    //         res.data.data.map((item) => ({
-    //           value: String(item.ID),
-    //           label: item.NAME,
-    //         })),
-    //       );
-    //     } else {
-    //       setTaxApplyOnOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("Tax Apply On dropdown error:", err);
-    //     setTaxApplyOnOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchTaxApplyOn();
+    const fetchApplyOn = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getApplyOnDropdown");
+        if (res?.success && Array.isArray(res.data)) {
+          setTaxApplyOnOptions(
+            res.data.map((item) => ({
+              value: String(item.NUM_TAXAPPLYON_ID),
+              label: item.VAR_TAXAPPLYON_NAME,
+            })),
+          );
+        } else {
+          setTaxApplyOnOptions([]);
+        }
+      } catch (err) {
+        console.error("Tax Apply On dropdown error:", err);
+        alert(err.message);
+        setTaxApplyOnOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchApplyOn();
   }, []);
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Tax details
   useEffect(() => {
     if (!taxId) return;
 
-    // 🔸 DUMMY — replace with apiService.post("getTaxDetail", { taxId: Number(taxId) })
-    const dummyDetail = {
-      NUM_TAX_ID: taxId,
-      VAR_TAX_NAME_EN: "Water Tax",
-      VAR_TAX_NAME_MR: "पाणीपट्टी",
-      VAR_TAX_CODE: "WT01",
-      VAR_TAX_OWNER: "ULB",
-      NUM_TAX_APPLY_ON: "1",
+    const fetchTaxDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getTaxDetails?taxId=${taxId}`,
+        );
+        if (res?.success && res?.data?.length > 0) {
+          setTaxDetail(res.data[0]);
+        } else {
+          alert("Data Not Found");
+        }
+      } catch (err) {
+        console.error("Tax details error:", err);
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchTaxDetails();
+  }, [taxId]);
 
-    reset({
-      taxNameEn: dummyDetail.VAR_TAX_NAME_EN || "",
-      taxNameMr: dummyDetail.VAR_TAX_NAME_MR || "",
-      taxCode: dummyDetail.VAR_TAX_CODE || "",
-      taxOwner: dummyDetail.VAR_TAX_OWNER || "",
-      taxApplyOn: String(dummyDetail.NUM_TAX_APPLY_ON || ""),
-    });
+  // Prefill simple fields
+  useEffect(() => {
+    if (!taxDetail) return;
+    setValue("taxNameEn", taxDetail.ENAME || "");
+    setValue("taxNameMr", taxDetail.MNAME || "");
+    setValue("taxCode", taxDetail.CODE || "");
+    setValue("taxOwner", taxDetail.OWNER || "");
+  }, [taxDetail, setValue]);
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getTaxDetail", {
-    //       taxId: Number(taxId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         taxNameEn: d.VAR_TAX_NAME_EN || "",
-    //         taxNameMr: d.VAR_TAX_NAME_MR || "",
-    //         taxCode: d.VAR_TAX_CODE || "",
-    //         taxOwner: d.VAR_TAX_OWNER || "",
-    //         taxApplyOn: String(d.NUM_TAX_APPLY_ON || ""),
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Tax detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Tax detail error:", err);
-    //     alert("Failed to fetch tax detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [taxId, reset]);
+  // Prefill Tax Apply On (after options load)
+  useEffect(() => {
+    if (!taxDetail || taxApplyOnOptions.length === 0) return;
+    const id = String(taxDetail.APPLYON || "");
+    if (taxApplyOnOptions.some((o) => o.value === id)) {
+      setValue("taxApplyOn", id);
+    }
+  }, [taxDetail, taxApplyOnOptions, setValue]);
 
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -142,38 +128,38 @@ const FrmTaxMasterMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_TaxId: isEdit ? Number(taxId) : null,
-        in_TaxNameEn: data.taxNameEn.trim(),
-        in_TaxNameMr: data.taxNameMr.trim(),
-        in_TaxCode: data.taxCode.trim(),
-        in_TaxOwner: data.taxOwner,
-        in_TaxApplyOn: Number(data.taxApplyOn),
-        in_UlbId: Number(ulbid),
+        in_taxid: isEdit ? Number(taxId) : null,
+        in_ename: data.taxNameEn.trim(),
+        in_mname: data.taxNameMr.trim(),
+        in_code: data.taxCode.trim(),
+        in_owner: data.taxOwner,
         in_ipaddress: ip,
         in_source: config.source,
+        in_Mode: isEdit ? 2 : 1,
+        in_ApplyOn: Number(data.taxApplyOn),
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Tax payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmTaxMasterList");
+      const res = await apiService.post("/master/aowt_tax_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_tax_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmTaxMasterList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save tax",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving tax:", error);
-      alert("API Error — check console for details.");
+      const isSuccess =
+        res?.success &&
+        (res?.data?.Out_errorCode === 9999 ||
+          res?.data?.Out_errorCode === null ||
+          res?.data?.Out_errorCode === undefined);
+
+      if (isSuccess) {
+        alert(res?.data?.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmTaxMasterList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving tax:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -189,9 +175,8 @@ const FrmTaxMasterMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. कराचे इंग्रजी नाव */}
+          {/* कराचे इंग्रजी नाव */}
           <div>
             <Label text="कराचे इंग्रजी नाव : " required />
             <input
@@ -213,7 +198,7 @@ const FrmTaxMasterMst = () => {
             )}
           </div>
 
-          {/* 2. कराचे मराठी नाव */}
+          {/* कराचे मराठी नाव */}
           <div>
             <Label text="कराचे मराठी नाव : " required />
             <input
@@ -235,7 +220,7 @@ const FrmTaxMasterMst = () => {
             )}
           </div>
 
-          {/* 3. कराचा कोड */}
+          {/* कराचा कोड */}
           <div>
             <Label text="कराचा कोड : " required />
             <input
@@ -257,7 +242,7 @@ const FrmTaxMasterMst = () => {
             )}
           </div>
 
-          {/* 4. Tax Owner */}
+          {/* Tax Owner */}
           <div>
             <Label text="Tax Owner : " required />
             <select
@@ -282,7 +267,7 @@ const FrmTaxMasterMst = () => {
             )}
           </div>
 
-          {/* 5. Tax Apply On */}
+          {/* Tax Apply On */}
           <div>
             <Label text="Tax Apply On : " required />
             <select
@@ -308,7 +293,6 @@ const FrmTaxMasterMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

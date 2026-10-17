@@ -1142,6 +1142,164 @@ async function aowt_plumber_ins(payload) {
   return result.outBinds;
 }
 
+async function getConnectionList() {
+  const sql = `
+    select num_connstatus_id,
+           var_connstatus_name,
+           case var_connstatus_activeflag
+             when 'Y' then 'Active'
+             when 'N' then 'InActive'
+           end activeflag,
+           dat_connstatus_insdt,
+           var_connstatus_insby,
+           dat_connstatus_updt,
+           var_connstatus_updby
+      from aowt_connstatus_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_connstatus_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_connstatus_ins(
+        :in_Userid,
+        :in_Connstatusid,
+        :in_Mode,
+        :in_Connstatusname,
+        :in_connstatusactiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_Userid: payload.in_Userid,
+    in_Connstatusid:
+      payload.in_Connstatusid != null ? Number(payload.in_Connstatusid) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_Connstatusname: payload.in_Connstatusname,
+    in_connstatusactiveflag: payload.in_connstatusactiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getTaxList() {
+  const sql = `
+    select num_tax_id id,
+           var_tax_ename ename,
+           var_tax_mname mname,
+           var_tax_code code,
+           case var_tax_owner
+             when 'G' then 'GOVT'
+             when 'V' then 'ULB'
+             else ''
+           end owner
+      from aowt_tax_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getApplyOnDropdown() {
+  const sql = `
+    select var_taxapplyon_name,
+           num_taxapplyon_id
+      from aoms_taxapplyon_mas
+     where var_taxapplyon_active = 'Y'
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getTaxDetails(payload) {
+  const { taxId } = payload;
+
+  if (!taxId) {
+    throw new Error("taxId is required");
+  }
+
+  const sql = `
+    select num_tax_id id,
+           var_tax_ename ename,
+           var_tax_mname mname,
+           var_tax_code code,
+           var_tax_owner owner,
+           num_tax_applyon applyon
+      from aowt_tax_mas
+     where num_tax_id = :taxId
+  `;
+
+  const binds = {
+    taxId: Number(taxId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_tax_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_tax_ins(
+        :in_UserId,
+        :in_taxid,
+        :in_ename,
+        :in_mname,
+        :in_code,
+        :in_owner,
+        :in_ipaddress,
+        :in_source,
+        :in_Mode,
+        :in_ApplyOn,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_taxid: payload.in_taxid != null ? Number(payload.in_taxid) : null,
+    in_ename: payload.in_ename,
+    in_mname: payload.in_mname,
+    in_code: payload.in_code,
+    in_owner: payload.in_owner,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_Mode: Number(payload.in_Mode),
+    in_ApplyOn: Number(payload.in_ApplyOn),
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -1181,4 +1339,10 @@ module.exports = {
   aowt_gapcode_ins,
   getPlumberList,
   aowt_plumber_ins,
+  getConnectionList,
+  aowt_connstatus_ins,
+  getTaxList,
+  getApplyOnDropdown,
+  aowt_tax_ins,
+  getTaxDetails,
 };
