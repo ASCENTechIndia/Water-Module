@@ -1414,6 +1414,222 @@ async function taxConfigDataSubmitRepo(payload) {
     return result.outBinds || [];
 }
 
+// Connection Type Config
+
+async function getConnectionTypeTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select distinct
+            (num_conntype_id) conntypeid,
+            var_conntype_name,
+            'N' previousStatus,
+            'N' currentStatus   
+        from aowt_conntype_mas 
+        left join aowt_conntype_config on num_conntypeconfig_conntypeid = num_conntype_id 
+        and num_conntypeconfig_ulbid= :ulbId
+        order by conntypeid
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getConnectionTypeTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_conntypeconfig_id,
+            num_conntypeconfig_conntypeid conntypeidconfig,
+            num_conntypeconfig_ulbid 
+        from aowt_conntype_config  
+        where var_conntypeconfig_flag='Y'
+        and num_conntypeconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function connectionTypeDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ULBid,
+        in_ConnTypeStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_conntypeconfig_ins(
+                :in_UserId,
+                :in_ULBid,
+                :in_ConnTypeStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ULBid: Number(in_ULBid),
+        in_ConnTypeStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// Collection Center Config
+
+async function getCollectionCenterTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        SELECT 
+            num_collcentre_id CollCenterid, 
+            var_collcentre_name CollCenter_name,
+            'N' previousstatus, 
+            'N' currentstatus,
+            num_collcentre_ulbid  
+        FROM aowt_collcentre_mas
+        left JOIN aowt_collcentreconfig_mas ON num_collcentre_id = num_collcentreconfig_collcentreconfigid
+        AND num_collcentreconfig_ulbid = :ulbId
+        WHERE 1 = 1 and var_collcentre_activeflag='Y'
+        ORDER BY var_collcentreconfig_activeflg
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getCollectionCenterTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        SELECT 
+            num_collcentreconfig_configid ConfigId,
+            num_collcentreconfig_collcentreconfigid CollCenterconfigId,
+            var_collcentre_name  ,
+            num_collcentreconfig_ulbid
+        FROM aowt_collcentreconfig_mas
+        inner join aowt_collcentre_mas on num_collcentreconfig_collcentreconfigid = num_collcentre_id
+        where num_collcentreconfig_ulbid=:ulbId
+        order by var_collcentre_activeflag
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function collectionCenterDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ULBid,
+        in_CollcentreCgStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_collcentreconfig_ins(
+                :in_UserId,
+                :in_ULBid,
+                :in_CollcentreCgStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ULBid: Number(in_ULBid),
+        in_CollcentreCgStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
 module.exports = {
     getULBDropdownRepo,
     getPremiseTypeDataRepo,
@@ -1455,5 +1671,11 @@ module.exports = {
     meterGapCodeDataSubmitRepo,
     getTaxConfigTableDataRepo,
     getTaxConfigTableDataStatusRepo,
-    taxConfigDataSubmitRepo
+    taxConfigDataSubmitRepo,
+    getConnectionTypeTableDataRepo,
+    getConnectionTypeTableDataStatusRepo,
+    connectionTypeDataSubmitRepo,
+    getCollectionCenterTableDataRepo,
+    getCollectionCenterTableDataStatusRepo,
+    collectionCenterDataSubmitRepo
 };

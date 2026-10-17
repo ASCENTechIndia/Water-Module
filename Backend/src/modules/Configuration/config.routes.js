@@ -40,8 +40,15 @@ const {
     meterGapCodeConfigSubmitController,
     getTaxConfigTableDataController,
     getTaxConfigTableDataStatusController,
-    taxConfigSubmitController
+    taxConfigSubmitController,
+    getConnectionTypeTableDataController,
+    getConnectionTypeTableDataStatusController,
+    connectionTypeSubmitController,
+    getCollectionCenterTableDataController,
+    getCollectionCenterTableDataStatusController,
+    collectionCenterSubmitController
 } = require("./config.controller");
+const { getConnectionTypeTableDataService } = require("./config.service");
 
 const router = express.Router();
 
@@ -112,5 +119,15 @@ router.post("/meter-gap-code", meterGapCodeConfigSubmitController);
 router.get("/getTaxConfigTableData", getTaxConfigTableDataController);
 router.get("/getTaxConfigTableDataStatus", getTaxConfigTableDataStatusController);
 router.post("/tax-config", taxConfigSubmitController);
+
+// Connection Type Config
+router.get("/getConnectionTypeTableData", getConnectionTypeTableDataController);
+router.get("/getConnectionTypeTableDataStatus", getConnectionTypeTableDataStatusController);
+router.post("/connection-type", connectionTypeSubmitController);
+
+// Collection Center Config
+router.get("/getCollectionCenterTableData", getCollectionCenterTableDataController);
+router.get("/getCollectionCenterTableDataStatus", getCollectionCenterTableDataStatusController);
+router.post("/collection-center", collectionCenterSubmitController);
 
 module.exports = router;

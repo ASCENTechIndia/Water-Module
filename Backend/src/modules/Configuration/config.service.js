@@ -39,7 +39,13 @@ const {
     meterGapCodeDataSubmitRepo,
     getTaxConfigTableDataRepo,
     getTaxConfigTableDataStatusRepo,
-    taxConfigDataSubmitRepo
+    taxConfigDataSubmitRepo,
+    getConnectionTypeTableDataRepo,
+    getConnectionTypeTableDataStatusRepo,
+    connectionTypeDataSubmitRepo,
+    getCollectionCenterTableDataRepo,
+    getCollectionCenterTableDataStatusRepo,
+    collectionCenterDataSubmitRepo
 } = require("./config.repo");
 
 async function getULBDropdownService() {
@@ -230,6 +236,34 @@ async function taxConfigDataSubmitService (payload) {
     return taxConfigDataSubmitRepo(payload);
 }
 
+// Connection Type Config
+
+async function getConnectionTypeTableDataService(payload) {
+    return getConnectionTypeTableDataRepo(payload);
+}
+
+async function getConnectionTypeTableDataStatusService(payload) {
+    return getConnectionTypeTableDataStatusRepo(payload);
+}
+
+async function connectionTypeDataSubmitService(payload) {
+    return connectionTypeDataSubmitRepo(payload);
+}
+
+// Collection Center Config
+
+async function getCollectionCenterTableDataService(payload) {
+    return getCollectionCenterTableDataRepo(payload);
+}
+
+async function getCollectionCenterTableDataStatusService(payload) {
+    return getCollectionCenterTableDataStatusRepo(payload);
+}
+
+async function collectionCenterDataSubmitService(payload) {
+    return collectionCenterDataSubmitRepo(payload);
+}
+
 module.exports = {
     getULBDropdownService,
     getPremiseTypeDataService,
@@ -271,5 +305,11 @@ module.exports = {
     meterGapCodeDataSubmitService,
     getTaxConfigTableDataService,
     getTaxConfigTableDataStatusService,
-    taxConfigDataSubmitService
+    taxConfigDataSubmitService,
+    getConnectionTypeTableDataService,
+    getConnectionTypeTableDataStatusService,
+    connectionTypeDataSubmitService,
+    getCollectionCenterTableDataService,
+    getCollectionCenterTableDataStatusService,
+    collectionCenterDataSubmitService
 };
