@@ -45,7 +45,10 @@ const {
     connectionTypeDataSubmitRepo,
     getCollectionCenterTableDataRepo,
     getCollectionCenterTableDataStatusRepo,
-    collectionCenterDataSubmitRepo
+    collectionCenterDataSubmitRepo,
+    getServiceConfigTableDataRepo,
+    getServiceConfigTableDataStatusRepo,
+    serviceConfigDataSubmitRepo
 } = require("./config.repo");
 
 async function getULBDropdownService() {
@@ -264,6 +267,20 @@ async function collectionCenterDataSubmitService(payload) {
     return collectionCenterDataSubmitRepo(payload);
 }
 
+// Service Config
+
+async function getServiceConfigTableDataService(payload) {
+    return getServiceConfigTableDataRepo(payload);
+}
+
+async function getServiceConfigTableDataStatusService(payload) {
+    return getServiceConfigTableDataStatusRepo(payload);
+}
+
+async function serviceConfigDataSubmitService(payload) {
+    return serviceConfigDataSubmitRepo(payload);
+}
+
 module.exports = {
     getULBDropdownService,
     getPremiseTypeDataService,
@@ -311,5 +328,8 @@ module.exports = {
     connectionTypeDataSubmitService,
     getCollectionCenterTableDataService,
     getCollectionCenterTableDataStatusService,
-    collectionCenterDataSubmitService
+    collectionCenterDataSubmitService,
+    getServiceConfigTableDataService,
+    getServiceConfigTableDataStatusService,
+    serviceConfigDataSubmitService
 };

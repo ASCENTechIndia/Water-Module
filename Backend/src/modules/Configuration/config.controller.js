@@ -46,7 +46,10 @@ const {
     connectionTypeDataSubmitService,
     getCollectionCenterTableDataService,
     getCollectionCenterTableDataStatusService,
-    collectionCenterDataSubmitService
+    collectionCenterDataSubmitService,
+    getServiceConfigTableDataService,
+    getServiceConfigTableDataStatusService,
+    serviceConfigDataSubmitService
 } = require("./config.service");
 
 async function getULBDropdownController(req, res, next) {
@@ -1015,6 +1018,68 @@ async function collectionCenterSubmitController(req, res, next) {
     }
 }
 
+// Service Config
+
+async function getServiceConfigTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getServiceConfigTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Config Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Config Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getServiceConfigTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getServiceConfigTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Config Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Config Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function serviceConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await serviceConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Config Data submit error");
+        return next(error);
+    }
+}
+
 module.exports = {
     getULBDropdownController,
     getPremiseTypeDataController,
@@ -1062,5 +1127,8 @@ module.exports = {
     connectionTypeSubmitController,
     getCollectionCenterTableDataController,
     getCollectionCenterTableDataStatusController,
-    collectionCenterSubmitController
+    collectionCenterSubmitController,
+    getServiceConfigTableDataController,
+    getServiceConfigTableDataStatusController,
+    serviceConfigSubmitController    
 };

@@ -276,6 +276,11 @@ const STATIC_MENU = [
         MENUID: 218,
         MENUTITLE: "Service Rate Configuration List",
         PAGEPATH: "/Masters/FrmServiceRateConfigList"
+      },
+      {
+        MENUID: 219,
+        MENUTITLE: "User Collection Configuration",
+        PAGEPATH: "/Transaction/FrmUserCollectionConfig"
       }
     ],
   },

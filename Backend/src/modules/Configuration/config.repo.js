@@ -1630,6 +1630,114 @@ async function collectionCenterDataSubmitRepo(payload) {
     return result.outBinds || [];
 }
 
+// Service Config
+
+async function getServiceConfigTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        SELECT 
+            num_service_id ServiceId,
+            var_service_ename,
+            'N' previousStatus,
+            'N' currentStatus 
+        FROM aoWT_service_mas
+        left join aoWT_serviceconfig_mas on  num_serviceconfig_servid = num_service_id
+        and num_serviceconfig_ulbid =:ulbId
+        where 1=1 
+        order by var_serviceconfig_activeflag
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getServiceConfigTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_serviceconfig_id ,
+            num_serviceconfig_Servid ServConfid,
+            num_serviceconfig_ulbid 
+        FROM aoWT_serviceconfig_mas 
+        where 1=1 
+        and var_serviceconfig_activeflag='Y'
+        and num_serviceconfig_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function serviceConfigDataSubmitRepo(payload) {
+    const {
+        in_userid,
+        in_orgid,
+        in_servicestr,
+        in_mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_serviceconfig_ins(
+                :in_userid,
+                :in_orgid,
+                :in_servicestr,
+                :in_mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_userid,
+        in_orgid: Number(in_orgid),
+        in_servicestr,
+        in_mode: Number(in_mode),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
 module.exports = {
     getULBDropdownRepo,
     getPremiseTypeDataRepo,
@@ -1677,5 +1785,8 @@ module.exports = {
     connectionTypeDataSubmitRepo,
     getCollectionCenterTableDataRepo,
     getCollectionCenterTableDataStatusRepo,
-    collectionCenterDataSubmitRepo
+    collectionCenterDataSubmitRepo,
+    getServiceConfigTableDataRepo,
+    getServiceConfigTableDataStatusRepo,
+    serviceConfigDataSubmitRepo
 };
