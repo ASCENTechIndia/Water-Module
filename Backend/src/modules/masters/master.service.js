@@ -43,6 +43,8 @@ const {
   getApplyOnDropdown,
   aowt_tax_ins,
   getTaxDetails,
+  getMeterOwnerList,
+  aowt_meterowner_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -221,6 +223,14 @@ async function taxInsService(payload) {
   return aowt_tax_ins(payload);
 }
 
+async function getMeterOwnerListService() {
+  return getMeterOwnerList();
+}
+
+async function meterOwnerInsService(payload) {
+  return aowt_meterowner_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -266,4 +276,6 @@ module.exports = {
   getApplyOnDropdownService,
   getTaxDetailsService,
   taxInsService,
+  getMeterOwnerListService,
+  meterOwnerInsService,
 };

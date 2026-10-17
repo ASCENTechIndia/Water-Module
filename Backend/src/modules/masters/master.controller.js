@@ -43,6 +43,8 @@ const {
   getApplyOnDropdownService,
   taxInsService,
   getTaxDetailsService,
+  getMeterOwnerListService,
+  meterOwnerInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -1213,6 +1215,67 @@ async function taxInsController(req, res, next) {
   }
 }
 
+async function getMeterOwnerListController(req, res, next) {
+  try {
+    const rows = await getMeterOwnerListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Meter owner list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Meter owner list error");
+    return next(err);
+  }
+}
+
+async function meterOwnerInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await meterOwnerInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { meterOwnerId: payload.in_MeterOwnerid },
+        out.Out_ErrorMsg || "Meter owner saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Meter owner insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "METEROWNER_UPDATE" : "METEROWNER_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "meterowner",
+      entityId: payload.in_MeterOwnerid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Meter owner insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -1258,4 +1321,6 @@ module.exports = {
   getApplyOnDropdownController,
   taxInsController,
   getTaxDetailsController,
+  getMeterOwnerListController,
+  meterOwnerInsController,
 };

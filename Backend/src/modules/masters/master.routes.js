@@ -44,6 +44,8 @@ const {
   getApplyOnDropdownController,
   taxInsController,
   getTaxDetailsController,
+  getMeterOwnerListController,
+  meterOwnerInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -61,6 +63,7 @@ const {
   plumberInsSchema,
   connStatusInsSchema,
   taxInsSchema,
+  meterOwnerInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -165,4 +168,12 @@ router.get("/getTaxList", getTaxListController);
 router.get("/getApplyOnDropdown", getApplyOnDropdownController);
 router.get("/getTaxDetails", getTaxDetailsController);
 router.post("/aowt_tax_ins", validate(taxInsSchema), taxInsController);
+
+// Meter owner list
+router.get("/getMeterOwnerList", getMeterOwnerListController);
+router.post(
+  "/aowt_meterowner_ins",
+  validate(meterOwnerInsSchema),
+  meterOwnerInsController,
+);
 module.exports = router;

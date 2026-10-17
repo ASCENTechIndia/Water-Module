@@ -1300,6 +1300,64 @@ async function aowt_tax_ins(payload) {
   return result.outBinds;
 }
 
+async function getMeterOwnerList() {
+  const sql = `
+    select num_meterowner_id meterowner_id,
+           var_meterowner_name meterowner_name,
+           case var_meterowner_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_meterowner_insdt insdt,
+           var_meterowner_insby insby,
+           dat_meterowner_updt updt,
+           var_meterowner_updby updby
+      from aowt_meterowner_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_meterowner_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_meterowner_ins(
+        :in_UserId,
+        :in_MeterOwnerid,
+        :in_MeterOwnername,
+        :in_activeflag,
+        :in_ipaddress,
+        :in_source,
+        :in_Mode,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_MeterOwnerid:
+      payload.in_MeterOwnerid != null ? Number(payload.in_MeterOwnerid) : null,
+    in_MeterOwnername: payload.in_MeterOwnername,
+    in_activeflag: payload.in_activeflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_Mode: Number(payload.in_Mode),
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -1345,4 +1403,6 @@ module.exports = {
   getApplyOnDropdown,
   aowt_tax_ins,
   getTaxDetails,
+  getMeterOwnerList,
+  aowt_meterowner_ins,
 };
