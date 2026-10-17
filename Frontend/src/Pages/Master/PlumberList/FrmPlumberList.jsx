@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
@@ -9,10 +9,8 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmPlumberList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
@@ -21,74 +19,36 @@ const FrmPlumberList = () => {
   const fetchPlumberList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/getPlumberList");
 
-      // 🔸 DUMMY — replace with apiService.get("getPlumberList")
-      const dummyData = [
-        {
-          PLUMBERID: 1,
-          PLUMBERNAME: "Rajesh Kumar",
-          PLUMBERCODE: "PLB001",
-          ISACTIVE: "Y",
-        },
-        {
-          PLUMBERID: 2,
-          PLUMBERNAME: "Suresh Patil",
-          PLUMBERCODE: "PLB002",
-          ISACTIVE: "Y",
-        },
-        {
-          PLUMBERID: 3,
-          PLUMBERNAME: "Mahesh Jadhav",
-          PLUMBERCODE: "PLB003",
-          ISACTIVE: "N",
-        },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.PLUMBERID}
-            state={{ plumberId: item.PLUMBERID }}
+            key={item.NUM_PLUMBER_ID}
+            state={{
+              plumberId: item.NUM_PLUMBER_ID,
+              plumberName: item.VAR_PLUMBER_NAME,
+              plumberCode: item.VAR_PLUMBER_CODE,
+              flag: item.ACTIVEFLAG,
+            }}
             to={`/Masters/FrmPlumberMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.PLUMBERNAME || "",
-          item.PLUMBERCODE || "",
-          item.ISACTIVE === "Y" ? "Yes" : "No",
+          item.VAR_PLUMBER_NAME || "",
+          item.VAR_PLUMBER_CODE || "",
+          item.ACTIVEFLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getPlumberList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.PLUMBERID}
-      //       state={{ plumberId: item.PLUMBERID }}
-      //       to={`/Masters/FrmPlumberMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.PLUMBERNAME || "",
-      //     item.PLUMBERCODE || "",
-      //     item.ISACTIVE === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching plumber list:", err);
       setTableData([]);
-      console.error("Error fetching plumber list:", error);
-      alert("Failed to fetch plumber list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -96,7 +56,6 @@ const FrmPlumberList = () => {
 
   useEffect(() => {
     fetchPlumberList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -109,7 +68,7 @@ const FrmPlumberList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmPlumberMst"}>
             <Button
@@ -122,9 +81,11 @@ const FrmPlumberList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

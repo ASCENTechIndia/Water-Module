@@ -24,62 +24,25 @@ const FrmPlumberMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       plumberName: "",
       plumberCode: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!plumberId) return;
+    if (!isEdit) return;
+    setValue("plumberName", state?.plumberName || "");
+    setValue("plumberCode", state?.plumberCode || "");
+    setValue("isActive", state?.flag === "Yes" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getPlumberDetail", { plumberId: Number(plumberId) })
-    const dummyDetail = {
-      NUM_PLUMBER_ID: plumberId,
-      VAR_PLUMBER_NAME: "Rajesh Kumar",
-      VAR_PLUMBER_CODE: "PLB001",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      plumberName: dummyDetail.VAR_PLUMBER_NAME || "",
-      plumberCode: dummyDetail.VAR_PLUMBER_CODE || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getPlumberDetail", {
-    //       plumberId: Number(plumberId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         plumberName: d.VAR_PLUMBER_NAME || "",
-    //         plumberCode: d.VAR_PLUMBER_CODE || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Plumber detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Plumber detail error:", err);
-    //     alert("Failed to fetch plumber detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [plumberId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -92,36 +55,30 @@ const FrmPlumberMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
         in_PlumberId: isEdit ? Number(plumberId) : null,
+        in_Mode: isEdit ? 2 : 1,
         in_PlumberName: data.plumberName.trim(),
         in_PlumberCode: data.plumberCode.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_PlumberActiveflag: data.isActive,
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Plumber payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmPlumberList");
+      const res = await apiService.post("/master/aowt_plumber_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_plumber_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmPlumberList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save plumber",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving plumber:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_ErrorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmPlumberList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving plumber:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -137,9 +94,8 @@ const FrmPlumberMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Plumber Name */}
+          {/* Plumber Name */}
           <div>
             <Label text="Plumber Name : " required />
             <input
@@ -161,7 +117,7 @@ const FrmPlumberMst = () => {
             )}
           </div>
 
-          {/* 2. Plumber Code */}
+          {/* Plumber Code */}
           <div>
             <Label text="Plumber Code : " required />
             <input
@@ -183,7 +139,7 @@ const FrmPlumberMst = () => {
             )}
           </div>
 
-          {/* 3. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -218,7 +174,6 @@ const FrmPlumberMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

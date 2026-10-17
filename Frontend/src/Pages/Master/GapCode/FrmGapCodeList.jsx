@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
 import apiService from "../../../../apiService";
-import { useAuth } from "../../../Context/AuthContext";
 import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmGapCodeList = () => {
-  const { user } = useAuth();
-  const userId = user?.userId;
-  const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
@@ -21,57 +16,34 @@ const FrmGapCodeList = () => {
   const fetchGapCodeList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/getGapCodeList");
 
-      // 🔸 DUMMY — replace with apiService.get("getGapCodeList")
-      const dummyData = [
-        { GAPCODEID: 1, GAPCODENAME: "Gap-A", ISACTIVE: "Y" },
-        { GAPCODEID: 2, GAPCODENAME: "Gap-B", ISACTIVE: "Y" },
-        { GAPCODEID: 3, GAPCODENAME: "Gap-C", ISACTIVE: "N" },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.GAPCODEID}
-            state={{ gapCodeId: item.GAPCODEID }}
+            key={item.NUM_GAPCODE_ID}
+            state={{
+              gapCodeId: item.NUM_GAPCODE_ID,
+              gapCodeName: item.VAR_GAPCODE_NAME,
+              flag: item.ACTIVEFLAG,
+            }}
             to={`/Masters/FrmGapCodeMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.GAPCODENAME || "",
-          item.ISACTIVE === "Y" ? "Yes" : "No",
+          item.VAR_GAPCODE_NAME || "",
+          item.ACTIVEFLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getGapCodeList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.GAPCODEID}
-      //       state={{ gapCodeId: item.GAPCODEID }}
-      //       to={`/Masters/FrmGapCodeMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.GAPCODENAME || "",
-      //     item.ISACTIVE === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching gap code list:", err);
       setTableData([]);
-      console.error("Error fetching gap code list:", error);
-      alert("Failed to fetch gap code list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -79,7 +51,6 @@ const FrmGapCodeList = () => {
 
   useEffect(() => {
     fetchGapCodeList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -92,7 +63,7 @@ const FrmGapCodeList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmGapCodeMst"}>
             <Button
@@ -105,9 +76,11 @@ const FrmGapCodeList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

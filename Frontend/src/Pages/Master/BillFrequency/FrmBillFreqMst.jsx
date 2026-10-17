@@ -24,58 +24,23 @@ const FrmBillFreqMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       billFreqName: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!billFreqId) return;
+    if (!isEdit) return;
+    setValue("billFreqName", state?.billFreqName || "");
+    setValue("isActive", state?.flag === "Yes" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getBillFreqDetail", { billFreqId: Number(billFreqId) })
-    const dummyDetail = {
-      NUM_BILLFREQ_ID: billFreqId,
-      VAR_BILLFREQ_NAME: "Monthly",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      billFreqName: dummyDetail.VAR_BILLFREQ_NAME || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getBillFreqDetail", {
-    //       billFreqId: Number(billFreqId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         billFreqName: d.VAR_BILLFREQ_NAME || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Bill frequency detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Bill frequency detail error:", err);
-    //     alert("Failed to fetch bill frequency detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [billFreqId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,29 @@ const FrmBillFreqMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_BillFreqId: isEdit ? Number(billFreqId) : null,
-        in_BillFreqName: data.billFreqName.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_billfreqid: isEdit ? Number(billFreqId) : null,
+        in_billfreqname: data.billFreqName.trim(),
+        in_activeflag: data.isActive,
         in_ipaddress: ip,
         in_source: config.source,
+        in_Mode: isEdit ? 2 : 1,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Bill Frequency payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmBillFreqList");
+      const res = await apiService.post("/master/aowt_billfreq_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_billfreq_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmBillFreqList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save bill frequency",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving bill frequency:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmBillFreqList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving bill frequency:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +91,8 @@ const FrmBillFreqMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. BillFreq Name */}
+          {/* BillFreq Name */}
           <div>
             <Label text="BillFreq Name : " required />
             <input
@@ -156,7 +114,7 @@ const FrmBillFreqMst = () => {
             )}
           </div>
 
-          {/* 2. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -191,7 +149,6 @@ const FrmBillFreqMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
@@ -9,10 +9,8 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmUsageTypeList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
@@ -21,56 +19,32 @@ const FrmUsageTypeList = () => {
   const fetchUsageTypeList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/usageTypeList");
 
-      // 🔸 DUMMY — replace with apiService.get("getUsageTypeList")
-      const dummyData = [
-        { USAGETYPEID: 1, USAGETYPENAME: "Residential" },
-        { USAGETYPEID: 2, USAGETYPENAME: "Commercial" },
-        { USAGETYPEID: 3, USAGETYPENAME: "Industrial" },
-        { USAGETYPEID: 4, USAGETYPENAME: "Institutional" },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.USAGETYPEID}
-            state={{ usageTypeId: item.USAGETYPEID }}
+            key={item.NUM_USAGETYPE_ID}
+            state={{
+              usageTypeId: item.NUM_USAGETYPE_ID,
+              usageTypeName: item.VAR_USAGETYPE_NAME,
+            }}
             to={`/Masters/FrmUsageTypeMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.USAGETYPENAME || "",
+          item.VAR_USAGETYPE_NAME || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getUsageTypeList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.USAGETYPEID}
-      //       state={{ usageTypeId: item.USAGETYPEID }}
-      //       to={`/Masters/FrmUsageTypeMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.USAGETYPENAME || "",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching usage type list:", err);
       setTableData([]);
-      console.error("Error fetching usage type list:", error);
-      alert("Failed to fetch usage type list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -78,7 +52,6 @@ const FrmUsageTypeList = () => {
 
   useEffect(() => {
     fetchUsageTypeList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -91,7 +64,7 @@ const FrmUsageTypeList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmUsageTypeMst"}>
             <Button
@@ -104,9 +77,11 @@ const FrmUsageTypeList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>
