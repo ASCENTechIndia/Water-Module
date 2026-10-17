@@ -40,7 +40,16 @@ const {
     meterGapCodeDataSubmitService,
     getTaxConfigTableDataService,
     getTaxConfigTableDataStatusService,
-    taxConfigDataSubmitService
+    taxConfigDataSubmitService,
+    getConnectionTypeTableDataService,
+    getConnectionTypeTableDataStatusService,
+    connectionTypeDataSubmitService,
+    getCollectionCenterTableDataService,
+    getCollectionCenterTableDataStatusService,
+    collectionCenterDataSubmitService,
+    getServiceConfigTableDataService,
+    getServiceConfigTableDataStatusService,
+    serviceConfigDataSubmitService
 } = require("./config.service");
 
 async function getULBDropdownController(req, res, next) {
@@ -885,6 +894,192 @@ async function taxConfigSubmitController(req, res, next) {
     }
 }
 
+// Connection Type Controller
+
+async function getConnectionTypeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnectionTypeTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Type Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Type Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getConnectionTypeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnectionTypeTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Type Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Type Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function connectionTypeSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await connectionTypeDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Type Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Type Data submit error");
+        return next(error);
+    }
+}
+
+// Collection Center Config
+
+async function getCollectionCenterTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getCollectionCenterTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Collection Center Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Collection Center Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getCollectionCenterTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getCollectionCenterTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Collection Center Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Collection Center Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function collectionCenterSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await collectionCenterDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Collection Center Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Collection Center Data submit error");
+        return next(error);
+    }
+}
+
+// Service Config
+
+async function getServiceConfigTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getServiceConfigTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Config Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Config Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getServiceConfigTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getServiceConfigTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Config Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Config Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function serviceConfigSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await serviceConfigDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Config Data submit error");
+        return next(error);
+    }
+}
+
 module.exports = {
     getULBDropdownController,
     getPremiseTypeDataController,
@@ -926,5 +1121,14 @@ module.exports = {
     meterGapCodeConfigSubmitController,
     getTaxConfigTableDataController,
     getTaxConfigTableDataStatusController,
-    taxConfigSubmitController
+    taxConfigSubmitController,
+    getConnectionTypeTableDataController,
+    getConnectionTypeTableDataStatusController,
+    connectionTypeSubmitController,
+    getCollectionCenterTableDataController,
+    getCollectionCenterTableDataStatusController,
+    collectionCenterSubmitController,
+    getServiceConfigTableDataController,
+    getServiceConfigTableDataStatusController,
+    serviceConfigSubmitController    
 };
