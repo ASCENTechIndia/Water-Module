@@ -1023,6 +1023,125 @@ async function aowt_usagesubtype_ins(payload) {
   return result.outBinds;
 }
 
+async function getGapCodeList() {
+  const sql = `
+    select num_gapcode_id,
+           var_gapcode_name,
+           case var_gapcode_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_gapcode_insdt,
+           var_gapcode_insby,
+           dat_gapcode_updt,
+           var_gapcode_updby
+      from aowt_gapcode_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_gapcode_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_gapcode_ins(
+        :in_UserId,
+        :in_GapcodeId,
+        :in_Mode,
+        :in_GapcodeName,
+        :in_GapcodeActiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_GapcodeId:
+      payload.in_GapcodeId != null ? Number(payload.in_GapcodeId) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_GapcodeName: payload.in_GapcodeName,
+    in_GapcodeActiveflag: payload.in_GapcodeActiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getPlumberList() {
+  const sql = `
+    select num_plumber_id,
+           var_plumber_name,
+           var_plumber_code,
+           case var_plumber_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_plumber_insdt,
+           var_plumber_insby,
+           dat_plumber_updt,
+           var_plumber_updby
+      from aowt_plumber_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_plumber_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_plumber_ins(
+        :in_UserId,
+        :in_PlumberId,
+        :in_Mode,
+        :in_PlumberName,
+        :in_PlumberCode,
+        :in_PlumberActiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_PlumberId:
+      payload.in_PlumberId != null ? Number(payload.in_PlumberId) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_PlumberName: payload.in_PlumberName,
+    in_PlumberCode: payload.in_PlumberCode,
+    in_PlumberActiveflag: payload.in_PlumberActiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -1058,4 +1177,8 @@ module.exports = {
   getUsageTypeDropdownMas,
   getUsageSubTypeList,
   aowt_usagesubtype_ins,
+  getGapCodeList,
+  aowt_gapcode_ins,
+  getPlumberList,
+  aowt_plumber_ins,
 };

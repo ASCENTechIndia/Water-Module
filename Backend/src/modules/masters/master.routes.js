@@ -34,6 +34,10 @@ const {
   getUsageTypeDropdownMasController,
   getUsageSubTypeListController,
   usageSubTypeInsController,
+  getGapCodeListController,
+  gapCodeInsController,
+  getPlumberListController,
+  plumberInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -47,6 +51,8 @@ const {
   consumerTypeInsSchema,
   billFreqInsSchema,
   usageSubTypeInsSchema,
+  gapCodeInsSchema,
+  plumberInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -120,5 +126,21 @@ router.post(
   "/aowt_usagesubtype_ins",
   validate(usageSubTypeInsSchema),
   usageSubTypeInsController,
+);
+
+// Gap code master
+router.get("/getGapCodeList", getGapCodeListController);
+router.post(
+  "/aowt_gapcode_ins",
+  validate(gapCodeInsSchema),
+  gapCodeInsController,
+);
+
+// Plumber master
+router.get("/getPlumberList", getPlumberListController)
+router.post(
+  "/aowt_plumber_ins",
+  validate(plumberInsSchema),
+  plumberInsController,
 );
 module.exports = router;

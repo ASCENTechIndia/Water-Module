@@ -33,6 +33,10 @@ const {
   getUsageTypeDropdownMas,
   getUsageSubTypeList,
   aowt_usagesubtype_ins,
+  getGapCodeList,
+  aowt_gapcode_ins,
+  getPlumberList,
+  aowt_plumber_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -171,6 +175,22 @@ async function usageSubTypeInsService(payload) {
   return aowt_usagesubtype_ins(payload);
 }
 
+async function getGapCodeListService() {
+  return getGapCodeList();
+}
+
+async function gapCodeInsService(payload) {
+  return aowt_gapcode_ins(payload);
+}
+
+async function getPlumberListService() {
+  return getPlumberList();
+}
+
+async function plumberInsService(payload) {
+  return aowt_plumber_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -206,4 +226,8 @@ module.exports = {
   getUsageTypeDropdownMasService,
   getUsageSubTypeListService,
   usageSubTypeInsService,
+  getGapCodeListService,
+  gapCodeInsService,
+  getPlumberListService,
+  plumberInsService,
 };

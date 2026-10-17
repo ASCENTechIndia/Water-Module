@@ -669,6 +669,126 @@ const usageSubTypeInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const gapCodeInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_GapcodeId: z
+    .number({
+      invalid_type_error: "Gapcode Id must be a number",
+    })
+    .int("Gapcode Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_GapcodeName: z
+    .string({
+      required_error: "Gapcode name is required",
+      invalid_type_error: "Gapcode name must be a string",
+    })
+    .trim()
+    .min(1, "Gapcode name is required"),
+
+  in_GapcodeActiveflag: z
+    .string({
+      required_error: "Gapcode active flag is required",
+      invalid_type_error: "Gapcode active flag must be a string",
+    })
+    .trim()
+    .min(1, "Gapcode active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const plumberInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_PlumberId: z
+    .number({
+      invalid_type_error: "Plumber Id must be a number",
+    })
+    .int("Plumber Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_PlumberName: z
+    .string({
+      required_error: "Plumber name is required",
+      invalid_type_error: "Plumber name must be a string",
+    })
+    .trim()
+    .min(1, "Plumber name is required"),
+
+  in_PlumberCode: z
+    .string({
+      required_error: "Plumber code is required",
+      invalid_type_error: "Plumber code must be a string",
+    })
+    .trim()
+    .min(1, "Plumber code is required"),
+
+  in_PlumberActiveflag: z
+    .string({
+      required_error: "Plumber active flag is required",
+      invalid_type_error: "Plumber active flag must be a string",
+    })
+    .trim()
+    .min(1, "Plumber active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
@@ -680,4 +800,6 @@ module.exports = {
   consumerTypeInsSchema,
   billFreqInsSchema,
   usageSubTypeInsSchema,
+  gapCodeInsSchema,
+  plumberInsSchema,
 };

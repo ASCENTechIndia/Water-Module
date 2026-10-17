@@ -33,6 +33,10 @@ const {
   getUsageTypeDropdownMasService,
   getUsageSubTypeListService,
   usageSubTypeInsService,
+  getGapCodeListService,
+  gapCodeInsService,
+  getPlumberListService,
+  plumberInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -922,6 +926,128 @@ async function usageSubTypeInsController(req, res, next) {
   }
 }
 
+async function getGapCodeListController(req, res, next) {
+  try {
+    const rows = await getGapCodeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Gap code list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Gap code list error");
+    return next(err);
+  }
+}
+
+async function gapCodeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await gapCodeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { gapCodeId: payload.in_GapcodeId },
+        out.Out_ErrorMsg || "Gapcode saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Gapcode insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "GAPCODE_UPDATE" : "GAPCODE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "gapcode",
+      entityId: payload.in_GapcodeId || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Gapcode insert error");
+    return next(err);
+  }
+}
+
+async function getPlumberListController(req, res, next) {
+  try {
+    const rows = await getPlumberListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Plumber list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Plumber list error");
+    return next(err);
+  }
+}
+
+async function plumberInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await plumberInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { plumberId: payload.in_PlumberId },
+        out.Out_ErrorMsg || "Plumber saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Plumber insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "PLUMBER_UPDATE" : "PLUMBER_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "plumber",
+      entityId: payload.in_PlumberId || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Plumber insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -957,4 +1083,8 @@ module.exports = {
   getUsageTypeDropdownMasController,
   getUsageSubTypeListController,
   usageSubTypeInsController,
+  getGapCodeListController,
+  gapCodeInsController,
+  getPlumberListController,
+  plumberInsController,
 };
