@@ -45,6 +45,20 @@ const {
   getTaxDetails,
   getMeterOwnerList,
   aowt_meterowner_ins,
+  getConnTypeList,
+  aowt_conntype_ins,
+  getConnCodeList,
+  aowt_conncode_ins,
+  getConnSizeList,
+  aowt_connsize_ins,
+  getBillingMethodList,
+  aowt_billingmethod_ins,
+  getPremiseTypeList,
+  aowt_premisetype_ins,
+  getCollCenterList,
+  aowt_collcentre_ins,
+  getServiceList,
+  aowt_servicemas_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -231,6 +245,62 @@ async function meterOwnerInsService(payload) {
   return aowt_meterowner_ins(payload);
 }
 
+async function getConnTypeListService() {
+  return getConnTypeList();
+}
+
+async function connTypeInsService(payload) {
+  return aowt_conntype_ins(payload);
+}
+
+async function getConnCodeListService() {
+  return getConnCodeList();
+}
+
+async function connCodeInsService(payload) {
+  return aowt_conncode_ins(payload);
+}
+
+async function getConnSizeListService() {
+  return getConnSizeList();
+}
+
+async function connSizeInsService(payload) {
+  return aowt_connsize_ins(payload);
+}
+
+async function getBillingMethodListService() {
+  return getBillingMethodList();
+}
+
+async function billingMethodInsService(payload) {
+  return aowt_billingmethod_ins(payload);
+}
+
+async function getPremiseTypeListService() {
+  return getPremiseTypeList();
+}
+
+async function premiseTypeInsService(payload) {
+  return aowt_premisetype_ins(payload);
+}
+
+async function getCollCenterListService(payload) {
+  return getCollCenterList(payload);
+}
+
+async function collCentreInsService(payload) {
+  return aowt_collcentre_ins(payload);
+}
+
+async function getServiceListService() {
+  return getServiceList();
+}
+
+async function serviceMasInsService(payload) {
+  return aowt_servicemas_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -278,4 +348,18 @@ module.exports = {
   taxInsService,
   getMeterOwnerListService,
   meterOwnerInsService,
+  getConnTypeListService,
+  connTypeInsService,
+  getConnCodeListService,
+  connCodeInsService,
+  getConnSizeListService,
+  connSizeInsService,
+  getBillingMethodListService,
+  billingMethodInsService,
+  getPremiseTypeListService,
+  premiseTypeInsService,
+  getCollCenterListService,
+  collCentreInsService,
+  getServiceListService,
+  serviceMasInsService,
 };

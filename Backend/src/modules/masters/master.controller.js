@@ -45,6 +45,20 @@ const {
   getTaxDetailsService,
   getMeterOwnerListService,
   meterOwnerInsService,
+  getConnTypeListService,
+  connTypeInsService,
+  getConnCodeListService,
+  connCodeInsService,
+  getConnSizeListService,
+  connSizeInsService,
+  getBillingMethodListService,
+  billingMethodInsService,
+  getPremiseTypeListService,
+  premiseTypeInsService,
+  getCollCenterListService,
+  collCentreInsService,
+  getServiceListService,
+  serviceMasInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -1276,6 +1290,441 @@ async function meterOwnerInsController(req, res, next) {
   }
 }
 
+async function getConnTypeListController(req, res, next) {
+  try {
+    const rows = await getConnTypeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection type list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection type list error");
+    return next(err);
+  }
+}
+
+async function connTypeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await connTypeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { connTypeId: payload.in_ConntypeId },
+        out.Out_ErrorMsg || "Connection type saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Connection type insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "CONNTYPE_UPDATE" : "CONNTYPE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "conntype",
+      entityId: payload.in_ConntypeId || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection type insert error");
+    return next(err);
+  }
+}
+
+async function getConnCodeListController(req, res, next) {
+  try {
+    const rows = await getConnCodeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection code list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection code list error");
+    return next(err);
+  }
+}
+
+async function connCodeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await connCodeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { connCodeId: payload.in_ConncodeId },
+        out.Out_ErrorMsg || "Connection code saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Connection code insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "CONNCODE_UPDATE" : "CONNCODE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "conncode",
+      entityId: payload.in_ConncodeId || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection code insert error");
+    return next(err);
+  }
+}
+
+async function getConnSizeListController(req, res, next) {
+  try {
+    const rows = await getConnSizeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection size list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection size list error");
+    return next(err);
+  }
+}
+
+async function connSizeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await connSizeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { connSizeId: payload.in_Connsizeid },
+        out.Out_ErrorMsg || "Connection size saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Connection size insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "CONNSIZE_UPDATE" : "CONNSIZE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "connsize",
+      entityId: payload.in_Connsizeid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection size insert error");
+    return next(err);
+  }
+}
+
+async function getBillingMethodListController(req, res, next) {
+  try {
+    const rows = await getBillingMethodListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Billing method list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Billing method list error");
+    return next(err);
+  }
+}
+
+async function billingMethodInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await billingMethodInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { billingMethodId: payload.in_BillingMethodId },
+        out.Out_ErrorMsg || "Billing method saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Billing method insert failed");
+    }
+
+    auditLog({
+      action:
+        payload.in_Mode === 2 ? "BILLINGMETHOD_UPDATE" : "BILLINGMETHOD_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "billingmethod",
+      entityId: payload.in_BillingMethodId || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Billing method insert error");
+    return next(err);
+  }
+}
+
+async function getPremiseTypeListController(req, res, next) {
+  try {
+    const rows = await getPremiseTypeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Premise type list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Premise type list error");
+    return next(err);
+  }
+}
+
+async function premiseTypeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await premiseTypeInsService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { premiseTypeId: payload.in_PremiseTypeId },
+        out.Out_ErrorMsg || "Premise type saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Premise type insert failed");
+    }
+
+    auditLog({
+      action:
+        payload.in_Mode === 2 ? "PREMISETYPE_UPDATE" : "PREMISETYPE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "premisetype",
+      entityId: payload.in_PremiseTypeId || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Premise type insert error");
+    return next(err);
+  }
+}
+
+async function getCollCenterListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getCollCenterListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Collection centre list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Collection centre list error");
+    return next(err);
+  }
+}
+
+async function collCentreInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await collCentreInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { collCentreId: payload.in_collcentreid },
+        out.out_errormsg || "Collection centre saved successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.out_errormsg,
+        "Collection centre insert failed",
+      );
+    }
+
+    auditLog({
+      action: payload.in_mode === 2 ? "COLLCENTRE_UPDATE" : "COLLCENTRE_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "collcentre",
+      entityId: payload.in_collcentreid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Collection centre insert error");
+    return next(err);
+  }
+}
+
+async function getServiceListController(req, res, next) {
+  try {
+    const rows = await getServiceListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Service list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Service list error");
+    return next(err);
+  }
+}
+
+async function serviceMasInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await serviceMasInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { serviceId: payload.in_service_id },
+        out.out_errormsg || "Service saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormsg, "Service insert failed");
+    }
+
+    auditLog({
+      action: payload.in_mode === 2 ? "SERVICE_UPDATE" : "SERVICE_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "service",
+      entityId: payload.in_service_id || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Service insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -1323,4 +1772,18 @@ module.exports = {
   getTaxDetailsController,
   getMeterOwnerListController,
   meterOwnerInsController,
+  getConnTypeListController,
+  connTypeInsController,
+  getConnCodeListController,
+  connCodeInsController,
+  getConnSizeListController,
+  connSizeInsController,
+  getBillingMethodListController,
+  billingMethodInsController,
+  getPremiseTypeListController,
+  premiseTypeInsController,
+  getCollCenterListController,
+  collCentreInsController,
+  getServiceListController,
+  serviceMasInsController,
 };

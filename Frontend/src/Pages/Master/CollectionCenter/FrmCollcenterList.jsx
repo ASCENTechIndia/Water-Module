@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Label from "../../../Components/Label";
@@ -10,13 +10,10 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmCollcenterList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [ulbOptions, setUlbOptions] = useState([]);
-  const [selectedUlb, setSelectedUlb] = useState("");
   const [tableData, setTableData] = useState([]);
 
   const tableHeader = [
@@ -26,135 +23,85 @@ const FrmCollcenterList = () => {
     "Status",
   ];
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
+  // ULB dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    const dummyUlbs = [
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ];
-    setUlbOptions(dummyUlbs);
-
-    // Auto-select first ULB (and dropdown is disabled below)
-    if (dummyUlbs.length > 0) {
-      setSelectedUlb(dummyUlbs[0].value);
-    }
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       const opts = res.data.data.map((item) => ({
-    //         value: String(item.CORPORATIONID),
-    //         label: item.CORPORATIONNAME,
-    //       }));
-    //       setUlbOptions(opts);
-    //       if (opts.length > 0) setSelectedUlb(opts[0].value);
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUlbDropdown();
   }, []);
 
-  // ---------- Load collection centre list (DUMMY) ----------
+  // Collection centre list
   const fetchCollCentreList = async () => {
+    if (!ulbid) {
+      alert("UlbId is not set");
+      setTableData([]);
+      return;
+    }
+
     try {
       setLoading(true);
+      const res = await apiService.get(
+        `/master/getCollcenterList?ulbId=${ulbid}`,
+      );
 
-      // 🔸 DUMMY — replace with apiService.post("getCollectionCentreList", { ulbId: Number(selectedUlb) })
-      const dummyData = [
-        {
-          COLLCENTREID: 1,
-          COLLCENTRENAME: "Head Office",
-          COLLCENTRECODE: "CC-HO",
-          ISACTIVE: "Y",
-        },
-        {
-          COLLCENTREID: 2,
-          COLLCENTRENAME: "Zone 1 Centre",
-          COLLCENTRECODE: "CC-Z1",
-          ISACTIVE: "Y",
-        },
-        {
-          COLLCENTREID: 3,
-          COLLCENTRENAME: "Zone 2 Centre",
-          COLLCENTRECODE: "CC-Z2",
-          ISACTIVE: "N",
-        },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.COLLCENTREID}
-            state={{ collCentreId: item.COLLCENTREID }}
+            key={item.NUM_COLLCENTRE_ID}
+            state={{
+              collCentreId: item.NUM_COLLCENTRE_ID,
+              collCentreName: item.VAR_COLLCENTRE_NAME,
+              collCentreCode: item.VAR_COLLCENTRE_CODE,
+              flag: item.ACTIVEFLAG,
+            }}
             to={`/Masters/FrmCollcenterMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.COLLCENTRENAME || "",
-          item.COLLCENTRECODE || "",
-          item.ISACTIVE === "Y" ? "Yes" : "No",
+          item.VAR_COLLCENTRE_NAME || "",
+          item.VAR_COLLCENTRE_CODE || "",
+          item.ACTIVEFLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("getCollectionCentreList", {
-      //   ulbId: Number(selectedUlb),
-      //   userId: String(userId),
-      // });
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.COLLCENTREID}
-      //       state={{ collCentreId: item.COLLCENTREID }}
-      //       to={`/Masters/FrmCollcenterMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.COLLCENTRENAME || "",
-      //     item.COLLCENTRECODE || "",
-      //     item.ISACTIVE === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching collection centre list:", err);
       setTableData([]);
-      console.error("Error fetching collection centre list:", error);
-      alert("Failed to fetch collection centre list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!selectedUlb) {
-      setTableData([]);
-      return;
+    if (ulbid) {
+      fetchCollCentreList();
     }
-    fetchCollCentreList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedUlb]);
+  }, [ulbid]);
 
   return (
     <Layout
@@ -166,7 +113,7 @@ const FrmCollcenterList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- ULB Filter (disabled, first selected) ---------- */}
+        {/* ULB Filter */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label text="नगरपालिकेचे नाव : " required />
@@ -174,8 +121,11 @@ const FrmCollcenterList = () => {
               disabled
               className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
                 bg-slate-100 cursor-not-allowed"
-              value={selectedUlb}
-              onChange={(e) => setSelectedUlb(e.target.value)}
+              value={
+                ulbOptions.some((o) => o.value === String(ulbid))
+                  ? String(ulbid)
+                  : ""
+              }
             >
               <option value="">-- Select ULB --</option>
               {ulbOptions.map((opt) => (
@@ -187,7 +137,7 @@ const FrmCollcenterList = () => {
           </div>
         </div>
 
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmCollcenterMst"}>
             <Button
@@ -200,9 +150,11 @@ const FrmCollcenterList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

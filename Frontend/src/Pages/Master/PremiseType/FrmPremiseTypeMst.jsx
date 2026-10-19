@@ -24,58 +24,23 @@ const FrmPremiseTypeMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       premiseTypeName: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!premiseTypeId) return;
+    if (!isEdit) return;
+    setValue("premiseTypeName", state?.premiseTypeName || "");
+    setValue("isActive", state?.flag === "Yes" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getPremiseTypeDetail", { premiseTypeId: Number(premiseTypeId) })
-    const dummyDetail = {
-      NUM_PREMISETYPE_ID: premiseTypeId,
-      VAR_PREMISETYPE_NAME: "Residential",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      premiseTypeName: dummyDetail.VAR_PREMISETYPE_NAME || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getPremiseTypeDetail", {
-    //       premiseTypeId: Number(premiseTypeId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         premiseTypeName: d.VAR_PREMISETYPE_NAME || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Premise type detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Premise type detail error:", err);
-    //     alert("Failed to fetch premise type detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [premiseTypeId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,32 @@ const FrmPremiseTypeMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
         in_PremiseTypeId: isEdit ? Number(premiseTypeId) : null,
+        in_Mode: isEdit ? 2 : 1,
         in_PremiseTypeName: data.premiseTypeName.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_PremisetypeActiveFlag: data.isActive,
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Premise Type payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmPremiseTypeList");
+      const res = await apiService.post(
+        "/master/aowt_premisetype_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_premisetype_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmPremiseTypeList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save premise type",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving premise type:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_ErrorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmPremiseTypeList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving premise type:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +94,8 @@ const FrmPremiseTypeMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Premise Type Name */}
+          {/* Premise Type Name */}
           <div>
             <Label text="Premise Type Name : " required />
             <input
@@ -156,7 +117,7 @@ const FrmPremiseTypeMst = () => {
             )}
           </div>
 
-          {/* 2. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -191,7 +152,6 @@ const FrmPremiseTypeMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

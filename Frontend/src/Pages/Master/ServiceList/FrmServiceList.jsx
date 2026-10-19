@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
@@ -9,10 +9,8 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmServiceList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
@@ -27,79 +25,37 @@ const FrmServiceList = () => {
   const fetchServiceList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/getServiceList");
 
-      // 🔸 DUMMY — replace with apiService.get("getServiceList")
-      const dummyData = [
-        {
-          SERVICEID: 1,
-          SERVICENAMEEN: "Water Connection",
-          SERVICENAMEMR: "पाणी जोडणी",
-          ADMINNAME: "Water Dept",
-          ISACTIVE: "Y",
-        },
-        {
-          SERVICEID: 2,
-          SERVICENAMEEN: "Sewerage Connection",
-          SERVICENAMEMR: "गटार जोडणी",
-          ADMINNAME: "Sewerage Dept",
-          ISACTIVE: "Y",
-        },
-        {
-          SERVICEID: 3,
-          SERVICENAMEEN: "Property Tax",
-          SERVICENAMEMR: "मालमत्ता कर",
-          ADMINNAME: "Tax Dept",
-          ISACTIVE: "N",
-        },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.SERVICEID}
-            state={{ serviceId: item.SERVICEID }}
+            key={item.SERVICE_ID}
+            state={{
+              serviceId: item.SERVICE_ID,
+              serviceNameEn: item.SERVICE_ENAME,
+              serviceNameMr: item.SERVICE_MNAME,
+              flag: item.SERVICE_ACTIVEFLAG,
+            }}
             to={`/Masters/FrmServiceMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.SERVICENAMEEN || "",
-          item.SERVICENAMEMR || "",
-          item.ADMINNAME || "",
-          item.ISACTIVE === "Y" ? "Yes" : "No",
+          item.SERVICE_ENAME || "",
+          item.SERVICE_MNAME || "",
+          item.SERVICE_INSBY || "",
+          item.SERVICE_ACTIVEFLAG === "Y" ? "Yes" : "No",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getServiceList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.SERVICEID}
-      //       state={{ serviceId: item.SERVICEID }}
-      //       to={`/Masters/FrmServiceMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.SERVICENAMEEN || "",
-      //     item.SERVICENAMEMR || "",
-      //     item.ADMINNAME || "",
-      //     item.ISACTIVE === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching service list:", err);
       setTableData([]);
-      console.error("Error fetching service list:", error);
-      alert("Failed to fetch service list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -107,7 +63,6 @@ const FrmServiceList = () => {
 
   useEffect(() => {
     fetchServiceList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -120,7 +75,7 @@ const FrmServiceList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmServiceMst"}>
             <Button
@@ -133,9 +88,11 @@ const FrmServiceList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

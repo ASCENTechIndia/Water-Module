@@ -24,58 +24,23 @@ const FrmConnTypeMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       connTypeName: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!connTypeId) return;
+    if (!isEdit) return;
+    setValue("connTypeName", state?.connTypeName || "");
+    setValue("isActive", state?.flag === "Yes" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getConnTypeDetail", { connTypeId: Number(connTypeId) })
-    const dummyDetail = {
-      NUM_CONNTYPE_ID: connTypeId,
-      VAR_CONNTYPE_NAME: "Metered",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      connTypeName: dummyDetail.VAR_CONNTYPE_NAME || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getConnTypeDetail", {
-    //       connTypeId: Number(connTypeId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         connTypeName: d.VAR_CONNTYPE_NAME || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Conn type detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Conn type detail error:", err);
-    //     alert("Failed to fetch conn type detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [connTypeId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,29 @@ const FrmConnTypeMst = () => {
 
       const payload = {
         in_UserId: userId,
+        in_ConntypeId: isEdit ? Number(connTypeId) : null,
         in_Mode: isEdit ? 2 : 1,
-        in_ConnTypeId: isEdit ? Number(connTypeId) : null,
-        in_ConnTypeName: data.connTypeName.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_ConntypeName: data.connTypeName.trim(),
+        in_conntypeactiveflag: data.isActive,
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Conn Type payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmConnTypeList");
+      const res = await apiService.post("/master/aowt_conntype_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_conntype_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmConnTypeList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save conn type",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving conn type:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_ErrorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmConnTypeList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving conn type:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +91,8 @@ const FrmConnTypeMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Conn Type Name */}
+          {/* Conn Type Name */}
           <div>
             <Label text="Conn Type Name : " required />
             <input
@@ -156,7 +114,7 @@ const FrmConnTypeMst = () => {
             )}
           </div>
 
-          {/* 2. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -191,7 +149,6 @@ const FrmConnTypeMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

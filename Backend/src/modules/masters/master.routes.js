@@ -46,6 +46,20 @@ const {
   getTaxDetailsController,
   getMeterOwnerListController,
   meterOwnerInsController,
+  getConnTypeListController,
+  connTypeInsController,
+  getConnCodeListController,
+  connCodeInsController,
+  getConnSizeListController,
+  connSizeInsController,
+  getBillingMethodListController,
+  billingMethodInsController,
+  getPremiseTypeListController,
+  premiseTypeInsController,
+  getCollCenterListController,
+  collCentreInsController,
+  getServiceListController,
+  serviceMasInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -64,6 +78,13 @@ const {
   connStatusInsSchema,
   taxInsSchema,
   meterOwnerInsSchema,
+  connTypeInsSchema,
+  connCodeInsSchema,
+  connSizeInsSchema,
+  billingMethodInsSchema,
+  premiseTypeInsSchema,
+  collCentreInsSchema,
+  serviceMasInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -176,4 +197,61 @@ router.post(
   validate(meterOwnerInsSchema),
   meterOwnerInsController,
 );
+
+// Conn type list
+router.get("/getConnTypeList", getConnTypeListController);
+router.post(
+  "/aowt_conntype_ins",
+  validate(connTypeInsSchema),
+  connTypeInsController,
+);
+
+// Conn code list
+router.get("/getConnCodeList", getConnCodeListController);
+router.post(
+  "/aowt_conncode_ins",
+  validate(connCodeInsSchema),
+  connCodeInsController,
+);
+
+// Conn size list
+router.get("/getConnSizeList", getConnSizeListController);
+router.post(
+  "/aowt_connsize_ins",
+  validate(connSizeInsSchema),
+  connSizeInsController,
+);
+
+// Billing method list
+router.get("/getBillingMethodList", getBillingMethodListController);
+router.post(
+  "/aowt_billingmethod_ins",
+  validate(billingMethodInsSchema),
+  billingMethodInsController,
+);
+
+// Premise type list
+router.get("/getPremiseTypeList", getPremiseTypeListController);
+router.post(
+  "/aowt_premisetype_ins",
+  validate(premiseTypeInsSchema),
+  premiseTypeInsController,
+);
+
+// Collection center list
+router.get("/getCollcenterList", getCollCenterListController);
+router.post(
+  "/aowt_collcentre_ins",
+  validate(collCentreInsSchema),
+  collCentreInsController,
+);
+
+// Service list
+router.get("/getServiceList", getServiceListController);
+router.post(
+  "/aowt_servicemas_ins",
+  validate(serviceMasInsSchema),
+  serviceMasInsController,
+);
+
 module.exports = router;

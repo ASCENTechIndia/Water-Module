@@ -1358,6 +1358,425 @@ async function aowt_meterowner_ins(payload) {
   return result.outBinds;
 }
 
+async function getConnTypeList() {
+  const sql = `
+    select num_conntype_id,
+           var_conntype_name,
+           case var_conntype_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_conntype_insdt,
+           var_conntype_insby,
+           dat_conntype_updt,
+           var_conntype_updby
+      from aowt_conntype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_conntype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_conntype_ins(
+        :in_UserId,
+        :in_ConntypeId,
+        :in_Mode,
+        :in_ConntypeName,
+        :in_conntypeactiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_ConntypeId:
+      payload.in_ConntypeId != null ? Number(payload.in_ConntypeId) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_ConntypeName: payload.in_ConntypeName,
+    in_conntypeactiveflag: payload.in_conntypeactiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getConnCodeList() {
+  const sql = `
+    select num_conncode_id,
+           var_conncode_name,
+           var_conncode_activeflag
+      from aowt_conncode_mas
+     order by num_conncode_id
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_conncode_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_conncode_ins(
+        :in_UserId,
+        :in_ConncodeId,
+        :in_Mode,
+        :in_ConncodeName,
+        :in_ConncodeActiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_ConncodeId:
+      payload.in_ConncodeId != null ? Number(payload.in_ConncodeId) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_ConncodeName: payload.in_ConncodeName,
+    in_ConncodeActiveflag: payload.in_ConncodeActiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getConnSizeList() {
+  const sql = `
+    select num_connsize_id,
+           var_connsize_name,
+           case var_connsize_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_connsize_insdt,
+           var_connsize_insby,
+           dat_connsize_updt,
+           var_connsize_updby
+      from aowt_connsize_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_connsize_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_connsize_ins(
+        :in_UserId,
+        :in_Connsizeid,
+        :in_Mode,
+        :in_Connsizename,
+        :in_Connsizeactiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_Connsizeid:
+      payload.in_Connsizeid != null ? Number(payload.in_Connsizeid) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_Connsizename: payload.in_Connsizename,
+    in_Connsizeactiveflag: payload.in_Connsizeactiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getBillingMethodList() {
+  const sql = `
+    select num_billingmethod_id,
+           var_billingmethod_name,
+           var_billingmethod_code,
+           dat_billingmethod_insdt,
+           var_billingmethod_insby,
+           dat_billingmethod_updt,
+           var_billingmethod_updby
+      from aowt_billingmethod_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_billingmethod_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_billingmethod_ins(
+        :in_UserId,
+        :in_BillingMethodId,
+        :in_Mode,
+        :in_BillingMethodName,
+        :in_BillingMethodCode,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_BillingMethodId:
+      payload.in_BillingMethodId != null
+        ? Number(payload.in_BillingMethodId)
+        : null,
+    in_Mode: Number(payload.in_Mode),
+    in_BillingMethodName: payload.in_BillingMethodName,
+    in_BillingMethodCode: payload.in_BillingMethodCode,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getPremiseTypeList() {
+  const sql = `
+    select num_premisetype_id,
+           var_premisetype_name,
+           case var_premisetype_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_premisetype_insdt,
+           var_premisetype_insby,
+           dat_premisetype_updt,
+           var_premisetype_updby
+      from aowt_premisetype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_premisetype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_premisetype_ins(
+        :in_UserId,
+        :in_PremiseTypeId,
+        :in_Mode,
+        :in_PremiseTypeName,
+        :in_PremisetypeActiveFlag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_PremiseTypeId:
+      payload.in_PremiseTypeId != null
+        ? Number(payload.in_PremiseTypeId)
+        : null,
+    in_Mode: Number(payload.in_Mode),
+    in_PremiseTypeName: payload.in_PremiseTypeName,
+    in_PremisetypeActiveFlag: payload.in_PremisetypeActiveFlag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getCollCenterList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select num_collcentre_id,
+           var_collcentre_name,
+           num_collcentre_ulbid,
+           var_corporation_name,
+           var_collcentre_code,
+           case var_collcentre_activeflag
+             when 'Y' then 'Yes'
+             else 'No'
+           end activeflag
+      from aowt_collcentre_mas
+      inner join admins.aoma_corporation_mas
+        on num_corporation_id = num_collcentre_ulbid
+     where num_collcentre_ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_collcentre_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_collcentre_ins(
+        :in_userid,
+        :in_collcentreid,
+        :in_collcentrename,
+        :in_ulbid,
+        :in_collcentrecode,
+        :in_collcentreactiveflag,
+        :in_ipaddress,
+        :in_source,
+        :in_mode,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_collcentreid:
+      payload.in_collcentreid != null ? Number(payload.in_collcentreid) : null,
+    in_collcentrename: payload.in_collcentrename,
+    in_ulbid: Number(payload.in_ulbid),
+    in_collcentrecode: payload.in_collcentrecode,
+    in_collcentreactiveflag: payload.in_collcentreactiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_mode: Number(payload.in_mode),
+
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getServiceList() {
+  const sql = `
+    select SERVICE_ID,
+           SERVICE_ENAME,
+           SERVICE_MNAME,
+           SERVICE_INSBY,
+           INSDATE,
+           UPDTBY,
+           UPD_DATE,
+           SERVICE_ACTIVEFLAG
+      from vw_servicemas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_servicemas_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_servicemas_ins(
+        :in_userid,
+        :in_service_id,
+        :in_service_ename,
+        :in_service_mname,
+        :in_service_activeflag,
+        :in_ulbid,
+        :in_ipaddress,
+        :in_source,
+        :in_mode,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_service_id:
+      payload.in_service_id != null ? Number(payload.in_service_id) : 0,
+    in_service_ename: payload.in_service_ename,
+    in_service_mname: payload.in_service_mname,
+    in_service_activeflag: payload.in_service_activeflag,
+    in_ulbid: Number(payload.in_ulbid),
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_mode: Number(payload.in_mode),
+
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -1405,4 +1824,18 @@ module.exports = {
   getTaxDetails,
   getMeterOwnerList,
   aowt_meterowner_ins,
+  getConnTypeList,
+  aowt_conntype_ins,
+  getConnCodeList,
+  aowt_conncode_ins,
+  getConnSizeList,
+  aowt_connsize_ins,
+  getBillingMethodList,
+  aowt_billingmethod_ins,
+  getPremiseTypeList,
+  aowt_premisetype_ins,
+  getCollCenterList,
+  aowt_collcentre_ins,
+  getServiceList,
+  aowt_servicemas_ins,
 };

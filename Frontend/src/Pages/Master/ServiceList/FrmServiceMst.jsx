@@ -24,62 +24,25 @@ const FrmServiceMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       serviceNameEn: "",
       serviceNameMr: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!serviceId) return;
+    if (!isEdit) return;
+    setValue("serviceNameEn", state?.serviceNameEn || "");
+    setValue("serviceNameMr", state?.serviceNameMr || "");
+    setValue("isActive", state?.flag === "Y" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getServiceDetail", { serviceId: Number(serviceId) })
-    const dummyDetail = {
-      NUM_SERVICE_ID: serviceId,
-      VAR_SERVICE_NAME_EN: "Water Connection",
-      VAR_SERVICE_NAME_MR: "पाणी जोडणी",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      serviceNameEn: dummyDetail.VAR_SERVICE_NAME_EN || "",
-      serviceNameMr: dummyDetail.VAR_SERVICE_NAME_MR || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getServiceDetail", {
-    //       serviceId: Number(serviceId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         serviceNameEn: d.VAR_SERVICE_NAME_EN || "",
-    //         serviceNameMr: d.VAR_SERVICE_NAME_MR || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Service detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Service detail error:", err);
-    //     alert("Failed to fetch service detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [serviceId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -91,37 +54,32 @@ const FrmServiceMst = () => {
       const ip = await GetIPAddress();
 
       const payload = {
-        in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_ServiceId: isEdit ? Number(serviceId) : null,
-        in_ServiceNameEn: data.serviceNameEn.trim(),
-        in_ServiceNameMr: data.serviceNameMr.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_userid: userId,
+        in_service_id: isEdit ? Number(serviceId) : 0,
+        in_service_ename: data.serviceNameEn.trim(),
+        in_service_mname: data.serviceNameMr.trim(),
+        in_service_activeflag: data.isActive,
+        in_ulbid: Number(ulbid),
         in_ipaddress: ip,
         in_source: config.source,
+        in_mode: isEdit ? 2 : 1,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Service payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmServiceList");
+      const res = await apiService.post("/master/aowt_servicemas_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_service_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmServiceList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save service",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving service:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.out_errorcode === 9999) {
+        alert(res.data.out_errormsg || "Record saved successfully");
+        navigate("/Masters/FrmServiceList");
+      } else {
+        alert(
+          res?.data?.out_errormsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving service:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -137,9 +95,8 @@ const FrmServiceMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. सेवाचे नांव (इंग्रेजी) */}
+          {/* सेवाचे नांव (इंग्रेजी) */}
           <div>
             <Label text="सेवाचे नांव (इंग्रेजी) : " required />
             <input
@@ -161,7 +118,7 @@ const FrmServiceMst = () => {
             )}
           </div>
 
-          {/* 2. सेवाचे नांव (मराठी) */}
+          {/* सेवाचे नांव (मराठी) */}
           <div>
             <Label text="सेवाचे नांव (मराठी) : " required />
             <input
@@ -183,7 +140,7 @@ const FrmServiceMst = () => {
             )}
           </div>
 
-          {/* 3. सक्रिय — radio (Yes default) */}
+          {/* सक्रिय */}
           <div>
             <Label text="सक्रिय : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -218,7 +175,6 @@ const FrmServiceMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}
