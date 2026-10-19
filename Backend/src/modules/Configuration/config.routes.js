@@ -49,7 +49,13 @@ const {
     collectionCenterSubmitController,
     getServiceConfigTableDataController,
     getServiceConfigTableDataStatusController,
-    serviceConfigSubmitController
+    serviceConfigSubmitController,
+    getChargesTypeTableDataController,
+    getChargesTypeTableDataStatusController,
+    chargesTypeSubmitController,
+    getUserDropdownController,
+    getCollectionCenterDropdownController,
+    userCollectionConfigSubmitController
 } = require("./config.controller");
 const { getConnectionTypeTableDataService } = require("./config.service");
 
@@ -137,5 +143,15 @@ router.post("/collection-center", collectionCenterSubmitController);
 router.get("/getServiceConfigTableData", getServiceConfigTableDataController);
 router.get("/getServiceConfigTableDataStatus", getServiceConfigTableDataStatusController);
 router.post("/service-config", serviceConfigSubmitController);
+
+// Charges Type Config
+router.get("/getChargesTypeTableData", getChargesTypeTableDataController);
+router.get("/getChargesTypeTableDataStatus", getChargesTypeTableDataStatusController);
+router.post("/charges-type", chargesTypeSubmitController);
+
+// User Collection Config
+router.get("/getUserDropdown", getUserDropdownController);
+router.get("/getCollectionCenterDropdown", getCollectionCenterDropdownController);
+router.post("/user-collection", userCollectionConfigSubmitController);
 
 module.exports = router;

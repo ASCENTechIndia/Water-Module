@@ -49,7 +49,13 @@ const {
     collectionCenterDataSubmitService,
     getServiceConfigTableDataService,
     getServiceConfigTableDataStatusService,
-    serviceConfigDataSubmitService
+    serviceConfigDataSubmitService,
+    getChargesTypeConfigTableDataService,
+    getChargesTypeConfigTableDataStatusService,
+    chargesTypeDataSubmitService,
+    getUserDropdownService,
+    getCollectionCenterDropdownService,
+    userCollectionDataSubmitService
 } = require("./config.service");
 
 async function getULBDropdownController(req, res, next) {
@@ -1080,6 +1086,130 @@ async function serviceConfigSubmitController(req, res, next) {
     }
 }
 
+// Charges Type Config
+
+async function getChargesTypeTableDataController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getChargesTypeConfigTableDataService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Charges Type Table Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Charges Type Table Data fetch error");
+        return next(error);
+    }
+}
+
+async function getChargesTypeTableDataStatusController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getChargesTypeConfigTableDataStatusService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Charges Type Table Data Status successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Charges Type Table Data Status fetch error");
+        return next(error);
+    }
+}
+
+async function chargesTypeSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await chargesTypeDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Charges Type Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Charges Type Data submit error");
+        return next(error);
+    }
+}
+
+// User Collection Config
+
+async function getUserDropdownController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getUserDropdownService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `User Dropdown Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "User Dropdown Data fetch error");
+        return next(error);
+    }
+}
+
+async function getCollectionCenterDropdownController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getCollectionCenterDropdownService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Collection Center Dropdown Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Collection Center Dropdown Data fetch error");
+        return next(error);
+    }
+}
+
+async function userCollectionConfigSubmitController(req,res,next) {
+    try {
+        const payload = req.body;
+        const rows = await userCollectionDataSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `User Collection Config Data Submitted successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "User Collection Config Data submit error");
+        return next(error);
+    }
+}
+
 module.exports = {
     getULBDropdownController,
     getPremiseTypeDataController,
@@ -1130,5 +1260,11 @@ module.exports = {
     collectionCenterSubmitController,
     getServiceConfigTableDataController,
     getServiceConfigTableDataStatusController,
-    serviceConfigSubmitController    
+    serviceConfigSubmitController,
+    getChargesTypeTableDataController,
+    getChargesTypeTableDataStatusController,
+    chargesTypeSubmitController,
+    getUserDropdownController,
+    getCollectionCenterDropdownController,
+    userCollectionConfigSubmitController
 };

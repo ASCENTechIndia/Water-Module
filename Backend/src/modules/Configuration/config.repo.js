@@ -1738,6 +1738,218 @@ async function serviceConfigDataSubmitRepo(payload) {
     return result.outBinds || [];
 }
 
+// Charges Type Config
+
+async function getChargesTypeTableDataRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            ct.num_chargestype_id Chargeid,
+            ct.var_chargestype_name,
+            'N' previousStatus,
+            'N' currentStatus 
+        from aowt_chargestype_mas ct
+        left join aowt_chargestype_config on num_chargestype_chargestypeid=ct.num_chargestype_id
+        and num_chargestype_ulbid = :ulbId
+        where 1=1  order by var_chargestype_flag
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getChargesTypeTableDataStatusRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_chargestype_id ,
+            num_chargestype_chargestypeid ChTypeConfigid,
+            num_chargestype_ulbid 
+        FROM aowt_chargestype_config 
+        where 1 = 1
+        and var_chargestype_flag ='Y'
+        and num_chargestype_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function chargesTypeDataSubmitRepo(payload) {
+    const {
+        in_UserId,
+        in_ulbid,
+        in_ChargesStr,
+        in_Mode,
+        in_ipaddress,
+        in_source,
+    } = payload;
+    let sql = `
+        BEGIN
+            water.aowt_chargestypeconfig_ins(
+                :in_UserId,
+                :in_ulbid,
+                :in_ChargesStr,
+                :in_Mode,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_ulbid: Number(in_ulbid),
+        in_ChargesStr,
+        in_Mode: Number(in_Mode),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+// User Collection Config
+
+async function getUserDropdownRepo(payload) {
+    const {
+        ulbId,
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select num_user_userid ||'-'|| var_user_username username, num_user_userid userid 
+        from admins.aoma_user_def 
+        where num_user_deptid='24' and num_user_ulbid=:ulbId
+        order by var_user_username
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getCollectionCenterDropdownRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select collcentre_name,collcentre_id 
+        from prop.vw_collcenterconfig 
+        where collcentre_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function userCollectionConfigRepo(payload) {
+    const {
+        in_UserId,
+        in_CuserId,
+        in_Collid,
+        in_Fromdt,
+        in_ToDate,
+        in_Ulbid,
+        in_ipaddress,
+        in_source
+    } = payload;
+
+    let sql = `
+        BEGIN
+            water.aowt_userCollcent_ins(
+                :in_UserId,
+                :in_CuserId,
+                :in_Collid,
+                :in_Fromdt,
+                :in_ToDate,
+                :in_Ulbid,
+                :in_ipaddress,
+                :in_source,
+                :Out_ErrorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        in_UserId,
+        in_CuserId,
+        in_Collid: Number(in_Collid),
+        in_Fromdt,
+        in_ToDate,
+        in_Ulbid: Number(in_Ulbid),
+        in_ipaddress,
+        in_source,
+        Out_ErrorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
+
 module.exports = {
     getULBDropdownRepo,
     getPremiseTypeDataRepo,
@@ -1788,5 +2000,11 @@ module.exports = {
     collectionCenterDataSubmitRepo,
     getServiceConfigTableDataRepo,
     getServiceConfigTableDataStatusRepo,
-    serviceConfigDataSubmitRepo
+    serviceConfigDataSubmitRepo,
+    getChargesTypeTableDataRepo,
+    getChargesTypeTableDataStatusRepo,
+    chargesTypeDataSubmitRepo,
+    getUserDropdownRepo,
+    getCollectionCenterDropdownRepo,
+    userCollectionConfigRepo
 };
