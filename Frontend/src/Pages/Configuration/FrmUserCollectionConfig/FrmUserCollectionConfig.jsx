@@ -9,16 +9,36 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 import { defaultLocale } from "yup";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const getToday = () => {
-  const d = new Date();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${month}-${day}`;
+    const d = new Date();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${month}-${day}`;
 };
+
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const [year, month, day] = dateString.split("-");
+    const monthName = new Date(
+        Number(year),
+        Number(month) - 1,
+        1
+    ).toLocaleString("en-US", { month: "short" });
+
+    return `${day}-${monthName}-${year}`;
+};
+
 
 const FrmUserCollectionConfig = () => {
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
@@ -45,16 +65,13 @@ const FrmUserCollectionConfig = () => {
     const fetchUserDropdown = async () => {
         try {
             setLoading(true);
-            const payload = {};
 
-            const response = await apiService.post("", payload);
+            const response = await apiService.get(`/config/getUserDropdown?ulbId=${ulbId}`);
 
-            console.log(response);
-
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formatted = response.data.data.map(item => ({
-                    label: item.userName,
-                    value: item.userID
+            if (response.success && Array.isArray(response.data)) {
+                const formatted = response.data.map(item => ({
+                    label: item.USERNAME,
+                    value: item.USERID
                 }));
 
                 setUserDropdownOptions(formatted);
@@ -71,16 +88,13 @@ const FrmUserCollectionConfig = () => {
     const fetchCollectionCenterDropdown = async () => {
         try {
             setLoading(true);
-            const payload = {};
 
-            const response = await apiService.post("", payload);
+            const response = await apiService.get(`/config/getCollectionCenterDropdown?ulbId=${ulbId}`);
 
-            console.log(response);
-
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formatted = response.data.data.map(item => ({
-                    label: item.collName,
-                    value: item.collID
+            if (response.success && Array.isArray(response.data)) {
+                const formatted = response.data.map(item => ({
+                    label: item.COLLCENTRE_NAME,
+                    value: item.COLLCENTRE_ID
                 }));
 
                 setCollectionCenterOptions(formatted);
@@ -99,24 +113,26 @@ const FrmUserCollectionConfig = () => {
         try {
             setLoading(true);
 
+            const ipAddress = await GetIPAddress();
             const payload = {
-                userID: "",
-                collId: "",
-                fromDate: "",
-                toDate: ""
+                in_UserId: userId,
+                in_CuserId: values.userName,
+                in_Collid: Number(values.collectionCenter),
+                in_Fromdt: formatDate(values.fromDate),
+                in_ToDate: formatDate(values.toDate),
+                in_Ulbid: Number(ulbId),
+                in_ipaddress: ipAddress,
+                in_source: config.source
             };
 
-            console.log(payload);
+            
+            const response = await apiService.post("/config/user-collection", payload);
 
-            const response = await apiService.post("", payload);
-
-            console.log(response);
-
-            if (response.data.errorCode === 9999) {
-                alert(response.data.message);
+            if (response.success && response.data.Out_ErrorCode === 9999) {
+                alert(response.data.Out_ErrorMsg);
                 reset();
             } else {
-                alert(response.data.message);
+                alert(response.data.Out_ErrorMsg);
             }
         } catch (error) {
             console.error(error);
@@ -124,6 +140,13 @@ const FrmUserCollectionConfig = () => {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchUserDropdown();
+            fetchCollectionCenterDropdown();
+        }
+    }, [ulbId]);
 
     return (
         <Layout

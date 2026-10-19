@@ -48,7 +48,13 @@ const {
     collectionCenterDataSubmitRepo,
     getServiceConfigTableDataRepo,
     getServiceConfigTableDataStatusRepo,
-    serviceConfigDataSubmitRepo
+    serviceConfigDataSubmitRepo,
+    getChargesTypeTableDataRepo,
+    getChargesTypeTableDataStatusRepo,
+    chargesTypeDataSubmitRepo,
+    getUserDropdownRepo,
+    getCollectionCenterDropdownRepo,
+    userCollectionConfigRepo
 } = require("./config.repo");
 
 async function getULBDropdownService() {
@@ -281,6 +287,34 @@ async function serviceConfigDataSubmitService(payload) {
     return serviceConfigDataSubmitRepo(payload);
 }
 
+// Charges Type Config
+
+async function getChargesTypeConfigTableDataService(payload) {
+    return getChargesTypeTableDataRepo(payload);
+}
+
+async function getChargesTypeConfigTableDataStatusService(payload) {
+    return getChargesTypeTableDataStatusRepo(payload);
+}
+
+async function chargesTypeDataSubmitService(payload) {
+    return chargesTypeDataSubmitRepo(payload);
+}
+
+// User Collection Config
+
+async function getUserDropdownService(payload) {
+    return getUserDropdownRepo(payload);
+}
+
+async function getCollectionCenterDropdownService(payload) {
+    return getCollectionCenterDropdownRepo(payload);
+} 
+
+async function userCollectionDataSubmitService(payload) {
+    return userCollectionConfigRepo(payload);
+}
+
 module.exports = {
     getULBDropdownService,
     getPremiseTypeDataService,
@@ -331,5 +365,11 @@ module.exports = {
     collectionCenterDataSubmitService,
     getServiceConfigTableDataService,
     getServiceConfigTableDataStatusService,
-    serviceConfigDataSubmitService
+    serviceConfigDataSubmitService,
+    getChargesTypeConfigTableDataService,
+    getChargesTypeConfigTableDataStatusService,
+    chargesTypeDataSubmitService,
+    getUserDropdownService,
+    getCollectionCenterDropdownService,
+    userCollectionDataSubmitService
 };
