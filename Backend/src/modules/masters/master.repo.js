@@ -1777,6 +1777,64 @@ async function aowt_servicemas_ins(payload) {
   return result.outBinds;
 }
 
+async function getChargeList() {
+  const sql = `
+    select num_chargestype_id chargesid,
+           var_chargestype_name chargesname,
+           case
+             when var_chargestype_activeflag = 'Y' then 'Active'
+             else 'InActive'
+           end activeflag
+      from aowt_chargestype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_chargestype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_chargestype_ins(
+        :in_UserId,
+        :in_chargestypeid,
+        :in_chargestypename,
+        :in_activeflag,
+        :in_Orgid,
+        :in_ipaddress,
+        :in_source,
+        :in_Mode,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_chargestypeid:
+      payload.in_chargestypeid != null
+        ? Number(payload.in_chargestypeid)
+        : null,
+    in_chargestypename: payload.in_chargestypename,
+    in_activeflag: payload.in_activeflag,
+    in_Orgid: Number(payload.in_Orgid),
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_Mode: Number(payload.in_Mode),
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -1838,4 +1896,6 @@ module.exports = {
   aowt_collcentre_ins,
   getServiceList,
   aowt_servicemas_ins,
+  getChargeList,
+  aowt_chargestype_ins,
 };

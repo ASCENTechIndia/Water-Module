@@ -1402,6 +1402,69 @@ const serviceMasInsSchema = z.object({
     .int("Mode must be an integer"),
 });
 
+const chargeTypeInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_chargestypeid: z
+    .number({
+      invalid_type_error: "Charge Type Id must be a number",
+    })
+    .int("Charge Type Id must be an integer")
+    .nullable(),
+
+  in_chargestypename: z
+    .string({
+      required_error: "Charge Type name is required",
+      invalid_type_error: "Charge Type name must be a string",
+    })
+    .trim()
+    .min(1, "Charge Type name is required"),
+
+  in_activeflag: z
+    .string({
+      required_error: "Active flag is required",
+      invalid_type_error: "Active flag must be a string",
+    })
+    .trim()
+    .min(1, "Active flag is required"),
+
+  in_Orgid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
@@ -1425,4 +1488,5 @@ module.exports = {
   premiseTypeInsSchema,
   collCentreInsSchema,
   serviceMasInsSchema,
+  chargeTypeInsSchema,
 };

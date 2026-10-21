@@ -60,6 +60,8 @@ const {
   collCentreInsController,
   getServiceListController,
   serviceMasInsController,
+  getChargeListController,
+  chargeTypeInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -85,6 +87,7 @@ const {
   premiseTypeInsSchema,
   collCentreInsSchema,
   serviceMasInsSchema,
+  chargeTypeInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -252,6 +255,14 @@ router.post(
   "/aowt_servicemas_ins",
   validate(serviceMasInsSchema),
   serviceMasInsController,
+);
+
+// Charges list
+router.get("/getChargesList", getChargeListController)
+router.post(
+  "/aowt_chargestype_ins",
+  validate(chargeTypeInsSchema),
+  chargeTypeInsController,
 );
 
 module.exports = router;

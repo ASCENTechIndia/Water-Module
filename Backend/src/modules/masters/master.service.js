@@ -59,6 +59,8 @@ const {
   aowt_collcentre_ins,
   getServiceList,
   aowt_servicemas_ins,
+  getChargeList,
+  aowt_chargestype_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -301,6 +303,14 @@ async function serviceMasInsService(payload) {
   return aowt_servicemas_ins(payload);
 }
 
+async function getChargeListService() {
+  return getChargeList();
+}
+
+async function chargeTypeInsService(payload) {
+  return aowt_chargestype_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -362,4 +372,6 @@ module.exports = {
   collCentreInsService,
   getServiceListService,
   serviceMasInsService,
+  getChargeListService,
+  chargeTypeInsService,
 };
