@@ -15,7 +15,55 @@ const {
     billingMethodConfigSubmitRepo,
     getConsumerTypeTableDataRepo,
     getConsumerTypeTableDataStatusRepo,
-    consumerTypeConfigDataSubmitRepo
+    consumerTypeConfigDataSubmitRepo,
+    getConnCodeTableDataRepo,
+    getConnCodeTableeDataStatusRepo,
+    connCodeConfigDataSubmitRepo,
+    getMeterOwnerTableDataRepo,
+    getMeterOwnerTableDataStatusRepo,
+    meterOwnerConfigDataSubmitRepo,
+    getBankTableDataRepo,
+    getBankTableDataStatusRepo,
+    bankConfigDataSubmitRepo,
+    getBillingFrequencyTableDataRepo,
+    getBillingFrequencyTableDataStatusRepo,
+    billingFrequencyDataSubmitRepo,
+    getConnectionSizeTableDataRepo,
+    getConnectionSizeTableDataStatusRepo,
+    connectionSizeDataSubmitRepo,
+    getConnectionStatusTableDataRepo,
+    getConnectionStatusTableDataStatusRepo,
+    connectionStatusDataSubmitRepo,
+    getMeterGapCodeTableDataRepo,
+    getMeterGapCodeTableDataStatusRepo,
+    meterGapCodeDataSubmitRepo,
+    getTaxConfigTableDataRepo,
+    getTaxConfigTableDataStatusRepo,
+    taxConfigDataSubmitRepo,
+    getConnectionTypeTableDataRepo,
+    getConnectionTypeTableDataStatusRepo,
+    connectionTypeDataSubmitRepo,
+    getCollectionCenterTableDataRepo,
+    getCollectionCenterTableDataStatusRepo,
+    collectionCenterDataSubmitRepo,
+    getServiceConfigTableDataRepo,
+    getServiceConfigTableDataStatusRepo,
+    serviceConfigDataSubmitRepo,
+    getChargesTypeTableDataRepo,
+    getChargesTypeTableDataStatusRepo,
+    chargesTypeDataSubmitRepo,
+    getUserDropdownRepo,
+    getCollectionCenterDropdownRepo,
+    userCollectionConfigRepo,
+    getServiceRateConfigListByULBRepo,
+    getServiceNamesByULBRepo,
+    getChargesTypeByULBRepo,
+    getUsageTypeByULBRepo,
+    getSubUsageTypeByUsageTypeRepo,
+    getValueDropdownRepo,
+    fetchServiceRateConfigDetailsRepo,
+    serviceRateConfigDetailsSubmitRepo,
+    fetchServiceRateConfigTableDetailsRepo
 } = require("./config.repo");
 
 async function getULBDropdownService() {
@@ -94,6 +142,234 @@ async function consumerTypeConfigDataSubmitService(payload) {
     return consumerTypeConfigDataSubmitRepo(payload);
 }
 
+// Conn Code Config
+
+async function getConnCodeTableDataService(payload) {
+    return getConnCodeTableDataRepo(payload);
+}
+
+async function getConnCodeTableeDataStatusService(payload) {
+    return getConnCodeTableeDataStatusRepo(payload);
+}
+
+async function connCodeConfigDataSubmitService(payload) {
+    return connCodeConfigDataSubmitRepo(payload);
+}
+
+// Meter Owner Config
+
+async function getMeterOwnerTableDataService(payload) {
+    return getMeterOwnerTableDataRepo(payload);
+}
+
+async function getMeterOwnerTableDataStatusService(payload){
+    return getMeterOwnerTableDataStatusRepo(payload);
+}
+
+async function meterOwnerConfigDataSubmitService(payload) {
+    return meterOwnerConfigDataSubmitRepo(payload);
+}
+
+// Bank Config
+
+async function getBankTableDataService(payload) {
+    return getBankTableDataRepo(payload);
+}
+
+async function getBankTableDataStatusService(payload) {
+    return getBankTableDataStatusRepo(payload);
+}
+
+async function bankConfigDataSubmitService(payload) {
+    return bankConfigDataSubmitRepo(payload);
+}
+
+// Billing Frequency
+
+async function getBillingFrequencyTableDataService(payload) {
+    return getBillingFrequencyTableDataRepo(payload);
+}
+
+async function getBillingFrequencyTableDataStatusService(payload) {
+    return getBillingFrequencyTableDataStatusRepo(payload);
+}
+
+async function billingFrequencyDataSubmitService(payload) {
+    return billingFrequencyDataSubmitRepo(payload);
+}
+
+// Connection Size
+
+async function getConnectionSizeTableDataService(payload) {
+    return getConnectionSizeTableDataRepo(payload);
+}
+
+async function getConnectionSizeTableDataStatusService(payload) {
+    return getConnectionSizeTableDataStatusRepo(payload);
+}
+
+async function connectionSizeDataSubmitService(payload) {
+    return connectionSizeDataSubmitRepo(payload);
+}
+
+// Connection Status Config
+
+async function getConnectionStatusTableDataService(payload) {
+    return getConnectionStatusTableDataRepo(payload);
+}
+
+async function getConnectionStatusTableDataStatusService(payload) {
+    return getConnectionStatusTableDataStatusRepo(payload);
+}
+
+async function connectionStatusDataSubmitService(payload) {
+    return connectionStatusDataSubmitRepo(payload);
+}
+
+// Meter Gap Code Config
+
+async function getMeterGapCodeTableDataService(payload) {
+    return getMeterGapCodeTableDataRepo(payload);
+}
+
+async function getMeterGapCodeTableStatusService(payload) {
+    return getMeterGapCodeTableDataStatusRepo(payload);
+}
+
+async function meterGapCodeDataSubmitService(payload) {
+    return meterGapCodeDataSubmitRepo(payload);
+}
+
+// Tax Config
+
+async function getTaxConfigTableDataService(payload) {
+    return getTaxConfigTableDataRepo(payload);
+}
+
+async function getTaxConfigTableDataStatusService(payload) {
+    return getTaxConfigTableDataStatusRepo(payload);
+}
+
+async function taxConfigDataSubmitService (payload) {
+    return taxConfigDataSubmitRepo(payload);
+}
+
+// Connection Type Config
+
+async function getConnectionTypeTableDataService(payload) {
+    return getConnectionTypeTableDataRepo(payload);
+}
+
+async function getConnectionTypeTableDataStatusService(payload) {
+    return getConnectionTypeTableDataStatusRepo(payload);
+}
+
+async function connectionTypeDataSubmitService(payload) {
+    return connectionTypeDataSubmitRepo(payload);
+}
+
+// Collection Center Config
+
+async function getCollectionCenterTableDataService(payload) {
+    return getCollectionCenterTableDataRepo(payload);
+}
+
+async function getCollectionCenterTableDataStatusService(payload) {
+    return getCollectionCenterTableDataStatusRepo(payload);
+}
+
+async function collectionCenterDataSubmitService(payload) {
+    return collectionCenterDataSubmitRepo(payload);
+}
+
+// Service Config
+
+async function getServiceConfigTableDataService(payload) {
+    return getServiceConfigTableDataRepo(payload);
+}
+
+async function getServiceConfigTableDataStatusService(payload) {
+    return getServiceConfigTableDataStatusRepo(payload);
+}
+
+async function serviceConfigDataSubmitService(payload) {
+    return serviceConfigDataSubmitRepo(payload);
+}
+
+// Charges Type Config
+
+async function getChargesTypeConfigTableDataService(payload) {
+    return getChargesTypeTableDataRepo(payload);
+}
+
+async function getChargesTypeConfigTableDataStatusService(payload) {
+    return getChargesTypeTableDataStatusRepo(payload);
+}
+
+async function chargesTypeDataSubmitService(payload) {
+    return chargesTypeDataSubmitRepo(payload);
+}
+
+// User Collection Config
+
+async function getUserDropdownService(payload) {
+    return getUserDropdownRepo(payload);
+}
+
+async function getCollectionCenterDropdownService(payload) {
+    return getCollectionCenterDropdownRepo(payload);
+} 
+
+async function userCollectionDataSubmitService(payload) {
+    return userCollectionConfigRepo(payload);
+}
+
+// Service Rate Config List
+
+async function getServiceRateConfigListByULBService(payload) {
+    return getServiceRateConfigListByULBRepo(payload);
+}
+
+// Service Rate Config Mst
+
+// Dropdowns
+
+async function getServiceNameDropdownByULBService(payload) {
+    return getServiceNamesByULBRepo(payload);
+}
+
+async function getChargesTypeDropdownByULBService(payload) {
+    return getChargesTypeByULBRepo(payload);
+}
+
+async function getUsageTypeDropdownByULBService(payload) {
+    return getUsageTypeByULBRepo(payload);
+}
+
+async function getSubUsageTypeDropdownByUsageService(payload) {
+    return getSubUsageTypeByUsageTypeRepo(payload);
+}
+
+async function getValueDropdownService(payload) {
+    return getValueDropdownRepo(payload);
+}
+
+// Fetch Service Rate Details
+
+async function fetchServiceRateConfigDetailsService(payload) {
+    return fetchServiceRateConfigDetailsRepo(payload);
+}
+
+async function fetchServiceRateConfigTableDetailsService(payload) {
+    return fetchServiceRateConfigTableDetailsRepo(payload);
+}
+// Submit Service Rate Details
+
+async function serviceRateConfigDetailsSubmitService(payload) {
+    return serviceRateConfigDetailsSubmitRepo(payload);
+}
+
+
 
 module.exports = {
     getULBDropdownService,
@@ -112,5 +388,53 @@ module.exports = {
     billingMethodConfigSubmitService,
     getConsumerTypeTableDataService,
     getConsumerTypeTableDataStatusService,
-    consumerTypeConfigDataSubmitService
+    consumerTypeConfigDataSubmitService,
+    getConnCodeTableDataService,
+    getConnCodeTableeDataStatusService,
+    connCodeConfigDataSubmitService,
+    getMeterOwnerTableDataService,
+    getMeterOwnerTableDataStatusService,
+    meterOwnerConfigDataSubmitService,
+    getBankTableDataService,
+    getBankTableDataStatusService,
+    bankConfigDataSubmitService,
+    getBillingFrequencyTableDataService,
+    getBillingFrequencyTableDataStatusService,
+    billingFrequencyDataSubmitService,
+    getConnectionSizeTableDataService,
+    getConnectionSizeTableDataStatusService,
+    connectionSizeDataSubmitService,
+    getConnectionStatusTableDataService,
+    getConnectionStatusTableDataStatusService,
+    connectionStatusDataSubmitService,
+    getMeterGapCodeTableDataService,
+    getMeterGapCodeTableStatusService,
+    meterGapCodeDataSubmitService,
+    getTaxConfigTableDataService,
+    getTaxConfigTableDataStatusService,
+    taxConfigDataSubmitService,
+    getConnectionTypeTableDataService,
+    getConnectionTypeTableDataStatusService,
+    connectionTypeDataSubmitService,
+    getCollectionCenterTableDataService,
+    getCollectionCenterTableDataStatusService,
+    collectionCenterDataSubmitService,
+    getServiceConfigTableDataService,
+    getServiceConfigTableDataStatusService,
+    serviceConfigDataSubmitService,
+    getChargesTypeConfigTableDataService,
+    getChargesTypeConfigTableDataStatusService,
+    chargesTypeDataSubmitService,
+    getUserDropdownService,
+    getCollectionCenterDropdownService,
+    userCollectionDataSubmitService,
+    getServiceRateConfigListByULBService,
+    getServiceNameDropdownByULBService,
+    getChargesTypeDropdownByULBService,
+    getUsageTypeDropdownByULBService,
+    getSubUsageTypeDropdownByUsageService,
+    getValueDropdownService,
+    fetchServiceRateConfigDetailsService,
+    fetchServiceRateConfigTableDetailsService,
+    serviceRateConfigDetailsSubmitService
 };

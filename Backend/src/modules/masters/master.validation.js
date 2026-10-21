@@ -375,10 +375,625 @@ const rateInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const ulbTipInsSchema = z.object({
+  in_userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_ulbtipid: z
+    .number({
+      invalid_type_error: "Ulb Tip Id must be a number",
+    })
+    .int("Ulb Tip Id must be an integer")
+    .nullable(),
+
+  in_tip: z
+    .string({
+      required_error: "Tip is required",
+      invalid_type_error: "Tip must be a string",
+    })
+    .trim()
+    .min(1, "Tip is required"),
+
+  in_slogan: z
+    .string({
+      required_error: "Slogan is required",
+      invalid_type_error: "Slogan must be a string",
+    })
+    .trim()
+    .min(1, "Slogan is required"),
+
+  in_status: z
+    .string({
+      required_error: "Status is required",
+      invalid_type_error: "Status must be a string",
+    })
+    .trim()
+    .min(1, "Status is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_type: z
+    .string({
+      required_error: "Type is required",
+      invalid_type_error: "Type must be a string",
+    })
+    .trim()
+    .min(1, "Type is required"),
+});
+
+const usageTypeInsSchema = z.object({
+  in_Userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_Usagetypeid: z
+    .number({
+      invalid_type_error: "Usage Type Id must be a number",
+    })
+    .int("Usage Type Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_Usagetypename: z
+    .string({
+      required_error: "Usage Type name is required",
+      invalid_type_error: "Usage Type name must be a string",
+    })
+    .trim()
+    .min(1, "Usage Type name is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const consumerTypeInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ConsumerTypeTd: z
+    .number({
+      invalid_type_error: "Consumer Type Id must be a number",
+    })
+    .int("Consumer Type Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_ConsumerTypeName: z
+    .string({
+      required_error: "Consumer Type name is required",
+      invalid_type_error: "Consumer Type name must be a string",
+    })
+    .trim()
+    .min(1, "Consumer Type name is required"),
+
+  in_ConsumerTypeActivelag: z
+    .string({
+      required_error: "Consumer Type active flag is required",
+      invalid_type_error: "Consumer Type active flag must be a string",
+    })
+    .trim()
+    .min(1, "Consumer Type active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const billFreqInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_billfreqid: z
+    .number({
+      invalid_type_error: "Bill Frequency Id must be a number",
+    })
+    .int("Bill Frequency Id must be an integer")
+    .nullable(),
+
+  in_billfreqname: z
+    .string({
+      required_error: "Bill Frequency name is required",
+      invalid_type_error: "Bill Frequency name must be a string",
+    })
+    .trim()
+    .min(1, "Bill Frequency name is required"),
+
+  in_activeflag: z
+    .string({
+      required_error: "Active flag is required",
+      invalid_type_error: "Active flag must be a string",
+    })
+    .trim()
+    .min(1, "Active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+});
+
+const usageSubTypeInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_Usagesubtypeid: z
+    .number({
+      invalid_type_error: "Usage Sub Type Id must be a number",
+    })
+    .int("Usage Sub Type Id must be an integer")
+    .nullable(),
+
+  in_Usagetypeid: z
+    .number({
+      required_error: "Usage Type Id is required",
+      invalid_type_error: "Usage Type Id must be a number",
+    })
+    .int("Usage Type Id must be an integer"),
+
+  in_mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_Usagesubtypename: z
+    .string({
+      required_error: "Usage Sub Type name is required",
+      invalid_type_error: "Usage Sub Type name must be a string",
+    })
+    .trim()
+    .min(1, "Usage Sub Type name is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const gapCodeInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_GapcodeId: z
+    .number({
+      invalid_type_error: "Gapcode Id must be a number",
+    })
+    .int("Gapcode Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_GapcodeName: z
+    .string({
+      required_error: "Gapcode name is required",
+      invalid_type_error: "Gapcode name must be a string",
+    })
+    .trim()
+    .min(1, "Gapcode name is required"),
+
+  in_GapcodeActiveflag: z
+    .string({
+      required_error: "Gapcode active flag is required",
+      invalid_type_error: "Gapcode active flag must be a string",
+    })
+    .trim()
+    .min(1, "Gapcode active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const plumberInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_PlumberId: z
+    .number({
+      invalid_type_error: "Plumber Id must be a number",
+    })
+    .int("Plumber Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_PlumberName: z
+    .string({
+      required_error: "Plumber name is required",
+      invalid_type_error: "Plumber name must be a string",
+    })
+    .trim()
+    .min(1, "Plumber name is required"),
+
+  in_PlumberCode: z
+    .string({
+      required_error: "Plumber code is required",
+      invalid_type_error: "Plumber code must be a string",
+    })
+    .trim()
+    .min(1, "Plumber code is required"),
+
+  in_PlumberActiveflag: z
+    .string({
+      required_error: "Plumber active flag is required",
+      invalid_type_error: "Plumber active flag must be a string",
+    })
+    .trim()
+    .min(1, "Plumber active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const connStatusInsSchema = z.object({
+  in_Userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_Connstatusid: z
+    .number({
+      invalid_type_error: "Connection Status Id must be a number",
+    })
+    .int("Connection Status Id must be an integer")
+    .nullable(),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_Connstatusname: z
+    .string({
+      required_error: "Connection Status name is required",
+      invalid_type_error: "Connection Status name must be a string",
+    })
+    .trim()
+    .min(1, "Connection Status name is required"),
+
+  in_connstatusactiveflag: z
+    .string({
+      required_error: "Connection Status active flag is required",
+      invalid_type_error: "Connection Status active flag must be a string",
+    })
+    .trim()
+    .min(1, "Connection Status active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const taxInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_taxid: z
+    .number({
+      invalid_type_error: "Tax Id must be a number",
+    })
+    .int("Tax Id must be an integer")
+    .nullable(),
+
+  in_ename: z
+    .string({
+      required_error: "Tax name (English) is required",
+      invalid_type_error: "Tax name (English) must be a string",
+    })
+    .trim()
+    .min(1, "Tax name (English) is required"),
+
+  in_mname: z
+    .string({
+      required_error: "Tax name (Marathi) is required",
+      invalid_type_error: "Tax name (Marathi) must be a string",
+    })
+    .trim()
+    .min(1, "Tax name (Marathi) is required"),
+
+  in_code: z
+    .string({
+      required_error: "Tax code is required",
+      invalid_type_error: "Tax code must be a string",
+    })
+    .trim()
+    .min(1, "Tax code is required"),
+
+  in_owner: z
+    .string({
+      required_error: "Tax owner is required",
+      invalid_type_error: "Tax owner must be a string",
+    })
+    .trim()
+    .min(1, "Tax owner is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_ApplyOn: z
+    .number({
+      required_error: "Apply On is required",
+      invalid_type_error: "Apply On must be a number",
+    })
+    .int("Apply On must be an integer"),
+});
+
+const meterOwnerInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_MeterOwnerid: z
+    .number({
+      invalid_type_error: "Meter Owner Id must be a number",
+    })
+    .int("Meter Owner Id must be an integer")
+    .nullable(),
+
+  in_MeterOwnername: z
+    .string({
+      required_error: "Meter Owner name is required",
+      invalid_type_error: "Meter Owner name must be a string",
+    })
+    .trim()
+    .min(1, "Meter Owner name is required"),
+
+  in_activeflag: z
+    .string({
+      required_error: "Active flag is required",
+      invalid_type_error: "Active flag must be a string",
+    })
+    .trim()
+    .min(1, "Active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
   blockInsSchema,
   bankInsSchema,
   rateInsSchema,
+  ulbTipInsSchema,
+  usageTypeInsSchema,
+  consumerTypeInsSchema,
+  billFreqInsSchema,
+  usageSubTypeInsSchema,
+  gapCodeInsSchema,
+  plumberInsSchema,
+  connStatusInsSchema,
+  taxInsSchema,
+  meterOwnerInsSchema,
 };

@@ -24,58 +24,23 @@ const FrmMeterOwnerMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       meterOwnerName: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!meterOwnerId) return;
+    if (!isEdit) return;
+    setValue("meterOwnerName", state?.meterOwnerName || "");
+    setValue("isActive", state?.flag === "Yes" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getMeterOwnerDetail", { meterOwnerId: Number(meterOwnerId) })
-    const dummyDetail = {
-      NUM_METEROWNER_ID: meterOwnerId,
-      VAR_METEROWNER_NAME: "ULB",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      meterOwnerName: dummyDetail.VAR_METEROWNER_NAME || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getMeterOwnerDetail", {
-    //       meterOwnerId: Number(meterOwnerId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         meterOwnerName: d.VAR_METEROWNER_NAME || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Meter owner detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Meter owner detail error:", err);
-    //     alert("Failed to fetch meter owner detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [meterOwnerId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,29 @@ const FrmMeterOwnerMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_MeterOwnerId: isEdit ? Number(meterOwnerId) : null,
-        in_MeterOwnerName: data.meterOwnerName.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_MeterOwnerid: isEdit ? Number(meterOwnerId) : null,
+        in_MeterOwnername: data.meterOwnerName.trim(),
+        in_activeflag: data.isActive,
         in_ipaddress: ip,
         in_source: config.source,
+        in_Mode: isEdit ? 2 : 1,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Meter Owner payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmMeterOwnerList");
+      const res = await apiService.post("/master/aowt_meterowner_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_meterowner_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmMeterOwnerList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save meter owner",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving meter owner:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmMeterOwnerList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving meter owner:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +91,8 @@ const FrmMeterOwnerMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Meter Owner Name */}
+          {/* Meter Owner Name */}
           <div>
             <Label text="Meter Owner Name : " required />
             <input
@@ -156,7 +114,7 @@ const FrmMeterOwnerMst = () => {
             )}
           </div>
 
-          {/* 2. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -191,7 +149,6 @@ const FrmMeterOwnerMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

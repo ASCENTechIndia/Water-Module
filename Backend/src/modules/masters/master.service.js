@@ -21,6 +21,30 @@ const {
   getTaxDropdown,
   aowt_rate_ins,
   getRateDetails,
+  getUlbTipList,
+  aowt_ulbtip_ins,
+  getUlbTipDetails,
+  getUsageTypeList,
+  aowt_usagetype_ins,
+  getConsumerTypeList,
+  aowt_consumertype_ins,
+  getBillFreqList,
+  aowt_billfreq_ins,
+  getUsageTypeDropdownMas,
+  getUsageSubTypeList,
+  aowt_usagesubtype_ins,
+  getGapCodeList,
+  aowt_gapcode_ins,
+  getPlumberList,
+  aowt_plumber_ins,
+  getConnectionList,
+  aowt_connstatus_ins,
+  getTaxList,
+  getApplyOnDropdown,
+  aowt_tax_ins,
+  getTaxDetails,
+  getMeterOwnerList,
+  aowt_meterowner_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -111,6 +135,102 @@ async function rateInsService(payload) {
   return aowt_rate_ins(payload);
 }
 
+async function getUlbTipListService(payload) {
+  return getUlbTipList(payload);
+}
+
+async function getUlbTipDetailsService(payload) {
+  return getUlbTipDetails(payload);
+}
+
+async function ulbTipInsService(payload) {
+  return aowt_ulbtip_ins(payload);
+}
+
+async function getUsageTypeListService() {
+  return getUsageTypeList();
+}
+
+async function usageTypeInsService(payload) {
+  return aowt_usagetype_ins(payload);
+}
+
+async function getConsumerTypeListService() {
+  return getConsumerTypeList();
+}
+
+async function consumerTypeInsService(payload) {
+  return aowt_consumertype_ins(payload);
+}
+
+async function getBillFreqListService() {
+  return getBillFreqList();
+}
+
+async function billFreqInsService(payload) {
+  return aowt_billfreq_ins(payload);
+}
+
+async function getUsageTypeDropdownMasService() {
+  return getUsageTypeDropdownMas();
+}
+
+async function getUsageSubTypeListService(payload) {
+  return getUsageSubTypeList(payload);
+}
+
+async function usageSubTypeInsService(payload) {
+  return aowt_usagesubtype_ins(payload);
+}
+
+async function getGapCodeListService() {
+  return getGapCodeList();
+}
+
+async function gapCodeInsService(payload) {
+  return aowt_gapcode_ins(payload);
+}
+
+async function getPlumberListService() {
+  return getPlumberList();
+}
+
+async function plumberInsService(payload) {
+  return aowt_plumber_ins(payload);
+}
+
+async function getConnectionListService() {
+  return getConnectionList();
+}
+
+async function connStatusInsService(payload) {
+  return aowt_connstatus_ins(payload);
+}
+
+async function getTaxListService() {
+  return getTaxList();
+}
+
+async function getApplyOnDropdownService() {
+  return getApplyOnDropdown();
+}
+
+async function getTaxDetailsService(payload) {
+  return getTaxDetails(payload);
+}
+
+async function taxInsService(payload) {
+  return aowt_tax_ins(payload);
+}
+
+async function getMeterOwnerListService() {
+  return getMeterOwnerList();
+}
+
+async function meterOwnerInsService(payload) {
+  return aowt_meterowner_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -134,4 +254,28 @@ module.exports = {
   getTaxDropdownService,
   rateInsService,
   getRateDetailsService,
+  getUlbTipListService,
+  getUlbTipDetailsService,
+  ulbTipInsService,
+  getUsageTypeListService,
+  usageTypeInsService,
+  getConsumerTypeListService,
+  consumerTypeInsService,
+  getBillFreqListService,
+  billFreqInsService,
+  getUsageTypeDropdownMasService,
+  getUsageSubTypeListService,
+  usageSubTypeInsService,
+  getGapCodeListService,
+  gapCodeInsService,
+  getPlumberListService,
+  plumberInsService,
+  getConnectionListService,
+  connStatusInsService,
+  getTaxListService,
+  getApplyOnDropdownService,
+  getTaxDetailsService,
+  taxInsService,
+  getMeterOwnerListService,
+  meterOwnerInsService,
 };

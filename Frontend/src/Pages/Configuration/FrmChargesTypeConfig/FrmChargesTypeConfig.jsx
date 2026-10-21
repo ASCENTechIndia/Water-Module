@@ -8,6 +8,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const FrmChargesTypeConfig = () => {
     const [rows, setRows] = useState([
@@ -43,6 +45,10 @@ const FrmChargesTypeConfig = () => {
     };
 
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
@@ -56,30 +62,28 @@ const FrmChargesTypeConfig = () => {
         watch,
     } = useForm({
         defaultValues: {
-            ulbName: "1",
-            documentStr: [],
+            ulbName: "",
+            chargesStr: [],
         },
     });
 
-    const [ulbOptions, setULBOptions] = useState([{
-        label: "मीरा भाईंदर महानगरपालिका", value: "1"
-    }]);
+    const watchULB = watch("ulbName");
+    const [ulbOptions, setULBOptions] = useState([]);
+    const [existingStatusCheckList, setExistingStatusCheckList] = useState([]);
 
     const fetchULBDropdown = async () => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
+            const response = await apiService.get("/config/getULBDropdown");
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.ulbID,
-                    value: item.ulbname,
+                const formatted = response.data.map((item) => ({
+                    label: item.CORPORATIONNAME,
+                    value: item.CORPORATIONID,
                 }));
 
                 setULBOptions(formatted);
@@ -87,11 +91,87 @@ const FrmChargesTypeConfig = () => {
                 setULBOptions([]);
             }
         } catch (error) {
+            setULBOptions([]);
             console.error(error);
         } finally {
             setLoading(false);
         }
     };
+
+    const fetchTableData = async () => {
+        try {
+            setLoading(true);
+
+            const url = `/config/getChargesTypeTableData?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (response?.success && Array.isArray(response?.data)) {
+                const formatted = response.data.map((item) => ({
+                    ...item,
+                    id: item.CHARGEID,
+                    chargesName: item.VAR_CHARGESTYPE_NAME
+                }));
+
+                setRows(formatted);
+            } else {
+                setRows([]);
+            }
+        } catch (error) {
+            setRows([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchServiceConfigTableDataStatus = async () => {
+        try {
+            setLoading(true);
+
+            const url = `/config/getChargesTypeTableDataStatus?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (response?.success && Array.isArray(response?.data)) {
+                setExistingStatusCheckList(response.data);
+            } else {
+                setExistingStatusCheckList([]);
+            }
+        } catch (error) {
+            setExistingStatusCheckList([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const configuredIds = new Set(
+            existingStatusCheckList.map((item) =>
+                String(item.CHTYPECONFIGID)
+            )
+        );
+
+        const updatedCheckedMap = {};
+
+        const selectedIds = rows
+            .filter((row) => {
+                const isChecked = configuredIds.has(String(row.id));
+
+                if (isChecked) {
+                    updatedCheckedMap[row.id] = true;
+                }
+
+                return isChecked;
+            })
+            .map((row) => row.id);
+
+        setCheckedMap(updatedCheckedMap);
+
+        setValue("chargesStr", selectedIds, {
+            shouldValidate: true,
+            shouldDirty: false,
+        });
+    }, [rows, existingStatusCheckList, setValue]);
 
     const handleToggle = (id, checked) => {
         setCheckedMap((prev) => {
@@ -106,7 +186,7 @@ const FrmChargesTypeConfig = () => {
                 .map((row) => row.id);
 
             // Store selected IDs in react-hook-form
-            setValue("documentStr", selectedIds, {
+            setValue("chargesStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -129,7 +209,7 @@ const FrmChargesTypeConfig = () => {
             // Store all IDs in react-hook-form
             const selectedIds = rows.map((row) => row.id);
 
-            setValue("documentStr", selectedIds, {
+            setValue("chargesStr", selectedIds, {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -137,7 +217,7 @@ const FrmChargesTypeConfig = () => {
             setCheckedMap({});
 
             // Clear selected IDs from react-hook-form
-            setValue("documentStr", [], {
+            setValue("chargesStr", [], {
                 shouldValidate: true,
                 shouldDirty: true,
             });
@@ -147,29 +227,103 @@ const FrmChargesTypeConfig = () => {
     const onSubmit = async (values) => {
         try {
             setLoading(true);
+            const mode = existingStatusCheckList.length > 0 ? 2 : 1;
+
+            if (mode === 1 && (!values.chargesStr || values.chargesStr.length === 0)) {
+                alert("Please atleast one checkbox");
+                return;
+            }
 
 
-            const docStr = values.documentStr.join("$");
+            const previouslyConfiguredIds = new Set(
+                existingStatusCheckList.map((item) =>
+                    String(item.CHTYPECONFIGID)
+                )
+            );
 
+            const chargesStr = rows
+                .map((row) => {
+                    const id = row.id;
+
+
+                    const previousStatus = previouslyConfiguredIds.has(
+                        String(id)
+                    )
+                        ? "Y"
+                        : "N";
+
+                    const currentStatus = checkedMap[id] ? "Y" : "N";
+
+                    return `${id}#${previousStatus}#${currentStatus}`;
+                })
+                .join("$");
+
+
+            const ipAddress = await GetIPAddress();
             const payload = {
-                ulbName: values.ulbName,
-                usageStr: docStr,
+                in_UserId: userId,
+                in_ulbid: Number(values.ulbName),
+                in_ChargesStr: chargesStr,
+                in_Mode: mode,
+                in_ipaddress: ipAddress,
+                in_source: config.source
             };
 
-            console.log("Form Values:", values);
-            console.log("Payload:", payload);
+            const response = await apiService.post("/config/charges-type", payload);
 
-            // API call
-            // const response = await apiService.post("", payload);
+            if (
+                response?.success &&
+                response?.data?.Out_errorCode === 9999
+            ) {
+                alert(response.data.Out_ErrorMsg);
+
+                setRows([]);
+                setCheckedMap({});
+                setExistingStatusCheckList([]);
+
+                setValue("serviceStr", [], {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                });
+
+                await fetchTableData();
+                await fetchServiceConfigTableDataStatus();
+            } else {
+                alert(response?.data?.Out_ErrorMsg || "Submission failed");
+            }
 
         } catch (error) {
             console.error(error.message);
-
             alert(error.message || "Failed to submit data");
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchULBDropdown();
+        }
+    }, [ulbId]);
+
+    useEffect(() => {
+        if (ulbOptions.length > 0 && ulbId) {
+            setValue("ulbName", String(ulbId));
+        }
+    }, [ulbOptions, ulbId, setValue]);
+
+    useEffect(() => {
+        if (!watchULB) {
+            setRows([]);
+            setCheckedMap({});
+            setExistingStatusCheckList([]);
+            setValue("collectionCenterStr", []);
+            return;
+        }
+
+        fetchTableData();
+        fetchServiceConfigTableDataStatus();
+    }, [watchULB]);
 
     return (
         <Layout

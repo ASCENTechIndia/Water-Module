@@ -22,6 +22,30 @@ const {
   getTaxDropdownController,
   rateInsController,
   getRateDetailsController,
+  getUlbTipListController,
+  ulbTipInsController,
+  getUlbTipDetailsController,
+  getUsageTypeListController,
+  usageTypeInsController,
+  getConsumerTypeListController,
+  consumerTypeInsController,
+  getBillFreqListController,
+  billFreqInsController,
+  getUsageTypeDropdownMasController,
+  getUsageSubTypeListController,
+  usageSubTypeInsController,
+  getGapCodeListController,
+  gapCodeInsController,
+  getPlumberListController,
+  plumberInsController,
+  getConnectionListController,
+  connStatusInsController,
+  getTaxListController,
+  getApplyOnDropdownController,
+  taxInsController,
+  getTaxDetailsController,
+  getMeterOwnerListController,
+  meterOwnerInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -30,6 +54,16 @@ const {
   blockInsSchema,
   bankInsSchema,
   rateInsSchema,
+  ulbTipInsSchema,
+  usageTypeInsSchema,
+  consumerTypeInsSchema,
+  billFreqInsSchema,
+  usageSubTypeInsSchema,
+  gapCodeInsSchema,
+  plumberInsSchema,
+  connStatusInsSchema,
+  taxInsSchema,
+  meterOwnerInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -66,4 +100,80 @@ router.get("/getConnectionSize", getConnSizeDropdownController);
 router.get("/getTaxDropdown", getTaxDropdownController);
 router.get("/getRateDetails", getRateDetailsController);
 router.post("/aowt_rate_ins", validate(rateInsSchema), rateInsController);
+
+// ULB Tip master
+router.get("/getUlbTipList", getUlbTipListController);
+router.get("/getUlbTipDetails", getUlbTipDetailsController);
+router.post("/aowt_ulbtip_ins", validate(ulbTipInsSchema), ulbTipInsController);
+
+// Usage Type master
+router.get("/usageTypeList", getUsageTypeListController);
+router.post(
+  "/aowt_usagetype_ins",
+  validate(usageTypeInsSchema),
+  usageTypeInsController,
+);
+
+// Consumer type master
+router.get("/getConsumerTypeList", getConsumerTypeListController);
+router.post(
+  "/aowt_consumertype_ins",
+  validate(consumerTypeInsSchema),
+  consumerTypeInsController,
+);
+
+// Bill frequency master
+router.get("/getBillFrequencyList", getBillFreqListController);
+router.post(
+  "/aowt_billfreq_ins",
+  validate(billFreqInsSchema),
+  billFreqInsController,
+);
+
+// Usage sub type master
+router.get("/getUsageTypeDd", getUsageTypeDropdownMasController);
+router.get("/getUsageSubTypeList", getUsageSubTypeListController);
+router.post(
+  "/aowt_usagesubtype_ins",
+  validate(usageSubTypeInsSchema),
+  usageSubTypeInsController,
+);
+
+// Gap code master
+router.get("/getGapCodeList", getGapCodeListController);
+router.post(
+  "/aowt_gapcode_ins",
+  validate(gapCodeInsSchema),
+  gapCodeInsController,
+);
+
+// Plumber master
+router.get("/getPlumberList", getPlumberListController);
+router.post(
+  "/aowt_plumber_ins",
+  validate(plumberInsSchema),
+  plumberInsController,
+);
+
+// Connection List
+router.get("/getConnectionList", getConnectionListController);
+router.post(
+  "/aowt_connstatus_ins",
+  validate(connStatusInsSchema),
+  connStatusInsController,
+);
+
+// Tax Master
+router.get("/getTaxList", getTaxListController);
+router.get("/getApplyOnDropdown", getApplyOnDropdownController);
+router.get("/getTaxDetails", getTaxDetailsController);
+router.post("/aowt_tax_ins", validate(taxInsSchema), taxInsController);
+
+// Meter owner list
+router.get("/getMeterOwnerList", getMeterOwnerListController);
+router.post(
+  "/aowt_meterowner_ins",
+  validate(meterOwnerInsSchema),
+  meterOwnerInsController,
+);
 module.exports = router;

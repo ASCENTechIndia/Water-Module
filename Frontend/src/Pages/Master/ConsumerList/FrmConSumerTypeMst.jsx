@@ -24,58 +24,23 @@ const FrmConSumerTypeMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       consumerTypeName: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!consumerTypeId) return;
+    if (!isEdit) return;
+    setValue("consumerTypeName", state?.consumerTypeName || "");
+    setValue("isActive", state?.flag === "Yes" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getConsumerTypeDetail", { consumerTypeId: Number(consumerTypeId) })
-    const dummyDetail = {
-      NUM_CONSUMERTYPE_ID: consumerTypeId,
-      VAR_CONSUMERTYPE_NAME: "Domestic",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      consumerTypeName: dummyDetail.VAR_CONSUMERTYPE_NAME || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getConsumerTypeDetail", {
-    //       consumerTypeId: Number(consumerTypeId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         consumerTypeName: d.VAR_CONSUMERTYPE_NAME || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Consumer type detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Consumer type detail error:", err);
-    //     alert("Failed to fetch consumer type detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [consumerTypeId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,32 @@ const FrmConSumerTypeMst = () => {
 
       const payload = {
         in_UserId: userId,
+        in_ConsumerTypeTd: isEdit ? Number(consumerTypeId) : null,
         in_Mode: isEdit ? 2 : 1,
-        in_ConsumerTypeId: isEdit ? Number(consumerTypeId) : null,
         in_ConsumerTypeName: data.consumerTypeName.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_ConsumerTypeActivelag: data.isActive,
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Consumer Type payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmConSumerTypeList");
+      const res = await apiService.post(
+        "/master/aowt_consumertype_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_consumertype_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmConSumerTypeList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save consumer type",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving consumer type:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_ErrorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmConSumerTypeList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving consumer type:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +94,8 @@ const FrmConSumerTypeMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Consumer Type Name */}
+          {/* Consumer Type Name */}
           <div>
             <Label text="Consumer Type Name : " required />
             <input
@@ -156,7 +117,7 @@ const FrmConSumerTypeMst = () => {
             )}
           </div>
 
-          {/* 2. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -191,7 +152,6 @@ const FrmConSumerTypeMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

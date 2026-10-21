@@ -10,53 +10,28 @@ import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table.jsx";
 
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+};
+
 const FrmServiceRateConfigList = () => {
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
 
-    const [tableData, setTableData] = useState([
-        [
-            <span
-                className="text-blue-400 underline cursor-pointer"
-                onClick={() => { 
-                    navigate("/Masters/FrmServiceRateConfigMst", {
-                        state: {
-                            mode: 2
-                        }
-                    })
-                 }}
-            >
-                Select
-            </span>,
-            "Re-Water Connection",
-            "Re-Water Connection",
-            "Re-Water Connection Fee",
-            "Fix",
-            "01-04-2023"
-        ],
-        [
-            <span
-                className="text-blue-400 underline cursor-pointer"
-                onClick={() => {
-                    navigate("/Masters/FrmServiceRateConfigMst", {
-                        state: {
-                            mode: "2",
-                            applicationNumber: ""
-                        }
-                    })
-
-                 }}
-            >
-                Select
-            </span>,
-            "Re-Water Connection",
-            "Re-Water Connection",
-            "Re-Water Connection Fee",
-            "Fix",
-            "01-04-2023"
-        ]
-    ]);
+    const [tableData, setTableData] = useState([]);
     const [tableHeader, setTableHeader] = useState([
         "निवडा",
         "Service Eng Name",
@@ -81,25 +56,22 @@ const FrmServiceRateConfigList = () => {
         },
     });
 
-    const [ulbOptions, setULBOptions] = useState([{
-        label: "मीरा भाईंदर महानगरपालिका", value: "1"
-    }]);
+    const [ulbOptions, setULBOptions] = useState([]);
+    const watchULB = watch("ulbName");
 
     const fetchULBDropdown = async () => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
+            const response = await apiService.get("/config/getULBDropdown");
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.ulbID,
-                    value: item.ulbname,
+                const formatted = response.data.map((item) => ({
+                    label: item.CORPORATIONNAME,
+                    value: item.CORPORATIONID,
                 }));
 
                 setULBOptions(formatted);
@@ -107,6 +79,7 @@ const FrmServiceRateConfigList = () => {
                 setULBOptions([]);
             }
         } catch (error) {
+            setULBOptions([]);
             console.error(error);
         } finally {
             setLoading(false);
@@ -117,17 +90,35 @@ const FrmServiceRateConfigList = () => {
         try {
             setLoading(true);
 
-            const payload = {};
+            const url = `/config/getServiceRateTableData?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
 
-            // const response = await apiService.post("", payload);
-
-            // console.log(response);
-
-            // if (response.data.success && Array.isArray(response.data.data)) {
-            //     setTableData(response.data.data);
-            // } else {
-            //     setTableData([]);
-            // }
+            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                const formatted = response.data.map(item => [
+                    <span
+                        className="text-blue-400 underline cursor-pointer"
+                        onClick={() => {
+                            navigate("/Masters/FrmServiceRateConfigMst", {
+                                state: {
+                                    mode: 2,
+                                    serviceUlbId: item.SERVICERATE_ULBID,
+                                    serviceRateId: item.ERVICERATE_ID
+                                }
+                            })
+                        }}
+                    >
+                        Select
+                    </span>,
+                    item.SERVICEENAME,
+                    item.SERVICEMNAME,
+                    item.CHARGESTYPE,
+                    item.VALUENAME,
+                    formatDate(item.SERVICERATE_EFFECTIVEFROM)
+                ]);
+                setTableData(formatted);
+            } else {
+                setTableData([]);
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -135,32 +126,44 @@ const FrmServiceRateConfigList = () => {
         }
     }
 
-    const onSubmit = async (values) => {
-        try {
-            setLoading(true);
+    // const onSubmit = async (values) => {
+    //     try {
+    //         setLoading(true);
 
 
-            // const docStr = values.documentStr.join("$");
+    //         // const docStr = values.documentStr.join("$");
 
-            const payload = {
-                ulbName: values.ulbName,
-                // usageStr: docStr,
-            };
+    //         const payload = {
+    //             ulbName: values.ulbName,
+    //             // usageStr: docStr,
+    //         };
 
-            console.log("Form Values:", values);
-            console.log("Payload:", payload);
+    //         console.log("Form Values:", values);
+    //         console.log("Payload:", payload);
 
-            // API call
-            // const response = await apiService.post("", payload);
+    //         // API call
+    //         // const response = await apiService.post("", payload);
 
-        } catch (error) {
-            console.error(error.message);
+    //     } catch (error) {
+    //         console.error(error.message);
 
-            alert(error.message || "Failed to submit data");
-        } finally {
-            setLoading(false);
+    //         alert(error.message || "Failed to submit data");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchULBDropdown();
         }
-    };
+    }, [ulbId]);
+
+    useEffect(() => {
+        if (watchULB) {
+            fetchTableData();
+        }
+    }, [watchULB]);
 
     return (
         <Layout
@@ -171,9 +174,9 @@ const FrmServiceRateConfigList = () => {
                 current: "Service Rate Configuration List",
             }}
         >
-            <form
+            <div
                 className="w-full space-y-6"
-                onSubmit={handleSubmit(onSubmit)}
+                // onSubmit={handleSubmit(onSubmit)}
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
@@ -223,10 +226,7 @@ const FrmServiceRateConfigList = () => {
                         />
                     </div>
                 }
-                <div className="mt-3">
-
-                </div>
-            </form>
+            </div>
         </Layout>
     )
 }

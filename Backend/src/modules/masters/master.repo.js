@@ -668,6 +668,696 @@ async function aowt_rate_ins(payload) {
   return result.outBinds;
 }
 
+async function getUlbTipList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select num_ulbtip_id,
+           num_ulbtip_ulbid,
+           var_ulbtip_tip,
+           var_ulbtip_slogan,
+           var_ulbtip_active,
+           var_ulbtip_insby,
+           dat_ulbtip_insdate,
+           var_ulbtip_updby,
+           dat_ulbtip_upddate
+      from aowt_ulbtip_det
+     where num_ulbtip_ulbid = :ulbId
+       and var_ulbtip_active = 'Y'
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getUlbTipDetails(payload) {
+  const { tipId } = payload;
+
+  if (!tipId) {
+    throw new Error("tipId is required");
+  }
+
+  const sql = `
+    select num_ulbtip_id,
+           num_ulbtip_ulbid,
+           var_ulbtip_tip,
+           var_ulbtip_slogan,
+           var_ulbtip_active,
+           var_ulbtip_insby,
+           dat_ulbtip_insdate,
+           var_ulbtip_updby,
+           dat_ulbtip_upddate,
+           var_ulbtip_type
+      from aowt_ulbtip_det
+     where var_ulbtip_active = 'Y'
+       and num_ulbtip_id = :tipId
+  `;
+
+  const binds = {
+    tipId: Number(tipId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_ulbtip_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_ulbtip_ins(
+        :in_userid,
+        :in_ulbid,
+        :in_ulbtipid,
+        :in_tip,
+        :in_slogan,
+        :in_status,
+        :in_ipaddress,
+        :in_source,
+        :in_mode,
+        :in_type,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_ulbid: Number(payload.in_ulbid),
+    in_ulbtipid:
+      payload.in_ulbtipid != null ? Number(payload.in_ulbtipid) : null,
+    in_tip: payload.in_tip,
+    in_slogan: payload.in_slogan,
+    in_status: payload.in_status,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_mode: Number(payload.in_mode),
+    in_type: payload.in_type,
+
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getUsageTypeList() {
+  const sql = `
+    select num_usagetype_id,
+           var_usagetype_name,
+           dat_usagetype_insdt,
+           var_usagetype_insby,
+           dat_usagetype_updt,
+           var_usagetype_updby
+      from aowt_usagetype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_usagetype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_usagetype_ins(
+        :in_Userid,
+        :in_Usagetypeid,
+        :in_Mode,
+        :in_Usagetypename,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_Userid: payload.in_Userid,
+    in_Usagetypeid:
+      payload.in_Usagetypeid != null ? Number(payload.in_Usagetypeid) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_Usagetypename: payload.in_Usagetypename,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getConsumerTypeList() {
+  const sql = `
+    select num_consumertype_id,
+           var_consumertype_name,
+           case var_consumertype_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_consumertype_insdt,
+           var_consumertype_insby,
+           dat_consumertype_updt,
+           var_consumertype_updby
+      from aowt_consumertype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_consumertype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_consumertype_ins(
+        :in_UserId,
+        :in_ConsumerTypeTd,
+        :in_Mode,
+        :in_ConsumerTypeName,
+        :in_ConsumerTypeActivelag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_ConsumerTypeTd:
+      payload.in_ConsumerTypeTd != null
+        ? Number(payload.in_ConsumerTypeTd)
+        : null,
+    in_Mode: Number(payload.in_Mode),
+    in_ConsumerTypeName: payload.in_ConsumerTypeName,
+    in_ConsumerTypeActivelag: payload.in_ConsumerTypeActivelag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getBillFreqList() {
+  const sql = `
+    select num_billfreq_id,
+           var_billfreq_name,
+           case var_billfreq_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_billfreq_insdt,
+           var_billfreq_insby,
+           dat_billfreq_updt,
+           var_billfreq_updby
+      from aowt_billfreq_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_billfreq_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_billfreq_ins(
+        :in_UserId,
+        :in_billfreqid,
+        :in_billfreqname,
+        :in_activeflag,
+        :in_ipaddress,
+        :in_source,
+        :in_Mode,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_billfreqid:
+      payload.in_billfreqid != null ? Number(payload.in_billfreqid) : null,
+    in_billfreqname: payload.in_billfreqname,
+    in_activeflag: payload.in_activeflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_Mode: Number(payload.in_Mode),
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getUsageTypeDropdownMas() {
+  const sql = `
+    select var_usagetype_name,
+           num_usagetype_id
+      from aowt_usagetype_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getUsageSubTypeList(payload) {
+  const { usageId } = payload;
+
+  if (!usageId) {
+    throw new Error("usageId is required");
+  }
+
+  const sql = `
+    select num_usagesubtype_id,
+           num_usagesubtype_usagetypeid,
+           var_usagesubtype_name,
+           dat_usagesubtype_insdt,
+           var_usagesubtype_insby,
+           dat_usagesubtype_updt,
+           var_usagesubtype_updby
+      from aowt_usagesubtype_mas
+     where num_usagesubtype_usagetypeid = :usageId
+  `;
+
+  const binds = {
+    usageId: Number(usageId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_usagesubtype_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_usagesubtype_ins(
+        :in_UserId,
+        :in_Usagesubtypeid,
+        :in_Usagetypeid,
+        :in_mode,
+        :in_Usagesubtypename,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_Usagesubtypeid:
+      payload.in_Usagesubtypeid != null
+        ? Number(payload.in_Usagesubtypeid)
+        : null,
+    in_Usagetypeid: Number(payload.in_Usagetypeid),
+    in_mode: Number(payload.in_mode),
+    in_Usagesubtypename: payload.in_Usagesubtypename,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getGapCodeList() {
+  const sql = `
+    select num_gapcode_id,
+           var_gapcode_name,
+           case var_gapcode_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_gapcode_insdt,
+           var_gapcode_insby,
+           dat_gapcode_updt,
+           var_gapcode_updby
+      from aowt_gapcode_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_gapcode_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_gapcode_ins(
+        :in_UserId,
+        :in_GapcodeId,
+        :in_Mode,
+        :in_GapcodeName,
+        :in_GapcodeActiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_GapcodeId:
+      payload.in_GapcodeId != null ? Number(payload.in_GapcodeId) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_GapcodeName: payload.in_GapcodeName,
+    in_GapcodeActiveflag: payload.in_GapcodeActiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getPlumberList() {
+  const sql = `
+    select num_plumber_id,
+           var_plumber_name,
+           var_plumber_code,
+           case var_plumber_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_plumber_insdt,
+           var_plumber_insby,
+           dat_plumber_updt,
+           var_plumber_updby
+      from aowt_plumber_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_plumber_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_plumber_ins(
+        :in_UserId,
+        :in_PlumberId,
+        :in_Mode,
+        :in_PlumberName,
+        :in_PlumberCode,
+        :in_PlumberActiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_PlumberId:
+      payload.in_PlumberId != null ? Number(payload.in_PlumberId) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_PlumberName: payload.in_PlumberName,
+    in_PlumberCode: payload.in_PlumberCode,
+    in_PlumberActiveflag: payload.in_PlumberActiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getConnectionList() {
+  const sql = `
+    select num_connstatus_id,
+           var_connstatus_name,
+           case var_connstatus_activeflag
+             when 'Y' then 'Active'
+             when 'N' then 'InActive'
+           end activeflag,
+           dat_connstatus_insdt,
+           var_connstatus_insby,
+           dat_connstatus_updt,
+           var_connstatus_updby
+      from aowt_connstatus_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_connstatus_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_connstatus_ins(
+        :in_Userid,
+        :in_Connstatusid,
+        :in_Mode,
+        :in_Connstatusname,
+        :in_connstatusactiveflag,
+        :in_ipaddress,
+        :in_source,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_Userid: payload.in_Userid,
+    in_Connstatusid:
+      payload.in_Connstatusid != null ? Number(payload.in_Connstatusid) : null,
+    in_Mode: Number(payload.in_Mode),
+    in_Connstatusname: payload.in_Connstatusname,
+    in_connstatusactiveflag: payload.in_connstatusactiveflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getTaxList() {
+  const sql = `
+    select num_tax_id id,
+           var_tax_ename ename,
+           var_tax_mname mname,
+           var_tax_code code,
+           case var_tax_owner
+             when 'G' then 'GOVT'
+             when 'V' then 'ULB'
+             else ''
+           end owner
+      from aowt_tax_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getApplyOnDropdown() {
+  const sql = `
+    select var_taxapplyon_name,
+           num_taxapplyon_id
+      from aoms_taxapplyon_mas
+     where var_taxapplyon_active = 'Y'
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getTaxDetails(payload) {
+  const { taxId } = payload;
+
+  if (!taxId) {
+    throw new Error("taxId is required");
+  }
+
+  const sql = `
+    select num_tax_id id,
+           var_tax_ename ename,
+           var_tax_mname mname,
+           var_tax_code code,
+           var_tax_owner owner,
+           num_tax_applyon applyon
+      from aowt_tax_mas
+     where num_tax_id = :taxId
+  `;
+
+  const binds = {
+    taxId: Number(taxId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_tax_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_tax_ins(
+        :in_UserId,
+        :in_taxid,
+        :in_ename,
+        :in_mname,
+        :in_code,
+        :in_owner,
+        :in_ipaddress,
+        :in_source,
+        :in_Mode,
+        :in_ApplyOn,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_taxid: payload.in_taxid != null ? Number(payload.in_taxid) : null,
+    in_ename: payload.in_ename,
+    in_mname: payload.in_mname,
+    in_code: payload.in_code,
+    in_owner: payload.in_owner,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_Mode: Number(payload.in_Mode),
+    in_ApplyOn: Number(payload.in_ApplyOn),
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getMeterOwnerList() {
+  const sql = `
+    select num_meterowner_id meterowner_id,
+           var_meterowner_name meterowner_name,
+           case var_meterowner_activeflag
+             when 'Y' then 'Yes'
+             when 'N' then 'No'
+           end activeflag,
+           dat_meterowner_insdt insdt,
+           var_meterowner_insby insby,
+           dat_meterowner_updt updt,
+           var_meterowner_updby updby
+      from aowt_meterowner_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_meterowner_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_meterowner_ins(
+        :in_UserId,
+        :in_MeterOwnerid,
+        :in_MeterOwnername,
+        :in_activeflag,
+        :in_ipaddress,
+        :in_source,
+        :in_Mode,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_MeterOwnerid:
+      payload.in_MeterOwnerid != null ? Number(payload.in_MeterOwnerid) : null,
+    in_MeterOwnername: payload.in_MeterOwnername,
+    in_activeflag: payload.in_activeflag,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_Mode: Number(payload.in_Mode),
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -691,4 +1381,28 @@ module.exports = {
   getTaxDropdown,
   aowt_rate_ins,
   getRateDetails,
+  getUlbTipList,
+  aowt_ulbtip_ins,
+  getUlbTipDetails,
+  getUsageTypeList,
+  aowt_usagetype_ins,
+  getConsumerTypeList,
+  aowt_consumertype_ins,
+  getBillFreqList,
+  aowt_billfreq_ins,
+  getUsageTypeDropdownMas,
+  getUsageSubTypeList,
+  aowt_usagesubtype_ins,
+  getGapCodeList,
+  aowt_gapcode_ins,
+  getPlumberList,
+  aowt_plumber_ins,
+  getConnectionList,
+  aowt_connstatus_ins,
+  getTaxList,
+  getApplyOnDropdown,
+  aowt_tax_ins,
+  getTaxDetails,
+  getMeterOwnerList,
+  aowt_meterowner_ins,
 };
