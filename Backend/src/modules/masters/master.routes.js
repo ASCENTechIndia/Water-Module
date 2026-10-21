@@ -69,6 +69,19 @@ const {
   getAccTaxConfigDetailsController,
   getMicrCodeListController,
   micrCodeInsController,
+  getBillScheduleListController,
+  getBillFreqDropdownController,
+  getFromMonthDropdownController,
+  billScheduleInsController,
+  getBillScheduleDetailsController,
+  getConnAutoGerateListController,
+  getConnAutoGerateDetailsController,
+  connNoConfigInsController,
+  getProvChequeListController,
+  getProvChequeDetailsController,
+  provChequeConfigInsController,
+  getAllUserListController,
+  userAllConfigInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -97,6 +110,10 @@ const {
   chargeTypeInsSchema,
   accTaxInsSchema,
   micrCodeInsSchema,
+  billScheduleInsSchema,
+  connNoConfigInsSchema,
+  provChequeConfigInsSchema,
+  userAllConfigInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -287,6 +304,43 @@ router.post(
   "/aowt_micrcode_ins",
   validate(micrCodeInsSchema),
   micrCodeInsController,
+);
+
+// Bill schedule list
+router.get("/getBillScheduleList", getBillScheduleListController);
+router.get("/getBillFrequencyDropdown", getBillFreqDropdownController);
+router.get("/getMonthDropdown", getFromMonthDropdownController);
+router.get("/getBillScheduleDetails", getBillScheduleDetailsController);
+router.post(
+  "/aowt_billschedule_ins",
+  validate(billScheduleInsSchema),
+  billScheduleInsController,
+);
+
+// Connection number auto generate list
+router.get("/getConnAutoGenerateList", getConnAutoGerateListController);
+router.get("/getConnAutoGerateDetails", getConnAutoGerateDetailsController);
+router.post(
+  "/aowt_connectionnoconfig_ins",
+  validate(connNoConfigInsSchema),
+  connNoConfigInsController,
+);
+
+// Provisional cheque config list
+router.get("/getProvisionalChequeList", getProvChequeListController);
+router.get("/getProvisionalDetails", getProvChequeDetailsController);
+router.post(
+  "/aowt_provchequeconfig_ins",
+  validate(provChequeConfigInsSchema),
+  provChequeConfigInsController,
+);
+
+// User all list
+router.get("/getAllUserList", getAllUserListController);
+router.post(
+  "/aowt_userallconfig_ins",
+  validate(userAllConfigInsSchema),
+  userAllConfigInsController,
 );
 
 module.exports = router;
