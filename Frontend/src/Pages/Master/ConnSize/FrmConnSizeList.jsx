@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
@@ -9,10 +9,8 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmConnSizeList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
@@ -21,57 +19,34 @@ const FrmConnSizeList = () => {
   const fetchConnSizeList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/getConnSizeList");
 
-      // 🔸 DUMMY — replace with apiService.get("getConnSizeList")
-      const dummyData = [
-        { CONNSIZEID: 1, CONNSIZENAME: "15mm", ISACTIVE: "Y" },
-        { CONNSIZEID: 2, CONNSIZENAME: "20mm", ISACTIVE: "Y" },
-        { CONNSIZEID: 3, CONNSIZENAME: "25mm", ISACTIVE: "N" },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.CONNSIZEID}
-            state={{ connSizeId: item.CONNSIZEID }}
+            key={item.NUM_CONNSIZE_ID}
+            state={{
+              connSizeId: item.NUM_CONNSIZE_ID,
+              connSizeName: item.VAR_CONNSIZE_NAME,
+              flag: item.ACTIVEFLAG,
+            }}
             to={`/Masters/FrmConnSizeMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
-          item.CONNSIZENAME || "",
-          item.ISACTIVE === "Y" ? "Yes" : "No",
+          item.VAR_CONNSIZE_NAME || "",
+          item.ACTIVEFLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert("Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getConnSizeList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.CONNSIZEID}
-      //       state={{ connSizeId: item.CONNSIZEID }}
-      //       to={`/Masters/FrmConnSizeMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.CONNSIZENAME || "",
-      //     item.ISACTIVE === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching conn size list:", err);
       setTableData([]);
-      console.error("Error fetching conn size list:", error);
-      alert("Failed to fetch conn size list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -79,7 +54,6 @@ const FrmConnSizeList = () => {
 
   useEffect(() => {
     fetchConnSizeList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -92,7 +66,7 @@ const FrmConnSizeList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmConnSizeMst"}>
             <Button
@@ -105,9 +79,11 @@ const FrmConnSizeList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

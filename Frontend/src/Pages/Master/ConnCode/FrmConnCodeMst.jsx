@@ -24,58 +24,23 @@ const FrmConnCodeMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       connCodeName: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!connCodeId) return;
+    if (!isEdit) return;
+    setValue("connCodeName", state?.connCodeName || "");
+    setValue("isActive", state?.flag === "Y" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getConnCodeDetail", { connCodeId: Number(connCodeId) })
-    const dummyDetail = {
-      NUM_CONNCODE_ID: connCodeId,
-      VAR_CONNCODE_NAME: "Residential Connection",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      connCodeName: dummyDetail.VAR_CONNCODE_NAME || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getConnCodeDetail", {
-    //       connCodeId: Number(connCodeId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         connCodeName: d.VAR_CONNCODE_NAME || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Conn code detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Conn code detail error:", err);
-    //     alert("Failed to fetch conn code detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [connCodeId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,29 @@ const FrmConnCodeMst = () => {
 
       const payload = {
         in_UserId: userId,
+        in_ConncodeId: isEdit ? Number(connCodeId) : null,
         in_Mode: isEdit ? 2 : 1,
-        in_ConnCodeId: isEdit ? Number(connCodeId) : null,
-        in_ConnCodeName: data.connCodeName.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_ConncodeName: data.connCodeName.trim(),
+        in_ConncodeActiveflag: data.isActive,
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Conn Code payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmConnCodeList");
+      const res = await apiService.post("/master/aowt_conncode_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_conncode_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmConnCodeList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save conn code",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving conn code:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_ErrorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmConnCodeList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving conn code:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +91,8 @@ const FrmConnCodeMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Conn Code Name */}
+          {/* Conn Code Name */}
           <div>
             <Label text="Conn Code Name : " required />
             <input
@@ -156,7 +114,7 @@ const FrmConnCodeMst = () => {
             )}
           </div>
 
-          {/* 2. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -191,7 +149,6 @@ const FrmConnCodeMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

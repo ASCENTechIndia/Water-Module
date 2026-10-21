@@ -24,58 +24,23 @@ const FrmChargesTypeMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       chargesTypeName: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!chargesTypeId) return;
+    if (!isEdit) return;
+    setValue("chargesTypeName", state?.chargesTypeName || "");
+    setValue("isActive", state?.flag === "Active" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getChargesTypeDetail", { chargesTypeId: Number(chargesTypeId) })
-    const dummyDetail = {
-      NUM_CHARGESTYPE_ID: chargesTypeId,
-      VAR_CHARGES_NAME: "Late Fee",
-      FLG_ISACTIVE: "Y",
-    };
-
-    reset({
-      chargesTypeName: dummyDetail.VAR_CHARGES_NAME || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getChargesTypeDetail", {
-    //       chargesTypeId: Number(chargesTypeId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         chargesTypeName: d.VAR_CHARGES_NAME || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Charges type detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Charges type detail error:", err);
-    //     alert("Failed to fetch charges type detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [chargesTypeId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,33 @@ const FrmChargesTypeMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_ChargesTypeId: isEdit ? Number(chargesTypeId) : null,
-        in_ChargesTypeName: data.chargesTypeName.trim(),
-        in_IsActive: data.isActive,
-        in_UlbId: Number(ulbid),
+        in_chargestypeid: isEdit ? Number(chargesTypeId) : null,
+        in_chargestypename: data.chargesTypeName.trim(),
+        in_activeflag: data.isActive,
+        in_Orgid: Number(ulbid),
         in_ipaddress: ip,
         in_source: config.source,
+        in_Mode: isEdit ? 2 : 1,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Charges Type payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmChargesTypeList");
+      const res = await apiService.post(
+        "/master/aowt_chargestype_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_chargestype_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmChargesTypeList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save charges type",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving charges type:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmChargesTypeList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving charges type:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +95,8 @@ const FrmChargesTypeMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Charges Type Name */}
+          {/* Charges Type Name */}
           <div>
             <Label text="Charges Type Name : " required />
             <input
@@ -156,7 +118,7 @@ const FrmChargesTypeMst = () => {
             )}
           </div>
 
-          {/* 2. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -191,7 +153,6 @@ const FrmChargesTypeMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

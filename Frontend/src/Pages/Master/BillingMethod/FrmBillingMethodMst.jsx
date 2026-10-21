@@ -24,7 +24,7 @@ const FrmBillingMethodMst = () => {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -33,49 +33,14 @@ const FrmBillingMethodMst = () => {
     },
   });
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prefill form
   useEffect(() => {
-    if (!billingMethodId) return;
+    if (!isEdit) return;
+    setValue("billingMethodName", state?.billingMethodName || "");
+    setValue("billingMethodCode", state?.billingMethodCode || "");
+  }, [isEdit, state, setValue]);
 
-    // 🔸 DUMMY — replace with apiService.post("getBillingMethodDetail", { billingMethodId: Number(billingMethodId) })
-    const dummyDetail = {
-      NUM_BILLINGMETHOD_ID: billingMethodId,
-      VAR_BILLINGMETHOD_NAME: "Cash",
-      VAR_BILLINGMETHOD_CODE: "CSH",
-    };
-
-    reset({
-      billingMethodName: dummyDetail.VAR_BILLINGMETHOD_NAME || "",
-      billingMethodCode: dummyDetail.VAR_BILLINGMETHOD_CODE || "",
-    });
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getBillingMethodDetail", {
-    //       billingMethodId: Number(billingMethodId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         billingMethodName: d.VAR_BILLINGMETHOD_NAME || "",
-    //         billingMethodCode: d.VAR_BILLINGMETHOD_CODE || "",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Billing method detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Billing method detail error:", err);
-    //     alert("Failed to fetch billing method detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [billingMethodId, reset]);
-
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -88,35 +53,32 @@ const FrmBillingMethodMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
         in_BillingMethodId: isEdit ? Number(billingMethodId) : null,
+        in_Mode: isEdit ? 2 : 1,
         in_BillingMethodName: data.billingMethodName.trim(),
         in_BillingMethodCode: data.billingMethodCode.trim(),
-        in_UlbId: Number(ulbid),
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Billing Method payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmBillingMethodList");
+      const res = await apiService.post(
+        "/master/aowt_billingmethod_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_billingmethod_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmBillingMethodList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save billing method",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving billing method:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_ErrorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmBillingMethodList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving billing method:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -132,9 +94,8 @@ const FrmBillingMethodMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Billing Method Name */}
+          {/* Billing Method Name */}
           <div>
             <Label text="Billing Method Name : " required />
             <input
@@ -156,7 +117,7 @@ const FrmBillingMethodMst = () => {
             )}
           </div>
 
-          {/* 2. Billing Method Code */}
+          {/* Billing Method Code */}
           <div>
             <Label text="Billing Method Code : " required />
             <input
@@ -179,7 +140,6 @@ const FrmBillingMethodMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}
