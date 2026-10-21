@@ -62,6 +62,13 @@ const {
   serviceMasInsController,
   getChargeListController,
   chargeTypeInsController,
+  getAccTaxConfigListController,
+  getUsageTypeNameDropdownController,
+  getTaxNameDropdownController,
+  accTaxInsController,
+  getAccTaxConfigDetailsController,
+  getMicrCodeListController,
+  micrCodeInsController,
 } = require("./master.controller");
 const validate = require("../../middleware/validate.middleware");
 const {
@@ -88,6 +95,8 @@ const {
   collCentreInsSchema,
   serviceMasInsSchema,
   chargeTypeInsSchema,
+  accTaxInsSchema,
+  micrCodeInsSchema,
 } = require("./master.validation");
 
 const router = express.Router();
@@ -258,11 +267,26 @@ router.post(
 );
 
 // Charges list
-router.get("/getChargesList", getChargeListController)
+router.get("/getChargesList", getChargeListController);
 router.post(
   "/aowt_chargestype_ins",
   validate(chargeTypeInsSchema),
   chargeTypeInsController,
+);
+
+// Acc Tax config list
+router.get("/getAccTaxConfigList", getAccTaxConfigListController);
+router.get("/getTaxNameDropdown", getTaxNameDropdownController);
+router.get("/getUsageTypeNameDropdown", getUsageTypeNameDropdownController);
+router.get("/getAccTaxConfigDetails", getAccTaxConfigDetailsController);
+router.post("/aowt_acctax_ins", validate(accTaxInsSchema), accTaxInsController);
+
+// MICR code list
+router.get("/getMicrCodeList", getMicrCodeListController);
+router.post(
+  "/aowt_micrcode_ins",
+  validate(micrCodeInsSchema),
+  micrCodeInsController,
 );
 
 module.exports = router;

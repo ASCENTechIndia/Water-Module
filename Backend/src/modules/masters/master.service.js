@@ -61,6 +61,13 @@ const {
   aowt_servicemas_ins,
   getChargeList,
   aowt_chargestype_ins,
+  getAccTaxConfigList,
+  getTaxNameDropdown,
+  getUsageTypeNameDropdown,
+  aowt_acctax_ins,
+  getAccTaxConfigDetails,
+  getMicrCodeList,
+  aowt_micrcode_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -311,6 +318,34 @@ async function chargeTypeInsService(payload) {
   return aowt_chargestype_ins(payload);
 }
 
+async function getAccTaxConfigListService(payload) {
+  return getAccTaxConfigList(payload);
+}
+
+async function getTaxNameDropdownService(payload) {
+  return getTaxNameDropdown(payload);
+}
+
+async function getUsageTypeNameDropdownService(payload) {
+  return getUsageTypeNameDropdown(payload);
+}
+
+async function accTaxInsService(payload) {
+  return aowt_acctax_ins(payload);
+}
+
+async function getAccTaxConfigDetailsService(payload) {
+  return getAccTaxConfigDetails(payload);
+}
+
+async function getMicrCodeListService(payload) {
+  return getMicrCodeList(payload);
+}
+
+async function micrCodeInsService(payload) {
+  return aowt_micrcode_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -374,4 +409,11 @@ module.exports = {
   serviceMasInsService,
   getChargeListService,
   chargeTypeInsService,
+  getAccTaxConfigListService,
+  getTaxNameDropdownService,
+  getUsageTypeNameDropdownService,
+  accTaxInsService,
+  getAccTaxConfigDetailsService,
+  getMicrCodeListService,
+  micrCodeInsService,
 };

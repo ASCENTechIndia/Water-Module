@@ -61,6 +61,13 @@ const {
   serviceMasInsService,
   getChargeListService,
   chargeTypeInsService,
+  getAccTaxConfigListService,
+  getTaxNameDropdownService,
+  getUsageTypeNameDropdownService,
+  accTaxInsService,
+  getAccTaxConfigDetailsService,
+  getMicrCodeListService,
+  micrCodeInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -1788,6 +1795,187 @@ async function chargeTypeInsController(req, res, next) {
   }
 }
 
+async function getAccTaxConfigListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getAccTaxConfigListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Account tax config list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Account tax config list error");
+    return next(err);
+  }
+}
+
+async function getTaxNameDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getTaxNameDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Tax name dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Tax name dropdown error");
+    return next(err);
+  }
+}
+
+async function getUsageTypeNameDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUsageTypeNameDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage type name dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage type name dropdown error");
+    return next(err);
+  }
+}
+
+async function accTaxInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await accTaxInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { accTaxId: payload.in_AccTaxid },
+        out.Out_ErrorMsg || "Account tax saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Account tax insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "ACCTAX_UPDATE" : "ACCTAX_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "acctax",
+      entityId: payload.in_AccTaxid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Account tax insert error");
+    return next(err);
+  }
+}
+
+async function getAccTaxConfigDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getAccTaxConfigDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Account tax config details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Account tax config details error");
+    return next(err);
+  }
+}
+
+async function getMicrCodeListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getMicrCodeListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `MICR code list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "MICR code list error");
+    return next(err);
+  }
+}
+
+async function micrCodeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await micrCodeInsService(payload);
+
+    const isSuccess = Number(out.out_ErrCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { micrId: payload.in_MICRCodeid },
+        out.out_ErrMsg || "MICR code saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_ErrMsg, "MICR code insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "MICRCODE_UPDATE" : "MICRCODE_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "micrcode",
+      entityId: payload.in_MICRCodeid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrCode: out.out_ErrCode,
+        outErrMsg: out.out_ErrMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "MICR code insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -1851,4 +2039,11 @@ module.exports = {
   serviceMasInsController,
   getChargeListController,
   chargeTypeInsController,
+  getAccTaxConfigListController,
+  getTaxNameDropdownController,
+  getUsageTypeNameDropdownController,
+  accTaxInsController,
+  getAccTaxConfigDetailsController,
+  getMicrCodeListController,
+  micrCodeInsController,
 };

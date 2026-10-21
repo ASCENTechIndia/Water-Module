@@ -97,7 +97,7 @@ const FrmUserAccessNewList = () => {
         setTableData(data);
       } else {
         setTableData([]);
-        alert("No Data Found");
+        alert(res?.data?.message || "No Data Found");
       }
     } catch (error) {
       console.error("Error fetching user list:", error);

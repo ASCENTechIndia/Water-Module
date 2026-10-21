@@ -92,7 +92,7 @@ const FrmBlockList = () => {
         setTableData(data);
       } else {
         setTableData([]);
-        alert("Data Not Found");
+        alert(res?.data?.message || "Data Not Found");
       }
     } catch (err) {
       console.error("Error fetching block list:", err);

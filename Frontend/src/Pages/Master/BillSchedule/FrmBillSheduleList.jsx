@@ -152,7 +152,7 @@ const FrmBillSheduleList = () => {
       return;
     }
     fetchBillSheduleList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [selectedUlb]);
 
   return (
@@ -165,7 +165,6 @@ const FrmBillSheduleList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- ULB Filter (disabled, first selected) ---------- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label text="ULB Name : " required />
@@ -186,7 +185,7 @@ const FrmBillSheduleList = () => {
           </div>
         </div>
 
-        {/* ---------- Add New ---------- */}
+      
         <div className="flex justify-end">
           <Link to={"/Masters/FrmBillSheduleMst"}>
             <Button
@@ -199,7 +198,6 @@ const FrmBillSheduleList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
         <div className="mt-3">
           <Table headers={tableHeader} data={tableData} />
         </div>

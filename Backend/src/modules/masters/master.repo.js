@@ -1835,6 +1835,222 @@ async function aowt_chargestype_ins(payload) {
   return result.outBinds;
 }
 
+async function getAccTaxConfigList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select num_acctax_id,
+           num_acctax_ulbid,
+           var_tax_mname,
+           var_acctax_taxcode,
+           var_acctax_usagetype,
+           var_acctax_minorcode,
+           var_acctax_majorcode,
+           var_acctax_cminorcode,
+           var_acctax_cmajorcode
+      from aowt_acctax_config
+      inner join aowt_tax_mas
+        on num_tax_id = num_acctax_taxid
+     where num_acctax_ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getTaxNameDropdown(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select var_tax_mname,
+           num_tax_id
+      from aowt_tax_mas
+      inner join aowt_taxconfig_mas
+        on num_taxconfig_taxid = num_tax_id
+     where num_taxconfig_ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getUsageTypeNameDropdown(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select distinct var_usagetype_code,
+                    var_usagetype_code codevalue
+      from vw_usagetyepcofig
+     where ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getAccTaxConfigDetails(payload) {
+  const { taxId } = payload;
+
+  if (!taxId) {
+    throw new Error("taxId is required");
+  }
+
+  const sql = `
+    select num_acctax_id,
+           num_acctax_ulbid,
+           num_acctax_taxid,
+           var_acctax_usagetype,
+           var_acctax_minorcode,
+           var_acctax_majorcode,
+           var_acctax_cminorcode,
+           var_acctax_cmajorcode
+      from aowt_acctax_config
+     where num_acctax_id = :taxId
+  `;
+
+  const binds = {
+    taxId: Number(taxId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_acctax_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_acctax_ins(
+        :in_UserId,
+        :in_AccTaxid,
+        :in_AccTaxtaxid,
+        :in_AccTaxusagetype,
+        :in_AccTaxminorcode,
+        :in_AccTaxmajorcode,
+        :in_AccTaxcminorcode,
+        :in_AccTaxcmajorcode,
+        :in_Mode,
+        :in_UlbId,
+        :in_ipaddress,
+        :in_source,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_AccTaxid:
+      payload.in_AccTaxid != null ? Number(payload.in_AccTaxid) : null,
+    in_AccTaxtaxid: payload.in_AccTaxtaxid,
+    in_AccTaxusagetype: payload.in_AccTaxusagetype,
+    in_AccTaxminorcode: payload.in_AccTaxminorcode,
+    in_AccTaxmajorcode: payload.in_AccTaxmajorcode,
+    in_AccTaxcminorcode: payload.in_AccTaxcminorcode,
+    in_AccTaxcmajorcode: payload.in_AccTaxcmajorcode,
+    in_Mode: Number(payload.in_Mode),
+    in_UlbId: Number(payload.in_UlbId),
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getMicrCodeList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select num_micrcode_id id,
+           num_micrcode_micrcode code,
+           var_micrcode_bankname bankname,
+           var_micrcode_insby insby,
+           dat_micrcode_insdt insdt
+      from aowt_micrcode_mas
+     where num_micrcode_ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_micrcode_ins(payload) {
+  const statement = `
+    BEGIN
+      Aowt_MICRCode_ins(
+        :in_userid,
+        :in_MICRCodeid,
+        :in_MICRCode,
+        :in_BankName,
+        :in_Mode,
+        :in_ulbid,
+        :out_ErrCode,
+        :out_ErrMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_MICRCodeid:
+      payload.in_MICRCodeid != null ? Number(payload.in_MICRCodeid) : null,
+    in_MICRCode: Number(payload.in_MICRCode),
+    in_BankName: payload.in_BankName,
+    in_Mode: Number(payload.in_Mode),
+    in_ulbid: Number(payload.in_ulbid),
+
+    out_ErrCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_ErrMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getMenuList,
   getUlbDropdown,
@@ -1898,4 +2114,11 @@ module.exports = {
   aowt_servicemas_ins,
   getChargeList,
   aowt_chargestype_ins,
+  getAccTaxConfigList,
+  getTaxNameDropdown,
+  getUsageTypeNameDropdown,
+  aowt_acctax_ins,
+  getAccTaxConfigDetails,
+  getMicrCodeList,
+  aowt_micrcode_ins,
 };
