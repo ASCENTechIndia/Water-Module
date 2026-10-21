@@ -55,7 +55,16 @@ const {
     chargesTypeDataSubmitService,
     getUserDropdownService,
     getCollectionCenterDropdownService,
-    userCollectionDataSubmitService
+    userCollectionDataSubmitService,
+    getServiceRateConfigListByULBService,
+    getServiceNameDropdownByULBService,
+    getChargesTypeDropdownByULBService,
+    getUsageTypeDropdownByULBService,
+    getSubUsageTypeDropdownByUsageService,
+    getValueDropdownService,
+    fetchServiceRateConfigDetailsService,
+    serviceRateConfigDetailsSubmitService,
+    fetchServiceRateConfigTableDetailsService
 } = require("./config.service");
 
 async function getULBDropdownController(req, res, next) {
@@ -1190,7 +1199,7 @@ async function getCollectionCenterDropdownController(req, res, next) {
     }
 }
 
-async function userCollectionConfigSubmitController(req,res,next) {
+async function userCollectionConfigSubmitController(req, res, next) {
     try {
         const payload = req.body;
         const rows = await userCollectionDataSubmitService(payload);
@@ -1206,6 +1215,196 @@ async function userCollectionConfigSubmitController(req,res,next) {
     } catch (error) {
         // console.error(error);
         logApiError(req, 500, error.message, "User Collection Config Data submit error");
+        return next(error);
+    }
+}
+
+// Service Rate Config List
+
+async function getServiceRateConfigListByULBController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getServiceRateConfigListByULBService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Rate Config List Data successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Rate Config List Data fetch error");
+        return next(error);
+    }
+}
+
+// Service Rate Config Mst
+
+// Dropdown
+
+async function getServiceNameDropdownByULBController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getServiceNameDropdownByULBService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Name Dropdown List successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Name Dropdown List fetch error");
+        return next(error);
+    }
+}
+
+async function getChargesTypeDropdownByULBController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getChargesTypeDropdownByULBService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Charges Type Dropdown List successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Charges Type Dropdown List fetch error");
+        return next(error);
+    }
+}
+
+async function getUsageTypeDropdownByULBController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getUsageTypeDropdownByULBService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Usage Type Dropdown List successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Usage Type Dropdown List fetch error");
+        return next(error);
+    }
+}
+
+async function getSubUsageTypeDropdownByUsageController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getSubUsageTypeDropdownByUsageService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Sub Usage Type Dropdown List successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Sub Usage Type Dropdown List fetch error");
+        return next(error);
+    }
+}
+
+async function getValueDropdownController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getValueDropdownService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Value Dropdown List successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Value Dropdown List fetch error");
+        return next(error);
+    }
+}
+
+// Fetch Service Rate Config Details
+
+async function fetchServiceRateConfigDetialsController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await fetchServiceRateConfigDetailsService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Rate Config Details successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Rate Config Details fetch error");
+        return next(error);
+    }
+}
+
+async function fetchServiceRateConfigTableDetialsController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await fetchServiceRateConfigTableDetailsService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Rate Config Table Details successfully fetched`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Rate Config Table Details fetch error");
+        return next(error);
+    }
+}
+
+// Submit Service Rate Config Details
+
+async function serviceRateConfigDetailsSubmitController(req, res, next) {
+    try {
+        const payload = req.body;
+        const rows = await serviceRateConfigDetailsSubmitService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Service Rate Config Details successfully submitted`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Service Rate Config Details submit error");
         return next(error);
     }
 }
@@ -1266,5 +1465,14 @@ module.exports = {
     chargesTypeSubmitController,
     getUserDropdownController,
     getCollectionCenterDropdownController,
-    userCollectionConfigSubmitController
+    userCollectionConfigSubmitController,
+    getServiceRateConfigListByULBController,
+    getServiceNameDropdownByULBController,
+    getChargesTypeDropdownByULBController,
+    getUsageTypeDropdownByULBController,
+    getSubUsageTypeDropdownByUsageController,
+    getValueDropdownController,
+    fetchServiceRateConfigDetialsController,
+    fetchServiceRateConfigTableDetialsController,
+    serviceRateConfigDetailsSubmitController
 };

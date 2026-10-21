@@ -55,7 +55,16 @@ const {
     chargesTypeSubmitController,
     getUserDropdownController,
     getCollectionCenterDropdownController,
-    userCollectionConfigSubmitController
+    userCollectionConfigSubmitController,
+    getServiceRateConfigListByULBController,
+    getServiceNameDropdownByULBController,
+    getChargesTypeDropdownByULBController,
+    getUsageTypeDropdownByULBController,
+    getSubUsageTypeDropdownByUsageController,
+    getValueDropdownController,
+    fetchServiceRateConfigDetialsController,
+    serviceRateConfigDetailsSubmitController,
+    fetchServiceRateConfigTableDetialsController
 } = require("./config.controller");
 const { getConnectionTypeTableDataService } = require("./config.service");
 
@@ -153,5 +162,18 @@ router.post("/charges-type", chargesTypeSubmitController);
 router.get("/getUserDropdown", getUserDropdownController);
 router.get("/getCollectionCenterDropdown", getCollectionCenterDropdownController);
 router.post("/user-collection", userCollectionConfigSubmitController);
+
+// Service Rate Config List
+router.get("/getServiceRateTableData", getServiceRateConfigListByULBController);
+
+// Service Rate Config Mst
+router.get("/getServiceNameDropdown", getServiceNameDropdownByULBController);
+router.get("/getChargesTypeDropdown", getChargesTypeDropdownByULBController);
+router.get("/getUsageTypeByULBDropdown", getUsageTypeDropdownByULBController);
+router.get("/getSubUsageTypeByUsageDropdown", getSubUsageTypeDropdownByUsageController);
+router.get("/getValueDropdown", getValueDropdownController);
+router.get("/fetchServiceRateConfigDetails", fetchServiceRateConfigDetialsController);
+router.get("/getServiceRateDetailsTableData", fetchServiceRateConfigTableDetialsController);
+router.post("/service-rate-config", serviceRateConfigDetailsSubmitController);
 
 module.exports = router;

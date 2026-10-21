@@ -9,6 +9,8 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table.jsx";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const emptyRow = {
     from: "",
@@ -16,16 +18,50 @@ const emptyRow = {
     rate: ""
 }
 
+const getToday = () => {
+    const d = new Date();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${month}-${day}`;
+};
+
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${year}-${month}-${day}`;
+};
+
+const formatDateDDMMYYYY = (date) => {
+    if (!date) return "";
+
+    const [year, month, day] = date.split("-");
+    const monthName = new Date(Number(year), Number(month) - 1, 1)
+        .toLocaleString("en-US", { month: "short" });
+
+    return `${day}-${monthName}-${year}`;
+};
+
 const FrmServiceRateConfigMst = () => {
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { mode, applicationNumber } = location.state || {
-        mode: 1,
-        applicationNumber: ""
-    };
+    const {
+        mode = 1,
+        serviceRateId = "",
+        serviceUlbId = "",
+    } = location.state || {};
 
 
     const {
@@ -44,7 +80,7 @@ const FrmServiceRateConfigMst = () => {
             chargesType: "",
             usageType: "",
             usageSubType: "",
-            effectiveFrom: "",
+            effectiveFrom: getToday(),
             value: "",
             from: "",
             to: "",
@@ -53,6 +89,12 @@ const FrmServiceRateConfigMst = () => {
             maxAmount: "",
         },
     });
+
+    const watchULB = watch("ulbName");
+    const watchServiceName = watch("serviceName");
+    const watchUsageType = watch("usageType");
+    const watchSubUsageType = watch("usageSubType");
+    const watchValue = watch("value");
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -77,6 +119,31 @@ const FrmServiceRateConfigMst = () => {
             return;
         }
 
+        if(!watchULB) {
+            alert("Please Select ULB Name");
+            return;
+        }
+
+        if (!watchServiceName) {
+            alert("Please select Service Name");
+            return;
+        }
+
+        if(!watchUsageType) {
+            alert("Please select Usage Type");
+            return;
+        }
+
+        if (!watchSubUsageType) {
+            alert("Please select Sub Usage Type");
+            return;
+        }
+
+        if (!watchValue) {
+            alert("Please select Value");
+            return;
+        }
+
         append({
             from: String(from).trim(),
             to: String(to).trim(),
@@ -89,51 +156,28 @@ const FrmServiceRateConfigMst = () => {
     };
 
     const [selectedUsageType, setSelectedUsageType] = useState("");
-
-    const [ulbOptions, setULBOptions] = useState([{
-        label: "मीरा भाईंदर महानगरपालिका", value: "1"
-    }]);
-    const [serviceNameOptions, setServiceNameOptions] = useState([{
-        label: "Re-Water Connection",
-        value: "1"
-    }]);
-    const [chargesTypeOptions, setChargesTypeOptions] = useState([
-        { label: "Water No Dues Certificate", value: "1" },
-        { label: "Change in Water Connection Usage", value: "2" },
-        { label: "Connecion / Disconnection", value: "3" }
-    ]);
-    const [usageTypeOptions, setUsageTypeOptions] = useState([
-        { label: "Commercial", value: "1" },
-        { label: "Domestic", value: "2" },
-        { label: "Residential", value: "3" }
-    ]);
-    const [usageSubTypeOptions, setUsageSubTypeOptions] = useState([
-        { label: "Building", value: "1" },
-        { label: "Domestic", value: "2" },
-        { label: "Government School", value: "3" }
-    ]);
-    const [valueOptions, setValueOptions] = useState([
-        { label: "Fix", value: "1" },
-        { label: "Percentage", value: "2" }
-    ]);
+    const [serviceDetails, setServiceDetails] = useState(null);
+    const [serviceTableDetails, setServiceTableDetails] = useState(null);
+    const [ulbOptions, setULBOptions] = useState([]);
+    const [serviceNameOptions, setServiceNameOptions] = useState([]);
+    const [chargesTypeOptions, setChargesTypeOptions] = useState([]);
+    const [usageTypeOptions, setUsageTypeOptions] = useState([]);
+    const [usageSubTypeOptions, setUsageSubTypeOptions] = useState([]);
+    const [valueOptions, setValueOptions] = useState([]);
 
     const fetchULBDropdown = async () => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
-
-            console.log(response);
+            const response = await apiService.get("/config/getULBDropdown");
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.ulbID,
-                    value: item.ulbname,
+                const formatted = response.data.map((item) => ({
+                    label: item.CORPORATIONNAME,
+                    value: item.CORPORATIONID,
                 }));
 
                 setULBOptions(formatted);
@@ -141,62 +185,55 @@ const FrmServiceRateConfigMst = () => {
                 setULBOptions([]);
             }
         } catch (error) {
+            setULBOptions([]);
             console.error(error);
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchServiceDropdown = async () => {
+    const fetchServiceDropdown = async (ulb = watchULB) => {
         try {
-            setLoading(true);
+            const response = await apiService.get(
+                `/config/getServiceNameDropdown?ulbId=${encodeURIComponent(ulb)}`
+            );
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
-
-            console.log(response);
-
-            if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
-            ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.serID,
-                    value: item.serviceName,
+            if (response?.success && Array.isArray(response.data)) {
+                const formatted = response.data.map((item) => ({
+                    label: item.SERVICEMNAME,
+                    value: String(item.SERVICEID),
                 }));
 
                 setServiceNameOptions(formatted);
-            } else {
-                setServiceNameOptions([]);
+                return formatted;
             }
+
+            setServiceNameOptions([]);
+            return [];
         } catch (error) {
             console.error(error);
-        } finally {
-            setLoading(false);
+            setServiceNameOptions([]);
+            return [];
         }
-    }
+    };
 
-    const fetchChargesTypeDropdown = async () => {
+    const fetchChargesTypeDropdown = async (ulb = watchULB) => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
-
-            console.log(response);
+            const response = await apiService.get(`/config/getChargesTypeDropdown?ulbId=${encodeURIComponent(ulb)}`);
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.charID,
-                    value: item.chargesName,
+                const formatted = response.data.map((item) => ({
+                    label: item.VAR_CHARGESTYPE_NAME,
+                    value: String(item.NUM_CHARGESTYPE_ID),
                 }));
 
                 setChargesTypeOptions(formatted);
+                return formatted;
             } else {
                 setChargesTypeOptions([]);
             }
@@ -207,26 +244,23 @@ const FrmServiceRateConfigMst = () => {
         }
     }
 
-    const fetchUsageTypeDropdown = async () => {
+    const fetchUsageTypeDropdown = async (ulb = watchULB) => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
-
-            console.log(response);
+            const response = await apiService.get(`/config/getUsageTypeByULBDropdown?ulbId=${encodeURIComponent(ulb)}`);
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.usageID,
-                    value: item.usageName,
+                const formatted = response.data.map((item) => ({
+                    label: item.USAGETYPE_NAME,
+                    value: String(item.USAGETYPEID),
                 }));
 
                 setUsageTypeOptions(formatted);
+                return formatted;
             } else {
                 setUsageTypeOptions([]);
             }
@@ -237,28 +271,23 @@ const FrmServiceRateConfigMst = () => {
         }
     }
 
-    const fetchUsageSubTypeDropdown = async (usageType) => {
+    const fetchUsageSubTypeDropdown = async (ulb = watchULB, usageType = watchUsageType) => {
         try {
             setLoading(true);
 
-            const payload = {
-                usageType
-            };
-
-            const response = await apiService.post("", payload);
-
-            console.log(response);
+            const response = await apiService.get(`/config/getSubUsageTypeByUsageDropdown?ulbId=${encodeURIComponent(ulb)}&usageTypeId=${encodeURIComponent(usageType)}`);
 
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.usagesubID,
-                    value: item.usagesubName,
+                const formatted = response.data.map((item) => ({
+                    label: item.USAGESUBTYPE_ENGNAME,
+                    value: String(item.USGSUBTYPEID),
                 }));
 
                 setUsageSubTypeOptions(formatted);
+                return formatted;
             } else {
                 setUsageSubTypeOptions([]);
             }
@@ -273,19 +302,14 @@ const FrmServiceRateConfigMst = () => {
         try {
             setLoading(true);
 
-            const payload = {};
-
-            const response = await apiService.post("", payload);
-
-            console.log(response);
-
+            const response = await apiService.get("/config/getValueDropdown");
             if (
-                response?.data?.success &&
-                Array.isArray(response?.data?.data)
+                response?.success &&
+                Array.isArray(response?.data)
             ) {
-                const formatted = response.data.data.map((item) => ({
-                    label: item.valueID,
-                    value: item.valueName,
+                const formatted = response.data.map((item) => ({
+                    label: item.VAR_VALUETYPE_NAME,
+                    value: item.VAR_VALUETYPE_CODE,
                 }));
 
                 setValueOptions(formatted);
@@ -303,51 +327,104 @@ const FrmServiceRateConfigMst = () => {
         try {
             setLoading(true);
 
-            const payload = {};
+            const response = await apiService.get(
+                `/config/fetchServiceRateConfigDetails?ulbId=${encodeURIComponent(
+                    serviceUlbId
+                )}&serviceRateId=${encodeURIComponent(serviceRateId)}`
+            );
 
-            // const response = await apiService.post("", payload);
+            if (!response?.success || !response?.data) {
+                setServiceDetails(null);
+                return null;
+            }
 
-            // console.log(response);
+            const data = Array.isArray(response.data)
+                ? response.data[0] || null
+                : response.data;
 
-            // if (
-            //     response?.data?.success &&
-            //     Array.isArray(response?.data?.data)
-            // ) {
-            //     const formatted = response.data.data.map((item) => ({
-            //         label: item.valueID,
-            //         value: item.valueName,
-            //     }));
+            console.log("Service rate details record:", data);
 
-            //     setValueOptions(formatted);
-            // } else {
-            //     setValueOptions([]);
-            // }
+            setServiceDetails(data);
+            return data;
         } catch (error) {
-            console.error(error);
+            console.error("Failed to fetch service rate details:", error);
+            setServiceDetails(null);
+            return null;
         } finally {
             setLoading(false);
         }
-    }
+    };
+
+    const fetchApplicationTableDetails = async () => {
+        try {
+            setLoading(true);
+
+            const response = await apiService.get(
+                `/config/getServiceRateDetailsTableData?serviceRateId=${encodeURIComponent(serviceRateId)}`
+            );
+
+            if (!response?.success || !response?.data) {
+                setServiceTableDetails(null);
+                return null;
+            }
+
+            const data = Array.isArray(response.data)
+                ? response.data : null
+
+
+            setServiceTableDetails(data);
+            return data;
+        } catch (error) {
+            console.error("Failed to fetch service rate details:", error);
+            setServiceTableDetails(null);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const onSubmit = async (values) => {
         try {
             setLoading(true);
 
+            if (!values.rowData.length) {
+                alert("Please add one row");
+                return;
+            }
+
+            const ipAddress = await GetIPAddress();
             const payload = {
-                ulbName: values.ulbName,
-                serviceName: values.serviceName,
-                chargesType: values.chargesType,
-                usageType: values.usageType,
-                usageSubType: values.usageSubType,
-                effectiveFrom: values.effectiveFrom,
-                value: values.value,
-                rowData: values.rowData,
-                maxAmount: values.maxAmount,
+                In_UserId: userId,
+                In_ServiceRateId: mode === 2 ? Number(serviceRateId) : 0,
+                In_Mode: Number(mode),
+                In_UlbId: mode === 2 ? Number(serviceUlbId) : Number(ulbId),
+                In_ServiceId: Number(values.serviceName),
+                In_SubServiceId: 0,
+                In_UsageTypeId: Number(values.usageType),
+                In_UsageSubTypeId: Number(values.usageSubType),
+                In_FromDate: formatDateDDMMYYYY(values.effectiveFrom),
+                In_ValueType: values.value,
+                In_ChargesType: Number(values.chargesType),
+                In_MaxAmount: Number(values.maxAmount),
+                In_ServiceRateSlabStr: values.rowData
+                    .map((row) => `${row.from}#${row.to}#${row.rate}`)
+                    .join("$"),
+                In_Ipaddress: ipAddress,
+                In_Source: config.source
             };
 
-            console.log("Payload:", payload);
 
-            // Call your API here.
+            const response = await apiService.post("/config/service-rate-config", payload);
+
+            if (response.success && response.data.Out_ErrorCode === 9999) {
+                alert(response.data.Out_ErrorMsg);
+                reset();
+                navigate("/Masters/FrmServiceRateConfigList", {
+                    replace: true
+                })
+            } else {
+                alert(response.data.Out_ErrorMsg);
+            }
         } catch (error) {
             console.error(error);
             alert(error.message || "Failed to submit data");
@@ -355,6 +432,103 @@ const FrmServiceRateConfigMst = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchULBDropdown();
+            fetchValueDropdown();
+        }
+    }, [ulbId]);
+
+    useEffect(() => {
+        if (mode !== 1 || !watchULB) return;
+
+        fetchServiceDropdown(watchULB);
+        fetchChargesTypeDropdown(watchULB);
+        fetchUsageTypeDropdown(watchULB);
+    }, [mode, watchULB]);
+
+    useEffect(() => {
+        if (!watchULB || !watchUsageType) {
+            setUsageSubTypeOptions([]);
+            return;
+        }
+
+        fetchUsageSubTypeDropdown(watchULB, watchUsageType);
+    }, [mode, watchULB, watchUsageType]);
+
+    useEffect(() => {
+        if (mode !== 2 || !serviceUlbId || !serviceRateId) {
+            return;
+        }
+
+        let cancelled = false;
+
+        const initializeEditForm = async () => {
+            try {
+                const data = await fetchApplicationDetails();
+                const tableData = await fetchApplicationTableDetails();
+
+                const formattedTableData = tableData.length > 0 ? tableData.map(item => ({
+                    from: item.DET_FROM,
+                    to: item.DET_TO,
+                    rate: item.DET_RATE
+                })) : [];
+
+                if (!data || cancelled) return;
+
+                // Verify these field names against the console output.
+                const ulb = String(data.SERVICERATE_ULBID ?? "");
+                const usageType = String(data.SERVICERATE_USAGETYPE ?? "");
+
+                await Promise.all([
+                    fetchServiceDropdown(ulb),
+                    fetchChargesTypeDropdown(ulb),
+                    fetchUsageTypeDropdown(ulb),
+                ]);
+
+                if (cancelled) return;
+
+                await fetchUsageSubTypeDropdown(ulb, usageType);
+
+                if (cancelled) return;
+
+                reset({
+                    ulbName: ulb,
+                    serviceName: String(data.SERVICERATE_SERVICEID ?? ""),
+                    chargesType: String(data.SERVICERATE_CHARGESTYPE ?? ""),
+                    usageType,
+                    usageSubType: String(data.SERVICERATE_SUBUSAGETYPE ?? ""),
+                    effectiveFrom: data.SERVICERATE_EFFECTIVEFROM
+                        ? formatDate(data.SERVICERATE_EFFECTIVEFROM)
+                        : "",
+                    value: String(data.SERVICERATE_VALUETYPE ?? ""),
+                    from: "",
+                    to: "",
+                    rate: "",
+                    rowData: formattedTableData,
+                    maxAmount: String(data.SERVICERATE_MAXAMT ?? ""),
+                });
+
+                console.log("Edit form populated:", {
+                    ulb,
+                    usageType,
+                    serviceName: data.SERVICERATE_SERVICEID,
+                    chargesType: data.SERVICERATE_CHARGESTYPE,
+                    usageSubType: data.SERVICERATE_SUBUSAGETYPE,
+                    value: data.SERVICERATE_VALUETYPE,
+                });
+            } catch (error) {
+                console.error("Failed to initialize edit form:", error);
+            }
+        };
+
+        initializeEditForm();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [mode, serviceUlbId, serviceRateId, reset]);
 
     return (
         <Layout
@@ -376,8 +550,11 @@ const FrmServiceRateConfigMst = () => {
                             required
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                            {...register("ulbName")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""}${errors.ulbName ? "is-invalid" : ""}`}
+                            {...register("ulbName", {
+                                required: "ULB Name is required"
+                            })}
+                            disabled={mode === 2}
                         >
                             <option value="">
                                 -- Select --
@@ -392,6 +569,11 @@ const FrmServiceRateConfigMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.ulbName && 
+                            <div className="mt-3 text-red-500">
+                                {errors.ulbName.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
@@ -399,8 +581,12 @@ const FrmServiceRateConfigMst = () => {
                             required
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                            {...register("serviceName")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.serviceName ? "is-invalid" : ""}`}
+                            {...register("serviceName",
+                                {
+                                    required: "Service Name is required"
+                                }
+                            )}
                         >
                             <option value="">
                                 -- Select --
@@ -415,6 +601,11 @@ const FrmServiceRateConfigMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.serviceName && 
+                            <div className="mt-3 text-red-500">
+                                {errors.serviceName.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
@@ -422,8 +613,10 @@ const FrmServiceRateConfigMst = () => {
                             required
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                            {...register("chargesType")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.chargesType ? "is-invalid" : ""}`}
+                            {...register("chargesType", {
+                                required: "Charges Type is required"
+                            })}
                         >
                             <option value="">
                                 -- Select --
@@ -438,6 +631,11 @@ const FrmServiceRateConfigMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.chargesType && 
+                            <div className="mt-3 text-red-500">
+                                {errors.chargesType.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
@@ -445,8 +643,10 @@ const FrmServiceRateConfigMst = () => {
                             required
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                            {...register("usageType")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.usageType ? "is-invalid" : ""}`}
+                            {...register("usageType", {
+                                required: "Usage Type is required"
+                            })}
                         >
                             <option value="">
                                 -- Select --
@@ -461,6 +661,11 @@ const FrmServiceRateConfigMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.usageType && 
+                            <div className="mt-3 text-red-500">
+                                {errors.usageType.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
@@ -468,8 +673,10 @@ const FrmServiceRateConfigMst = () => {
                             required
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                            {...register("usageSubType")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.usageSubType ? "is-invalid" : ""}`}
+                            {...register("usageSubType", {
+                                required: "Sub Usage Type is required"
+                            })}
                         >
                             <option value="">
                                 -- Select --
@@ -484,6 +691,11 @@ const FrmServiceRateConfigMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.usageSubType && 
+                            <div className="mt-3 text-red-500">
+                                {errors.usageSubType.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
@@ -498,12 +710,14 @@ const FrmServiceRateConfigMst = () => {
                     </div>
                     <div>
                         <Label
-                            text={"Usage Sub Type: "}
+                            text={"Value: "}
                             required
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                            {...register("value")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.value ? "is-invalid" : ""}`}
+                            {...register("value", {
+                                required: "Value is required"
+                            })}
                         >
                             <option value="">
                                 -- Select --
@@ -518,6 +732,11 @@ const FrmServiceRateConfigMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.value && 
+                            <div className="mt-3 text-red-500">
+                                {errors.value.message}
+                            </div>
+                        }
                     </div>
                 </div>
                 <div className="border-t border-slate-200"></div>
@@ -574,7 +793,12 @@ const FrmServiceRateConfigMst = () => {
                                 key={`delete-${field.id}`}
                                 type="button"
                                 variant="danger"
-                                onClick={() => remove(index)}
+                                onClick={async () => {
+                                    const confirm = await window.confirm("Do you want to delete this row?");
+                                    if (confirm) {
+                                        remove(index);
+                                    }
+                                }}
                             >
                                 Delete
                             </Button>,
@@ -586,24 +810,32 @@ const FrmServiceRateConfigMst = () => {
                     <div>
                         <Label
                             text={"Max Amount Applicable"}
+                            required
                         />
                         <input
                             type="text"
-                            className="form-input-box"
-                            {...register("maxAmount")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.maxAmount ? "is-invalid" : ""}`}
+                            {...register("maxAmount", {
+                                required: "Max Amount is required"
+                            })}
                         />
+                        {errors.maxAmount && 
+                            <div className="mt-3 text-red-500">
+                                {errors.maxAmount.message}
+                            </div>
+                        }
                     </div>
                 </div>
                 <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
                     <Button type="submit">
-                        साठवा
+                        {mode === 1 ? "साठवा" : "Update"}
                     </Button>
 
                     <Button
                         type="button"
                         variant="secondary"
                         onClick={() => {
-                            navigate("/dashboard")
+                            navigate("/Masters/FrmServiceRateConfigList")
                         }}
                     >
                         परत
