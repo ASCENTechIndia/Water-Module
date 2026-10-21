@@ -54,7 +54,16 @@ const {
     chargesTypeDataSubmitRepo,
     getUserDropdownRepo,
     getCollectionCenterDropdownRepo,
-    userCollectionConfigRepo
+    userCollectionConfigRepo,
+    getServiceRateConfigListByULBRepo,
+    getServiceNamesByULBRepo,
+    getChargesTypeByULBRepo,
+    getUsageTypeByULBRepo,
+    getSubUsageTypeByUsageTypeRepo,
+    getValueDropdownRepo,
+    fetchServiceRateConfigDetailsRepo,
+    serviceRateConfigDetailsSubmitRepo,
+    fetchServiceRateConfigTableDetailsRepo
 } = require("./config.repo");
 
 async function getULBDropdownService() {
@@ -315,6 +324,53 @@ async function userCollectionDataSubmitService(payload) {
     return userCollectionConfigRepo(payload);
 }
 
+// Service Rate Config List
+
+async function getServiceRateConfigListByULBService(payload) {
+    return getServiceRateConfigListByULBRepo(payload);
+}
+
+// Service Rate Config Mst
+
+// Dropdowns
+
+async function getServiceNameDropdownByULBService(payload) {
+    return getServiceNamesByULBRepo(payload);
+}
+
+async function getChargesTypeDropdownByULBService(payload) {
+    return getChargesTypeByULBRepo(payload);
+}
+
+async function getUsageTypeDropdownByULBService(payload) {
+    return getUsageTypeByULBRepo(payload);
+}
+
+async function getSubUsageTypeDropdownByUsageService(payload) {
+    return getSubUsageTypeByUsageTypeRepo(payload);
+}
+
+async function getValueDropdownService(payload) {
+    return getValueDropdownRepo(payload);
+}
+
+// Fetch Service Rate Details
+
+async function fetchServiceRateConfigDetailsService(payload) {
+    return fetchServiceRateConfigDetailsRepo(payload);
+}
+
+async function fetchServiceRateConfigTableDetailsService(payload) {
+    return fetchServiceRateConfigTableDetailsRepo(payload);
+}
+// Submit Service Rate Details
+
+async function serviceRateConfigDetailsSubmitService(payload) {
+    return serviceRateConfigDetailsSubmitRepo(payload);
+}
+
+
+
 module.exports = {
     getULBDropdownService,
     getPremiseTypeDataService,
@@ -371,5 +427,14 @@ module.exports = {
     chargesTypeDataSubmitService,
     getUserDropdownService,
     getCollectionCenterDropdownService,
-    userCollectionDataSubmitService
+    userCollectionDataSubmitService,
+    getServiceRateConfigListByULBService,
+    getServiceNameDropdownByULBService,
+    getChargesTypeDropdownByULBService,
+    getUsageTypeDropdownByULBService,
+    getSubUsageTypeDropdownByUsageService,
+    getValueDropdownService,
+    fetchServiceRateConfigDetailsService,
+    fetchServiceRateConfigTableDetailsService,
+    serviceRateConfigDetailsSubmitService
 };

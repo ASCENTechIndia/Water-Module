@@ -1,7 +1,7 @@
 const oracledb = require("oracledb");
 const { executeQuery } = require("../../db/queryExecutor");
 async function getULBDropdownRepo() {
-    let sql = "select CORPORATIONNAME, CORPORATIONID from vw_corporation";
+    let sql = "select CORPORATIONNAME, CORPORATIONID from vw_corporation order by CORPORATIONNAME";
 
     const binds = {};
 
@@ -1949,6 +1949,337 @@ async function userCollectionConfigRepo(payload) {
     return result.outBinds || [];
 }
 
+// Service Rate Config List
+
+async function getServiceRateConfigListByULBRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            ervicerate_id,
+            servicerate_ulbid,
+            serviceename,
+            servicemname,
+            subservmname,
+            valuename,
+            servicerate_effectivefrom,
+            chargestype  
+        from vw_servicerate
+        Where servicerate_ulbid=:ulbId
+        and servicerate_active='Y' 
+        order by ervicerate_id 
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+// Service Rate Config Mst 
+
+async function getServiceNamesByULBRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select distinct 
+            servicemname, 
+            serviceid  
+        from vw_service 
+        where ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getUsageTypeByULBRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select
+            usagetype_name,
+            usagetypeid
+        from vw_usagetypeconfig
+        where ulbid = :ulbId and flag='Y'
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getSubUsageTypeByUsageTypeRepo(payload) {
+    const {
+        ulbId,
+        usageTypeId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    if (!usageTypeId) {
+        return {
+            success: false,
+            message: "Usage Type is required"
+        }
+    }
+
+    let sql = `
+        select 
+            usagesubtype_engname,
+            usgsubtypeid
+        from vw_usagesubtypeconfig
+        where  ulbid =:ulbId and usagetype_id=:usageTypeId
+        order by usagesubtype_engname
+    `
+
+    const binds = {
+        ulbId,
+        usageTypeId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getChargesTypeByULBRepo(payload) {
+    const {
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            var_chargestype_name,
+            cm.num_chargestype_id 
+        from aowt_chargestype_mas cm
+        inner join aowt_chargestype_config on num_chargestype_chargestypeid = cm.num_chargestype_id 
+        where num_chargestype_ulbid=:ulbId
+        and  var_chargestype_activeflag='Y'
+    `
+
+    const binds = {
+        ulbId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function getValueDropdownRepo() {
+    let sql = `
+        select 
+            var_valuetype_name,
+            var_valuetype_code
+        from aoWT_valuetype_mas
+        where var_valuetype_active='Y'
+        order by var_valuetype_name
+    `
+
+    const binds = {}
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function fetchServiceRateConfigDetailsRepo(payload) {
+    const {
+        serviceRateId,
+        ulbId
+    } = payload;
+
+    if (!ulbId) {
+        return {
+            success: false,
+            message: "ULB ID is required"
+        }
+    }
+
+    if (!serviceRateId) {
+        return {
+            success: false,
+            message: "Service Rate ID is required"
+        }
+    }
+
+    let sql = `
+       select 
+            ervicerate_id, 
+            servicerate_ulbid, 
+            servicerate_serviceid, 
+            servicerate_subserviceid, 
+            servicerate_usagetype, 
+            servicerate_subusagetype, 
+            servicerate_effectivefrom, 
+            servicerate_valuetype, 
+            servicerate_chargestype, 
+            servicerate_maxamt  
+        from vw_servicerate
+        where ervicerate_id=:serviceRateId
+        and servicerate_ulbid=:ulbId
+    `
+
+    const binds = {
+        ulbId,
+        serviceRateId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function fetchServiceRateConfigTableDetailsRepo(payload) {
+    const {
+        serviceRateId,
+    } = payload;
+
+    if (!serviceRateId) {
+        return {
+            success: false,
+            message: "Service Rate ID is required"
+        }
+    }
+
+    let sql = `
+        select 
+            num_servicerateslab_from det_from, 
+            num_servicerateslab_upto det_To, 
+            num_servicerateslab_rate det_Rate
+        from aoWT_servicerateslab_det 
+        where num_servicerateslab_serviceid =:serviceRateId
+    `
+
+    const binds = {
+        serviceRateId
+    }
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
+async function serviceRateConfigDetailsSubmitRepo(payload) {
+    const {
+        In_UserId,
+        In_ServiceRateId,
+        In_Mode,
+        In_UlbId,
+        In_ServiceId,
+        In_SubServiceId,
+        In_UsageTypeId,
+        In_UsageSubTypeId,
+        In_FromDate,
+        In_ValueType,
+        In_ChargesType,
+        In_MaxAmount,
+        In_ServiceRateSlabStr,
+        In_Ipaddress,
+        In_Source
+    } = payload;
+
+    let sql = `
+        BEGIN
+            water.aowt_servicerate_ins(
+                :In_UserId,
+                :In_ServiceRateId,
+                :In_Mode,
+                :In_UlbId,
+                :In_ServiceId,
+                :In_SubServiceId,
+                :In_UsageTypeId,
+                :In_UsageSubTypeId,
+                :In_FromDate,
+                :In_ValueType,
+                :In_ChargesType,
+                :In_MaxAmount,
+                :In_ServiceRateSlabStr,
+                :In_Ipaddress,
+                :In_Source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `
+
+    const binds = {
+        In_UserId,
+        In_ServiceRateId: Number(In_ServiceRateId),
+        In_Mode: Number(In_Mode),
+        In_UlbId: Number(In_UlbId),
+        In_ServiceId: Number(In_ServiceId),
+        In_SubServiceId: Number(In_SubServiceId),
+        In_UsageTypeId: Number(In_UsageTypeId),
+        In_UsageSubTypeId: Number(In_UsageSubTypeId),
+        In_FromDate,
+        In_ValueType,
+        In_ChargesType: Number(In_ChargesType),
+        In_MaxAmount: Number(In_MaxAmount),
+        In_ServiceRateSlabStr,
+        In_Ipaddress,
+        In_Source,
+        Out_errorCode: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        Out_ErrorMsg: { type: oracledb.STRING, dir: oracledb.BIND_OUT, maxSize: 200 }
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.outBinds || [];
+}
+
 
 module.exports = {
     getULBDropdownRepo,
@@ -2006,5 +2337,14 @@ module.exports = {
     chargesTypeDataSubmitRepo,
     getUserDropdownRepo,
     getCollectionCenterDropdownRepo,
-    userCollectionConfigRepo
+    userCollectionConfigRepo,
+    getServiceRateConfigListByULBRepo,
+    getServiceNamesByULBRepo,
+    getUsageTypeByULBRepo,
+    getSubUsageTypeByUsageTypeRepo,
+    getChargesTypeByULBRepo,
+    getValueDropdownRepo,
+    fetchServiceRateConfigDetailsRepo,
+    fetchServiceRateConfigTableDetailsRepo,
+    serviceRateConfigDetailsSubmitRepo
 };
