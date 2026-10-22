@@ -12,6 +12,10 @@ import Table from "../../../Components/Table.jsx";
 
 const FrmConnSearch = () => {
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
     const location = useLocation();
@@ -31,6 +35,8 @@ const FrmConnSearch = () => {
         },
     });
 
+    const watchConnectionNumber = watch("connectionNumber");
+
     const [tableHeader, setTableHeader] = useState([
         "Zone",
         "Ward",
@@ -39,22 +45,43 @@ const FrmConnSearch = () => {
         "Building Name",
         "Mobile Number"
     ]);
-    const [tableData, setTableData] = useState([
-        [ 
-            "D",
-            "Block",
-            "MBMCDDOB12627011",
-            "Test 4",
-            "Building Name",
-            "Mobile Number"
-        ]
-    ]);
+    const [tableData, setTableData] = useState([]);
+    const [rawData, setRawData] = useState(null);
 
     const handleSearch = async (values) => {
         try {
             setLoading(true);
+
+            if (!values.connectionNumber) {
+                alert("Enter Connection Number");
+                return;
+            }
+
+            const response = await apiService.get(
+                `/water/getConnectionSearchDtls?ulbId=${ulbId}&connectionNumber=${encodeURIComponent(watchConnectionNumber)}`
+            );
+
+            if (response?.success && Array.isArray(response.data) && response.data.length > 0) {
+                const data = response.data[0];
+                setRawData(data);
+
+                const formatted = response.data.map(item => ([
+                    item.ZONENAME ?? "",
+                    item.BLOCKNAME ?? "",
+                    item.CONNNO ?? "",
+                    item.OWNERNAME ?? "",
+                    item.ADDRESS ?? "",
+                    item.MOBNO ?? ""
+                ]));
+                setTableData(formatted);
+            } else {
+                setTableData([]);
+            }
+
+
         } catch (error) {
             console.error(error);
+            setTableData([]);
         } finally {
             setLoading(false);
         }
@@ -78,7 +105,7 @@ const FrmConnSearch = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm`}
                                 {...register("connectionNumber")}
                             />
                         </div>
@@ -96,7 +123,11 @@ const FrmConnSearch = () => {
                                 type="button"
                                 // className="btn-sm"
                                 onClick={() => {
-                                    navigate("/Transaction/FrmConnectionMst")
+                                    navigate("/Transaction/FrmConnectionMst", {
+                                        state: {
+                                            mode: 1
+                                        }
+                                    })
                                 }}
                             >
                                 Add New Connection
@@ -106,8 +137,15 @@ const FrmConnSearch = () => {
                             <Button
                                 type="button"
                                 onClick={() => {
-                                    // navigate("/Transaction/FrmConnectionMst")
+                                    navigate("/Transaction/FrmConnectionMst", {
+                                        state: {
+                                            mode: 2,
+                                            connectionNumber: rawData.CONNNO,
+                                            connectionId: rawData.CONNID
+                                        }
+                                    })
                                 }}
+                                disabled={!tableData.length}
                             >
                                 Edit Connection
                             </Button>

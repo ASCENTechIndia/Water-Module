@@ -9,13 +9,28 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table.jsx";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
+
+
+const getDate = (dateString) => {
+    const d = new Date(dateString);
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${month}-${day}`;
+};
 
 const FrmConnectionMst = () => {
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
     const location = useLocation();
 
+    const { mode = 1, connectionNumber = "", connectionId = "" } = location.state;
     const {
         register,
         control,
@@ -55,13 +70,16 @@ const FrmConnectionMst = () => {
             usageType: "",
             usageSubType: "",
             numberOfConnection: "",
+            numberOfFamilies: "",
             consumerType: "",
+            buildUpArea: "",
             meterNumber: "",
             meterMake: "",
             meterOwnerShip: "",
             instDate: "",
             initialReading: "",
             connectionDate: "",
+            plumber: "",
             billingType: "",
             billingMethod: "",
             waterTank: "",
@@ -69,92 +87,152 @@ const FrmConnectionMst = () => {
         },
     });
 
-    const [wardOptions, setWardOptions] = useState([
-        { label: "उत्तन विभाग", value: "1" },
-        { label: "काशी विभाग", value: "2" },
-        { label: "डोंगरी विभाग", value: "3" }
-    ]);
-    const [zoneOptions, setZoneOptions] = useState([
-        { label: "B", value: "1" },
-        { label: "A", value: "2" },
-        { label: "zone name", value: "3" }
-    ]);
-    const [blockOptions, setBlockOptions] = useState([
-        { label: "Block 1", value: "1" },
-    ]);
+    const watchWard = watch("ward");
+    const watchZone = watch("zone");
+    const watchUsage = watch("usageType")
+
+    const [editData, setEditData] = useState(null);
+    const [baseDropdownsLoaded, setBaseDropdownsLoaded] = useState(false);
+
+    const [ulbCode, setULBCode] = useState("");
+    const [connectionGenFlag, setConnectionGenFlag] = useState("");
+
+    const [wardOptions, setWardOptions] = useState([]);
+    const [zoneOptions, setZoneOptions] = useState([]);
+    const [blockOptions, setBlockOptions] = useState([]);
 
     // Consumer Details Dropdown
-    const [statusOptions, setStatusOptions] = useState([
-        { label: "Active", value: "1" },
-        { label: "Inactive", value: "2" },
-        { label: "Permanently Disconnected", value: "3" }
-    ]);
-    const [connectionTypeOptions, setConnectionTypeOptions] = useState([
-        { label: "Meter", value: "1" }
-    ])
-    const [connectionCodeOptions, setConnectionCodeOptions] = useState([
-        { label: "Group", value: "1" },
-        { label: "TA", value: "2" },
-        { label: "TA", value: "3" }
-    ]);
+    const [statusOptions, setStatusOptions] = useState([]);
+    const [connectionTypeOptions, setConnectionTypeOptions] = useState([])
+    const [connectionCodeOptions, setConnectionCodeOptions] = useState([]);
 
     // Connection Details Dropdown
-    const [connectionSizeOptions, setConnectionSizeOptions] = useState([
-        { label: "0.5", value: "0.5" },
-        { label: "0.75", value: "0.75" },
-        { label: "1", value: "1" }
-    ]);
-    const [usageTypeOptions, setUsageTypeOptions] = useState([
-        { label: "Commercial", value: "1" },
-        { label: "Domestic", value: "2" },
-        { label: "Industrial", value: "3" }
-    ]);
-    const [usageSubTypeOptions, setUsageSubTypeOptions] = useState([
-        { label: "Bank", value: "1" },
-        { label: "Company", value: "2" },
-        { label: "Clinic", value: "3" }
-    ]);
-    const [consumerTypeOptions, setConsumerTypeOptions] = useState([
-        { label: "Group Connection", value: "1" },
-        { label: "Individual Connection", value: "2" },
-        { label: "Not Stated", value: "3" }
-    ]);
-    const [meterOwnerShipOptions, setMeterOwnerShipOptions] = useState([
-        { label: "AGENCY", value: "1" },
-        { label: "CITIZEN", value: "2" },
-        { label: "Not Stated", value: "3" },
-        { label: "Self (Private Meter)", value: "4" }
-    ]);
-    const [billingTypeOptions, setBillingTypeOptions] = useState([
-        { label: "Four Months", value: "1" },
-        { label: "Quaterly", value: "2" },
-        { label: "Half Yearly", value: "3" },
-        { label: "Yearly", value: "4" }
-    ]);
-    const [billingMethodOptions, setBillingMethodOptions] = useState([
-        { label: "Individual Billing", value: "1" },
-        { label: "Single", value: "2" },
-        { label: "Whole Billing", value: "3" }
-    ]);
-    const [waterTankOptions, setWaterTankOptions] = useState([
-        { label: "Akruti ESR", value: "1" },
-        { label: "Asmita Park ESR", value: "2" },
-        { label: "Chena ESR", value: "3" }
-    ]);
+    const [connectionSizeOptions, setConnectionSizeOptions] = useState([]);
+    const [usageTypeOptions, setUsageTypeOptions] = useState([]);
+    const [usageSubTypeOptions, setUsageSubTypeOptions] = useState([]);
+    const [consumerTypeOptions, setConsumerTypeOptions] = useState([]);
+    const [meterOwnerShipOptions, setMeterOwnerShipOptions] = useState([]);
+    const [billingTypeOptions, setBillingTypeOptions] = useState([]);
+    const [billingMethodOptions, setBillingMethodOptions] = useState([]);
+    const [waterTankOptions, setWaterTankOptions] = useState([]);
+    const [plumberOptions, setPlumberOptions] = useState([]);
 
 
     // Tab Button
     const [consumerDetailsTabOpen, setConsumerDetailsTabOpen] = useState(true);
     const [connectionDetailsTabOpen, setConnectionDetailsTabOpen] = useState(false);
 
-    const fetchDropdowns = async (endpoint, valueKey, labelKey, setter, payload) => {
+    const fetchULBCode = async () => {
+        try {
+            const response = await apiService.get(`/water/ulbcode?ulbId=${ulbId}`);
+
+            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                const data = response.data[0];
+                setULBCode(data.VAR_CORPORATION_CODE);
+            } else {
+                setULBCode("");
+            }
+        } catch (error) {
+            console.error(error);
+            setULBCode("");
+        }
+    }
+
+    const fetchConnectionGenFlag = async () => {
+        try {
+            const response = await apiService.get(`/water/connectionnogen?ulbId=${ulbId}`);
+
+            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                const data = response.data[0];
+                setConnectionGenFlag(data.NUM_CONNOGEN_FLAG);
+            } else {
+                setConnectionGenFlag("");
+            }
+        } catch (error) {
+            console.error(error);
+            setConnectionGenFlag("");
+        }
+    }
+
+    // const fetchConnectionDetails = async () => {
+    //     try {
+    //         const response = await apiService.get(`/water/getConnectionDetails?ulbId=${ulbId}&connectionNumber=${connectionNumber}&connectionId=${connectionId}`);
+
+    //         if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+    //             const data = response.data[0];
+
+    //             setValue("ward", data.WARDID ?? "");
+    //             setValue("zone", data.ZONEID ?? "");
+    //             setValue("block", data.BLOCKID ?? "");
+    //             setValue("connectionNumber", data.CONNNO ?? "");
+    //             setValue("registerNumber", data.OLDCONNNO ?? "");
+    //             setValue("ptnNumber", data.PTNNO ?? "");
+    //             setValue("pageNumber", data.PAGENO ?? "");
+    //             setValue("applicationNumber", data.APPLINO ?? "");
+    //             setValue("applicationDate", getDate(data.APPLIDT) ?? "");
+    //             setValue("approveDate", getDate(data.APPLIAPROVDT) ?? "");
+    //             setValue("applicationName", data.OWNERNAME ?? "");
+    //             setValue("aadharNumber", data.AADHAR ?? "");
+    //             setValue("address", data.ADDRESS ?? "");
+    //             setValue("panNumber", data.PANNO ?? "");
+    //             setValue("mobileNumber", data.MOBNO ?? "");
+    //             setValue("email", data.EMAILID ?? "");
+    //             setValue("status", data.STATUSID ?? "");
+    //             setValue("securityDeposit", data.SEQURITYAMT ?? "");
+    //             setValue("connectionType", data.CONNTYPEID ?? "");
+    //             setValue("connectionCode", data.CONNCODEID ?? "");
+    //             setValue("connectionSize", data.CONNSIZEID ?? "");
+    //             setValue("usageType", data.CONNUSAGEID ?? "");
+    //             setValue("usageSubType", data.CONNUSAGESUBID ?? "");
+    //             setValue("numberOfConnection", data.NOOFCONN ?? "");
+    //             setValue("consumerType", data.CONSURMERID ?? "");
+    //             setValue("meterNumber", data.METERNO ?? "");
+    //             setValue("meterMake", data.METERMAKE ?? "");
+    //             setValue("meterOwnerShip", data.CONNOWNERID ?? "");
+    //             setValue("instDate", getDate(data.INSATALLDT) ?? "");
+    //             setValue("connectionDate", getDate(data.CONNDT) ?? "");
+    //             setValue("billingType", data.BILLCYCLEID ?? "");
+    //             setValue("billingMethod", data.BILLMETHOID ?? "");
+    //             setValue("waterTank", data.WATERTANK ?? "");
+    //             setValue("remark", data.REMARK ?? "");
+    //             setValue("numberOfFamilies", data.NOOFFAMILY ?? "");
+    //             setValue("buildUpArea", data.BULITUPAREA ?? "");
+    //             setValue("plumber", data.PLUMBERID ?? "")
+    //         } else {
+
+    //         }
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }
+
+    const fetchConnectionDetails = async () => {
+        try {
+            const response = await apiService.get(
+                `/water/getConnectionDetails?ulbId=${ulbId}&connectionNumber=${connectionNumber}&connectionId=${connectionId}`
+            );
+
+            if (
+                response.success &&
+                Array.isArray(response.data) &&
+                response.data.length > 0
+            ) {
+                setEditData(response.data[0]);
+            }
+        } catch (error) {
+            console.error("Error fetching connection details:", error);
+        }
+    };
+
+
+    const fetchDropdowns = async (endpoint, valueKey, labelKey, setter) => {
         try {
             setLoading(true);
 
-            const response = await apiService.post(endpoint, payload);
+            const response = await apiService.get(endpoint);
 
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formatted = response.data.data.map(item => ({
+            if (response.success && Array.isArray(response.data)) {
+                const formatted = response.data.map(item => ({
                     label: item[labelKey],
                     value: item[valueKey]
                 }));
@@ -170,17 +248,348 @@ const FrmConnectionMst = () => {
         }
     }
 
-    // useEffect(() => {
-    //     if (ulbId) {
-    //         fetchDropdowns()
-    //     }
-    // }, [ulbId]);
+
+    useEffect(() => {
+        const loadDropdowns = async () => {
+            if (!ulbId) return;
+
+            await fetchULBCode();
+
+            await fetchDropdowns(
+                `/water/wardDropdown?ulbId=${ulbId}`,
+                "NUM_WARD_ID",
+                "VAR_WARD_NAME",
+                setWardOptions
+            );
+
+            await fetchDropdowns(
+                `/water/connectionTypeDropdown?ulbId=${ulbId}`,
+                "CONNTYPEID",
+                "CONNTYPE",
+                setConnectionTypeOptions
+            );
+
+            await fetchDropdowns(
+                `/water/connectionStatusDropdown?ulbId=${ulbId}`,
+                "CONNSTATUSID",
+                "CONNSTATUSNAME",
+                setStatusOptions
+            );
+
+            await fetchDropdowns(
+                `/water/connectionCodeDropdown?ulbId=${ulbId}`,
+                "NUM_CONNCODE_ID",
+                "VAR_CONNCODE_NAME",
+                setConnectionCodeOptions
+            );
+
+            await fetchDropdowns(
+                `/water/tankDropdown`,
+                "NUM_WATERTANK_ID",
+                "VAR_WATERTANK_NAME",
+                setWaterTankOptions
+            );
+
+            await fetchDropdowns(
+                `/water/connectionSizeDropdown?ulbId=${ulbId}`,
+                "CONNSIZEID",
+                "CONNSIZENAME",
+                setConnectionSizeOptions
+            );
+
+            await fetchDropdowns(
+                `/water/usageTypeDropdown?ulbId=${ulbId}`,
+                "USAGETYPEID",
+                "USAGETYPENAME",
+                setUsageTypeOptions
+            );
+
+            await fetchDropdowns(
+                `/water/consumerTypeDropdown?ulbId=${ulbId}`,
+                "CONSUMERTYPEID",
+                "CONSUMERTYPENAME",
+                setConsumerTypeOptions
+            );
+
+            await fetchDropdowns(
+                `/water/meterOwnerDropdown?ulbId=${ulbId}`,
+                "METEROWNEREID",
+                "METEROWNERENAME",
+                setMeterOwnerShipOptions
+            );
+
+            await fetchDropdowns(
+                `/water/plumberDropdown`,
+                "NUM_PLUMBER_ID",
+                "VAR_PLUMBER_NAME",
+                setPlumberOptions
+            );
+
+            await fetchDropdowns(
+                `/water/billFreqDropdown?ulbId=${ulbId}`,
+                "NUM_BILLFREQ_ID",
+                "VAR_BILLFREQ_NAME",
+                setBillingTypeOptions
+            );
+
+            if (ulbCode === "KNP") {
+                await fetchDropdowns(
+                    `/water/billMethodKNPDropdown?ulbId=${ulbId}`,
+                    "NUM_BILLMETHOD_ID",
+                    "VAR_BILLMETHOD_NAME",
+                    setBillingMethodOptions
+                );
+            } else {
+                await fetchDropdowns(
+                    `/water/billMethodDropdown`,
+                    "NUM_BILLINGMETHOD_ID",
+                    "VAR_BILLINGMETHOD_NAME",
+                    setBillingMethodOptions
+                );
+            }
+
+            if (mode === 2) {
+                await fetchConnectionDetails();
+            }
+
+            setBaseDropdownsLoaded(true);
+        };
+
+        loadDropdowns().catch(error => {
+            console.error("Error loading water dropdowns:", error);
+        });
+    }, [ulbId, ulbCode]);
+
+    useEffect(() => {
+        const loadZones = async () => {
+            if (!watchWard) {
+                setZoneOptions([]);
+                setBlockOptions([]);
+                return;
+            }
+
+            const response = await apiService.get(
+                `/water/zoneDropdown?wardId=${encodeURIComponent(watchWard)}`
+            );
+
+            if (response.success && Array.isArray(response.data)) {
+                const options = response.data.map(item => ({
+                    label: item.VAR_ZONE_NAME,
+                    value: String(item.NUM_ZONE_ID),
+                }));
+
+                setZoneOptions(options);
+
+                if (mode === 2 && editData) {
+                    const savedZone = String(editData.ZONEID ?? "");
+
+                    if (options.some(option => option.value === savedZone)) {
+                        setValue("zone", savedZone);
+                    }
+                }
+            }
+        };
+
+        loadZones().catch(console.error);
+    }, [watchWard, mode, editData, setValue]);
+
+    useEffect(() => {
+        const loadBlocks = async () => {
+            if (!watchZone) {
+                setBlockOptions([]);
+                return;
+            }
+
+            const response = await apiService.get(
+                `/water/blockDropdown?zoneId=${encodeURIComponent(watchZone)}`
+            );
+
+            if (response.success && Array.isArray(response.data)) {
+                const options = response.data.map(item => ({
+                    label: item.VAR_BLOCK_NAME,
+                    value: String(item.NUM_BLOCK_ID),
+                }));
+
+                setBlockOptions(options);
+
+                if (mode === 2 && editData) {
+                    const savedBlock = String(editData.BLOCKID ?? "");
+
+                    if (options.some(option => option.value === savedBlock)) {
+                        setValue("block", savedBlock);
+                    }
+                }
+            }
+        };
+
+        loadBlocks().catch(console.error);
+    }, [watchZone, mode, editData, setValue]);
+
+    useEffect(() => {
+        const loadSubUsage = async () => {
+            if (!watchUsage || !ulbId) {
+                setUsageSubTypeOptions([]);
+                return;
+            }
+
+            const response = await apiService.get(
+                `/water/subUsageTypeDropdown?ulbId=${ulbId}&usageTypeId=${encodeURIComponent(watchUsage)}`
+            );
+
+            if (response.success && Array.isArray(response.data)) {
+                const options = response.data.map(item => ({
+                    label: item.USAGESUBTYPENAME,
+                    value: String(item.USAGESUBTYPEID),
+                }));
+
+                setUsageSubTypeOptions(options);
+
+                if (mode === 2 && editData) {
+                    const savedSubUsage = String(
+                        editData.CONNUSAGESUBID ?? ""
+                    );
+
+                    if (
+                        options.some(option => option.value === savedSubUsage)
+                    ) {
+                        setValue("usageSubType", savedSubUsage);
+                    }
+                }
+            }
+        };
+
+        loadSubUsage().catch(console.error);
+    }, [watchUsage, ulbId, mode, editData, setValue]);
+
+    useEffect(() => {
+        if (mode === 1) {
+            fetchConnectionGenFlag();
+        }
+    }, [mode]);
+
+    useEffect(() => {
+        if (ulbId) {
+            fetchULBCode();
+        }
+    }, [ulbId]);
+
+
+
+    useEffect(() => {
+        if (mode !== 2 || !baseDropdownsLoaded || !editData) return;
+
+        setValue("ward", String(editData.WARDID ?? ""));
+        setValue("usageType", String(editData.CONNUSAGEID ?? ""));
+
+        setValue("connectionNumber", editData.CONNNO ?? "");
+        setValue("registerNumber", editData.OLDCONNNO ?? "");
+        setValue("ptnNumber", editData.PTNNO ?? "");
+        setValue("pageNumber", editData.PAGENO ?? "");
+
+        setValue("applicationNumber", editData.APPLINO ?? "");
+        setValue("applicationDate", getDate(editData.APPLIDT));
+        setValue("approveDate", getDate(editData.APPLIAPROVDT));
+        setValue("applicationName", editData.OWNERNAME ?? "");
+
+        setValue("aadharNumber", editData.AADHAR ?? "");
+        setValue("address", editData.ADDRESS ?? "");
+        setValue("panNumber", editData.PANNO ?? "");
+        setValue("mobileNumber", editData.MOBNO ?? "");
+        setValue("email", editData.EMAILID ?? "");
+        setValue("status", editData.STATUSID ?? "");
+        setValue("securityDeposit", editData.SEQURITYAMT ?? "");
+        setValue("connectionType", editData.CONNTYPEID ?? "");
+        setValue("connectionCode", editData.CONNCODEID ?? "");
+        setValue("connectionSize", editData.CONNSIZEID ?? "");
+
+        setValue("numberOfConnection", editData.NOOFCONN ?? "");
+        setValue("consumerType", editData.CONSURMERID ?? "");
+        setValue("meterNumber", editData.METERNO ?? "");
+        setValue("meterMake", editData.METERMAKE ?? "");
+        setValue("meterOwnerShip", editData.CONNOWNERID ?? "");
+        setValue("instDate", getDate(editData.INSATALLDT) ?? "");
+        setValue("connectionDate", getDate(editData.CONNDT) ?? "");
+        setValue("billingType", editData.BILLCYCLEID ?? "");
+        setValue("billingMethod", editData.BILLMETHOID ?? "");
+        setValue("waterTank", editData.WATERTANK ?? "");
+        setValue("remark", editData.REMARK ?? "");
+        setValue("numberOfFamilies", editData.NOOFFAMILY ?? "");
+        setValue("buildUpArea", editData.BULITUPAREA ?? "");
+        setValue("plumber", editData.PLUMBERID ?? "");
+        setValue("initialReading", editData.INTILREADING ?? "");
+
+        // Set the remaining independent fields in the same way.
+    }, [mode, baseDropdownsLoaded, editData, setValue]);
+
 
     const onSubmit = async (values) => {
         try {
             setLoading(true);
+
+            const ipAddress = await GetIPAddress();
+            const payload = {
+                in_UserId: userId,
+                in_ulbid: Number(ulbId),
+                in_Mode: Number(mode),
+                in_connid: mode === 1 ? null : Number(connectionId),
+                in_wardid: Number(values.ward),
+                in_zoneid: Number(values.zone),
+                in_blockid: Number(values.block),
+                in_srno: "",
+                in_seqno: "",
+                in_connno: values.connectionNumber,
+                in_oldconnno: values.registerNumber,
+                in_ptnno: values.ptnNumber,
+                in_applino: values.applicationNumber,
+                in_applidt: values.applicationDate,
+                in_appliaprovdt: values.approveDate,
+                in_ownername: values.applicationName,
+                in_uid: "",
+                in_address: values.address,
+                in_panno: values.panNumber,
+                in_mobno: Number(values.mobileNumber),
+                in_emailid: values.email,
+                in_statusid: Number(values.status),
+                in_sequrityamt: Number(values.securityDeposit),
+                in_conntypeid: Number(values.connectionType),
+                in_conncodeid: Number(values.connectionCode),
+                in_connsizeid: Number(values.connectionSize),
+                in_connusageid: Number(values.usageType),
+                in_connusagesubid: Number(values.usageSubType),
+                in_noofconn: Number(values.numberOfConnection),
+                in_nooffamily: Number(values.numberOfFamilies),
+                in_consurmerid: Number(values.consumerType),
+                in_bulituparea: Number(values.buildUpArea),
+                in_meterno: values.meterNumber,
+                in_metermake: values.meterMake,
+                in_connownerid: Number(values.meterOwnerShip),
+                in_insatalldt: values.instDate,
+                in_intilreading: Number(values.initialReading),
+                in_plumberid: Number(values.plumber),
+                in_conndt: values.connectionDate,
+                in_billmethoid: Number(values.billingMethod),
+                in_billcycleid: Number(values.billingType),
+                in_arrearsamt: 0,
+                in_Watertank: Number(values.waterTank),
+                in_Remark: values.remark,
+                in_pageno: Number(values.pageNumber),
+                in_ipaddress: ipAddress,
+                in_source: config.source
+            };
+
+            console.log(payload);
+            return;
+            const response = await apiService.post("/water/water-connnection-master", payload);
+
+            if (response.success && response.data.Out_ErrorCode === 9999) {
+                alert(response.data.Out_ErrorMsg);
+                reset();
+            } else {
+                alert(response.data.Out_ErrorMsg);
+            }
         } catch (error) {
             console.error(error);
+            alert(error.message || "Failed to submit data");
         } finally {
             setLoading(false);
         }
@@ -202,8 +611,9 @@ const FrmConnectionMst = () => {
                             text={"Ward"}
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""}`}
                             {...register("ward")}
+                            disabled={mode === 2}
                         >
                             <option value="">
                                 -- Select --
@@ -224,8 +634,9 @@ const FrmConnectionMst = () => {
                             text={"Zone"}
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""}`}
                             {...register("zone")}
+                            disabled={mode === 2}
                         >
                             <option value="">
                                 -- Select --
@@ -246,8 +657,9 @@ const FrmConnectionMst = () => {
                             text={"Register No / Block"}
                         />
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""}`}
                             {...register("block")}
+                            disabled={mode === 2}
                         >
                             <option value="">
                                 -- Select --
@@ -272,7 +684,7 @@ const FrmConnectionMst = () => {
                             type="text"
                             className="form-input-box bg-slate-200 cursor-not-allowed"
                             {...register("connectionNumber")}
-                            disabled
+                            disabled={(mode === 1 && connectionGenFlag === "Y") || (mode === 2)}
                         />
                     </div>
                     <div>
@@ -594,6 +1006,17 @@ const FrmConnectionMst = () => {
                                 {...register("numberOfConnection")}
                             />
                         </div>
+                        {ulbCode !== "MBMC" && <div>
+                            <Label
+                                text={"No. of Families: "}
+                                required
+                            />
+                            <input
+                                type="text"
+                                className="form-input-box"
+                                {...register("numberOfFamilies")}
+                            />
+                        </div>}
                         <div>
                             <Label
                                 text={"Consumer Type"}
@@ -617,6 +1040,17 @@ const FrmConnectionMst = () => {
                                 ))}
                             </select>
                         </div>
+                        {ulbCode !== "MBMC" && <div>
+                            <Label
+                                text={"Build Up Area: "}
+                                required
+                            />
+                            <input
+                                type="text"
+                                className="form-input-box"
+                                {...register("buildUpArea")}
+                            />
+                        </div>}
                         <div>
                             <Label
                                 text={"Meter Number: "}
@@ -679,6 +1113,28 @@ const FrmConnectionMst = () => {
                                 {...register("initialReading")}
                             />
                         </div>
+                        {ulbCode !== "MBMC" && <div>
+                            <Label
+                                text={"Plumber: "}
+                            />
+                            <select
+                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                                {...register("plumber")}
+                            >
+                                <option value="">
+                                    -- Select --
+                                </option>
+
+                                {plumberOptions.map((opt) => (
+                                    <option
+                                        key={opt.value}
+                                        value={opt.value}
+                                    >
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>}
                         <div>
                             <Label
                                 text={"Con. Date: "}
