@@ -27,101 +27,60 @@ const FrmuserallMst = () => {
     register,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       ulbId: "",
       userId: "",
-      isActive: "Y", // ✅ Yes by default
+      isActive: "Y",
     },
   });
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
+  // ULB dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    const dummyUlbs = [
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ];
-    setUlbOptions(dummyUlbs);
-
-    // Auto-select first ULB by default
-    if (dummyUlbs.length > 0) {
-      setValue("ulbId", dummyUlbs[0].value);
-    }
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       const opts = res.data.data.map((item) => ({
-    //         value: String(item.CORPORATIONID),
-    //         label: item.CORPORATIONNAME,
-    //       }));
-    //       setUlbOptions(opts);
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
-  }, [setValue]);
-
-  // ---------- Load detail in edit mode (DUMMY) ----------
-  useEffect(() => {
-    if (!userAllId) return;
-
-    // 🔸 DUMMY — replace with apiService.post("getUserAllDetail", { userAllId })
-    const dummyDetail = {
-      VAR_USER_ID: userAllId,
-      NUM_ULB_ID: "1",
-      FLG_ISACTIVE: "Y",
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchUlbDropdown();
+  }, []);
 
-    reset({
-      ulbId: String(dummyDetail.NUM_ULB_ID || ""),
-      userId: dummyDetail.VAR_USER_ID || "",
-      isActive: dummyDetail.FLG_ISACTIVE || "Y",
-    });
+  // Auto-select ULB
+  useEffect(() => {
+    if (ulbid && ulbOptions.length > 0) {
+      const match = ulbOptions.find((o) => o.value === String(ulbid));
+      if (match) {
+        setValue("ulbId", match.value);
+      }
+    }
+  }, [ulbid, ulbOptions, setValue]);
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getUserAllDetail", {
-    //       userAllId: userAllId,
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         ulbId: String(d.NUM_ULB_ID || ""),
-    //         userId: d.VAR_USER_ID || "",
-    //         isActive: d.FLG_ISACTIVE || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "User detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("User detail error:", err);
-    //     alert("Failed to fetch user detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [userAllId, reset]);
+  // Prefill form
+  useEffect(() => {
+    if (!isEdit) return;
+    setValue("userId", state?.userId || "");
+    setValue("isActive", state?.flag === "Yes" ? "Y" : "N");
+  }, [isEdit, state, setValue]);
 
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -133,36 +92,33 @@ const FrmuserallMst = () => {
       const ip = await GetIPAddress();
 
       const payload = {
-        in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_UserAllId: isEdit ? userAllId : null,
-        in_UlbId: Number(data.ulbId),
-        in_UserCode: data.userId.trim(),
-        in_IsActive: data.isActive,
+        in_id: isEdit ? Number(userAllId) : null,
+        in_UserId: data.userId.trim(),
+        in_activeflag: data.isActive,
+        in_Orgid: Number(ulbid),
         in_ipaddress: ip,
         in_source: config.source,
+        in_Mode: isEdit ? 2 : 1,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("User All payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmuserallList");
+      const res = await apiService.post(
+        "/master/aowt_userallconfig_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_userall_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmuserallList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save user",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving user:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmuserallList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving user all config:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -178,15 +134,14 @@ const FrmuserallMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. ULB */}
+          {/* ULB */}
           <div>
             <Label text="ULB : " required />
             <select
-              className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
-                focus:outline-none focus:ring-2 focus:ring-blue-500/40
-                ${errors.ulbId ? "border-red-500" : ""}`}
+              disabled
+              className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
+                bg-slate-100 cursor-not-allowed"
               {...register("ulbId", { required: "ULB name is required" })}
             >
               <option value="">-- Select ULB --</option>
@@ -203,7 +158,7 @@ const FrmuserallMst = () => {
             )}
           </div>
 
-          {/* 2. User ID */}
+          {/* User ID */}
           <div>
             <Label text="User ID : " required />
             <input
@@ -225,7 +180,7 @@ const FrmuserallMst = () => {
             )}
           </div>
 
-          {/* 3. Status — radio (Yes default) */}
+          {/* Status */}
           <div>
             <Label text="Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -260,7 +215,6 @@ const FrmuserallMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

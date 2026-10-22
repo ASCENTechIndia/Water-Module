@@ -18,107 +18,92 @@ const FrmConnectionNoMst = () => {
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
 
-  const connectionNoId = state?.connectionNoId;
-  const isEdit = !!connectionNoId;
+  const connogenId = state?.connogenId;
+  const isEdit = !!connogenId;
 
   const [ulbOptions, setUlbOptions] = useState([]);
+  const [connogenDetail, setConnogenDetail] = useState(null);
 
   const {
     register,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       ulbId: "",
-      connFlag: "Y", // ✅ Yes by default
+      connFlag: "Y",
     },
   });
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
+  // ULB dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    const dummyUlbs = [
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ];
-    setUlbOptions(dummyUlbs);
-
-    // Auto-select first ULB by default
-    if (dummyUlbs.length > 0) {
-      setValue("ulbId", dummyUlbs[0].value);
-    }
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       const opts = res.data.data.map((item) => ({
-    //         value: String(item.CORPORATIONID),
-    //         label: item.CORPORATIONNAME,
-    //       }));
-    //       setUlbOptions(opts);
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
-  }, [setValue]);
-
-  // ---------- Load detail in edit mode (DUMMY) ----------
-  useEffect(() => {
-    if (!connectionNoId) return;
-
-    // 🔸 DUMMY — replace with apiService.post("getConnectionNoDetail", { connectionNoId: Number(connectionNoId) })
-    const dummyDetail = {
-      NUM_CONNECTIONNO_ID: connectionNoId,
-      NUM_ULB_ID: "1",
-      FLG_CONN: "Y",
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchUlbDropdown();
+  }, []);
 
-    reset({
-      ulbId: String(dummyDetail.NUM_ULB_ID || ""),
-      connFlag: dummyDetail.FLG_CONN || "Y",
-    });
+  // Conn auto generate details (edit mode)
+  useEffect(() => {
+    if (!connogenId) return;
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getConnectionNoDetail", {
-    //       connectionNoId: Number(connectionNoId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         ulbId: String(d.NUM_ULB_ID || ""),
-    //         connFlag: d.FLG_CONN || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Connection no detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Connection no detail error:", err);
-    //     alert("Failed to fetch connection no detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [connectionNoId, reset]);
+    const fetchDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getConnAutoGerateDetails?connId=${connogenId}`,
+        );
+        if (res?.success && res?.data?.length > 0) {
+          setConnogenDetail(res.data[0]);
+        } else {
+          alert(res?.message || "Data Not Found");
+        }
+      } catch (err) {
+        console.error("Conn auto generate details error:", err);
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetails();
+  }, [connogenId]);
 
-  // ---------- Submit ----------
+  // Prefill flag
+  useEffect(() => {
+    if (!connogenDetail) return;
+    setValue("connFlag", connogenDetail.NUM_CONNOGEN_FLAG || "Y");
+  }, [connogenDetail, setValue]);
+
+  // Prefill ULB
+  useEffect(() => {
+    if (!connogenDetail || ulbOptions.length === 0) return;
+    const id = String(connogenDetail.NUM_CONNOGEN_ULBID || "");
+    if (ulbOptions.some((o) => o.value === id)) {
+      setValue("ulbId", id);
+    }
+  }, [connogenDetail, ulbOptions, setValue]);
+
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -131,34 +116,32 @@ const FrmConnectionNoMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_ConnectionNoId: isEdit ? Number(connectionNoId) : null,
-        in_UlbId: Number(data.ulbId),
-        in_ConnFlag: data.connFlag,
+        in_Connoid: isEdit ? Number(connogenId) : null,
+        in_ulbid: Number(data.ulbId),
+        in_activeflag: data.connFlag,
         in_ipaddress: ip,
         in_source: config.source,
+        in_Mode: isEdit ? 2 : 1,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Connection No payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmConnectionNoList");
+      const res = await apiService.post(
+        "/master/aowt_connectionnoconfig_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_connectionno_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmConnectionNoList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save connection no",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving connection no:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmConnectionNoList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving conn auto generate config:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -174,9 +157,8 @@ const FrmConnectionNoMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. ULB Name */}
+          {/* ULB Name — user selects */}
           <div>
             <Label text="ULB Name : " required />
             <select
@@ -199,7 +181,7 @@ const FrmConnectionNoMst = () => {
             )}
           </div>
 
-          {/* 2. Connection Flag — radio (Yes default) */}
+          {/* Connection Flag */}
           <div>
             <Label text="Connection Flag : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -234,7 +216,6 @@ const FrmConnectionNoMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

@@ -10,21 +10,6 @@ import apiService from "../../../../apiService.js";
 import GetIPAddress from "../../../utils/ipHelper.jsx";
 import config from "../../../utils/config.jsx";
 
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 const FrmBillSheduleMst = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -38,12 +23,13 @@ const FrmBillSheduleMst = () => {
 
   const [ulbOptions, setUlbOptions] = useState([]);
   const [billingFreqOptions, setBillingFreqOptions] = useState([]);
+  const [monthOptions, setMonthOptions] = useState([]);
+  const [billScheduleDetail, setBillScheduleDetail] = useState(null);
 
   const {
     register,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -51,137 +37,176 @@ const FrmBillSheduleMst = () => {
       billingFreq: "",
       fromMonth: "",
       toMonth: "",
-      scheduleStatus: "Active", // ✅ Active by default
+      scheduleStatus: "Y",
     },
   });
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
+  // ULB dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    const dummyUlbs = [
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ];
-    setUlbOptions(dummyUlbs);
-
-    // Auto-select first ULB (dropdown disabled below)
-    if (dummyUlbs.length > 0) {
-      setValue("ulbId", dummyUlbs[0].value);
-    }
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       const opts = res.data.data.map((item) => ({
-    //         value: String(item.CORPORATIONID),
-    //         label: item.CORPORATIONNAME,
-    //       }));
-    //       setUlbOptions(opts);
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
-  }, [setValue]);
-
-  // ---------- Load Billing Frequency dropdown (DUMMY) ----------
-  useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getBillingFreqDropdown") later
-    setBillingFreqOptions([
-      { value: "1", label: "Monthly" },
-      { value: "2", label: "Quarterly" },
-      { value: "3", label: "Half Yearly" },
-      { value: "4", label: "Yearly" },
-    ]);
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchFreq = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getBillingFreqDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       setBillingFreqOptions(
-    //         res.data.data.map((item) => ({
-    //           value: String(item.FREQID),
-    //           label: item.FREQNAME,
-    //         })),
-    //       );
-    //     } else {
-    //       setBillingFreqOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("Billing frequency dropdown error:", err);
-    //     setBillingFreqOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchFreq();
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUlbDropdown();
   }, []);
 
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Auto-select ULB
+  useEffect(() => {
+    if (ulbid && ulbOptions.length > 0) {
+      const match = ulbOptions.find((o) => o.value === String(ulbid));
+      if (match) {
+        setValue("ulbId", match.value);
+      }
+    }
+  }, [ulbid, ulbOptions, setValue]);
+
+  // Billing Frequency dropdown
+  useEffect(() => {
+    if (!ulbid) return;
+
+    const fetchBillFreq = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getBillFrequencyDropdown?ulbId=${ulbid}`,
+        );
+        if (res?.success && Array.isArray(res.data)) {
+          setBillingFreqOptions(
+            res.data.map((item) => ({
+              value: String(item.NUM_BILLFREQ_ID),
+              label: item.VAR_BILLFREQ_NAME,
+            })),
+          );
+        } else {
+          setBillingFreqOptions([]);
+        }
+      } catch (err) {
+        console.error("Billing frequency dropdown error:", err);
+        alert(err.message);
+        setBillingFreqOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBillFreq();
+  }, [ulbid]);
+
+  // Month dropdown
+  useEffect(() => {
+    const fetchMonths = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getMonthDropdown");
+        if (res?.success && Array.isArray(res.data)) {
+          setMonthOptions(
+            res.data.map((item) => ({
+              value: String(item.NUM_MONTHS_ID),
+              label: item.VAR_MONTHS_NAME,
+            })),
+          );
+        } else {
+          setMonthOptions([]);
+        }
+      } catch (err) {
+        console.error("Month dropdown error:", err);
+        alert(err.message);
+        setMonthOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMonths();
+  }, []);
+
+  // Bill Schedule details
   useEffect(() => {
     if (!scheduleId) return;
 
-    // 🔸 DUMMY — replace with apiService.post("getBillSheduleDetail", { scheduleId: Number(scheduleId) })
-    const dummyDetail = {
-      NUM_SCHEDULE_ID: scheduleId,
-      NUM_ULB_ID: "1",
-      NUM_BILLINGFREQ_ID: "1",
-      VAR_FROM_MONTH: "April",
-      VAR_TO_MONTH: "March",
-      VAR_SCHEDULE_STATUS: "Active",
+    const fetchDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getBillScheduleDetails?billId=${scheduleId}`,
+        );
+        if (res?.success && res?.data?.length > 0) {
+          setBillScheduleDetail(res.data[0]);
+        } else {
+          alert(res?.message || "Data Not Found");
+        }
+      } catch (err) {
+        console.error("Bill schedule details error:", err);
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchDetails();
+  }, [scheduleId]);
 
-    reset({
-      ulbId: String(dummyDetail.NUM_ULB_ID || ""),
-      billingFreq: String(dummyDetail.NUM_BILLINGFREQ_ID || ""),
-      fromMonth: dummyDetail.VAR_FROM_MONTH || "",
-      toMonth: dummyDetail.VAR_TO_MONTH || "",
-      scheduleStatus: dummyDetail.VAR_SCHEDULE_STATUS || "Active",
-    });
+  // Prefill Status
+  useEffect(() => {
+    if (!billScheduleDetail) return;
+    setValue(
+      "scheduleStatus",
+      billScheduleDetail.VAR_BILSCHED_CYCLESTATUS || "Y",
+    );
+  }, [billScheduleDetail, setValue]);
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getBillSheduleDetail", {
-    //       scheduleId: Number(scheduleId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         ulbId: String(d.NUM_ULB_ID || ""),
-    //         billingFreq: String(d.NUM_BILLINGFREQ_ID || ""),
-    //         fromMonth: d.VAR_FROM_MONTH || "",
-    //         toMonth: d.VAR_TO_MONTH || "",
-    //         scheduleStatus: d.VAR_SCHEDULE_STATUS || "Active",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Bill schedule detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Bill schedule detail error:", err);
-    //     alert("Failed to fetch bill schedule detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [scheduleId, reset]);
+  // Prefill ULB
+  useEffect(() => {
+    if (!billScheduleDetail || ulbOptions.length === 0) return;
+    const id = String(billScheduleDetail.ULBID || "");
+    if (ulbOptions.some((o) => o.value === id)) {
+      setValue("ulbId", id);
+    }
+  }, [billScheduleDetail, ulbOptions, setValue]);
 
-  // ---------- Submit ----------
+  // Prefill Billing Frequency
+  useEffect(() => {
+    if (!billScheduleDetail || billingFreqOptions.length === 0) return;
+    const id = String(billScheduleDetail.NUM_BILSCHED_BILLFREQ_ID || "");
+    if (billingFreqOptions.some((o) => o.value === id)) {
+      setValue("billingFreq", id);
+    }
+  }, [billScheduleDetail, billingFreqOptions, setValue]);
+
+  // Prefill From Month
+  useEffect(() => {
+    if (!billScheduleDetail || monthOptions.length === 0) return;
+    const id = String(billScheduleDetail.NUM_BILSCHED_FROMID || "");
+    if (monthOptions.some((o) => o.value === id)) {
+      setValue("fromMonth", id);
+    }
+  }, [billScheduleDetail, monthOptions, setValue]);
+
+  // Prefill To Month
+  useEffect(() => {
+    if (!billScheduleDetail || monthOptions.length === 0) return;
+    const id = String(billScheduleDetail.NUM_BILSCHED_TOID || "");
+    if (monthOptions.some((o) => o.value === id)) {
+      setValue("toMonth", id);
+    }
+  }, [billScheduleDetail, monthOptions, setValue]);
+
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -192,39 +217,43 @@ const FrmBillSheduleMst = () => {
       setLoading(true);
       const ip = await GetIPAddress();
 
+      const fromMonthName =
+        monthOptions.find((o) => o.value === String(data.fromMonth))?.label ||
+        "";
+      const toMonthName =
+        monthOptions.find((o) => o.value === String(data.toMonth))?.label || "";
+
       const payload = {
-        in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_ScheduleId: isEdit ? Number(scheduleId) : null,
-        in_UlbId: Number(data.ulbId),
-        in_BillingFreqId: Number(data.billingFreq),
-        in_FromMonth: data.fromMonth,
-        in_ToMonth: data.toMonth,
-        in_ScheduleStatus: data.scheduleStatus,
+        in_userid: userId,
+        in_BilSchedid: isEdit ? Number(scheduleId) : 0,
+        in_ulbid: Number(ulbid),
+        in_freqid: Number(data.billingFreq),
+        in_Fromid: Number(data.fromMonth),
+        in_FromMname: fromMonthName,
+        in_Toid: Number(data.toMonth),
+        in_ToMname: toMonthName,
+        in_mode: isEdit ? 2 : 1,
         in_ipaddress: ip,
-        in_source: config.source,
+        in_ipSource: config.source,
+        in_Status: data.scheduleStatus,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Bill Schedule payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmBillSheduleList");
+      const res = await apiService.post(
+        "/master/aowt_billschedule_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_billshedule_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmBillSheduleList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save bill schedule",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving bill schedule:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.out_Errcode === 9999) {
+        alert(res.data.out_ErrMsg || "Record saved successfully");
+        navigate("/Masters/FrmBillSheduleList");
+      } else {
+        alert(
+          res?.data?.out_ErrMsg || res?.message || "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving bill schedule:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -240,16 +269,14 @@ const FrmBillSheduleMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. ULB Name — disabled, first selected */}
+          {/* ULB */}
           <div>
             <Label text="ULB Name : " required />
             <select
               disabled
-              className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
-                bg-slate-100 cursor-not-allowed
-                ${errors.ulbId ? "border-red-500" : ""}`}
+              className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
+                bg-slate-100 cursor-not-allowed"
               {...register("ulbId", { required: "ULB name is required" })}
             >
               <option value="">-- Select ULB --</option>
@@ -266,7 +293,7 @@ const FrmBillSheduleMst = () => {
             )}
           </div>
 
-          {/* 2. Billing Frequency */}
+          {/* Billing Frequency */}
           <div>
             <Label text="Billing Frequency : " required />
             <select
@@ -291,7 +318,7 @@ const FrmBillSheduleMst = () => {
             )}
           </div>
 
-          {/* 3. From Month */}
+          {/* From Month */}
           <div>
             <Label text="From Month : " required />
             <select
@@ -303,9 +330,9 @@ const FrmBillSheduleMst = () => {
               })}
             >
               <option value="">-- Select From Month --</option>
-              {MONTHS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
+              {monthOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
                 </option>
               ))}
             </select>
@@ -316,7 +343,7 @@ const FrmBillSheduleMst = () => {
             )}
           </div>
 
-          {/* 4. To Month */}
+          {/* To Month */}
           <div>
             <Label text="To Month : " required />
             <select
@@ -328,9 +355,9 @@ const FrmBillSheduleMst = () => {
               })}
             >
               <option value="">-- Select To Month --</option>
-              {MONTHS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
+              {monthOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
                 </option>
               ))}
             </select>
@@ -341,14 +368,14 @@ const FrmBillSheduleMst = () => {
             )}
           </div>
 
-          {/* 5. Schedule Status — radio (Active default) */}
+          {/* Schedule Status */}
           <div>
             <Label text="Schedule Status : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
               <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
                 <input
                   type="radio"
-                  value="Active"
+                  value="Y"
                   className="w-4 h-4 accent-blue-600 cursor-pointer"
                   {...register("scheduleStatus", {
                     required: "Schedule status is required",
@@ -359,7 +386,7 @@ const FrmBillSheduleMst = () => {
               <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
                 <input
                   type="radio"
-                  value="Inactive"
+                  value="N"
                   className="w-4 h-4 accent-blue-600 cursor-pointer"
                   {...register("scheduleStatus", {
                     required: "Schedule status is required",
@@ -376,7 +403,6 @@ const FrmBillSheduleMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}

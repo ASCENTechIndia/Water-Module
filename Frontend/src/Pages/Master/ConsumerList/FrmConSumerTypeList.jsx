@@ -41,7 +41,7 @@ const FrmConSumerTypeList = () => {
         setTableData(data);
       } else {
         setTableData([]);
-        alert("Data Not Found");
+        alert(res?.data?.message || "Data Not Found");
       }
     } catch (err) {
       console.error("Error fetching consumer type list:", err);

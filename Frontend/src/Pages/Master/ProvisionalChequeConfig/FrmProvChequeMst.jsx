@@ -22,103 +22,88 @@ const FrmProvChequeMst = () => {
   const isEdit = !!provChequeId;
 
   const [ulbOptions, setUlbOptions] = useState([]);
+  const [provChequeDetail, setProvChequeDetail] = useState(null);
 
   const {
     register,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       ulbId: "",
-      connoFlag: "Y", // ✅ Yes by default
+      connoFlag: "Y",
     },
   });
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
+  // ULB dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    const dummyUlbs = [
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ];
-    setUlbOptions(dummyUlbs);
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUlbDropdown();
+  }, []);
 
-    // Auto-select first ULB by default
-    if (dummyUlbs.length > 0) {
-      setValue("ulbId", dummyUlbs[0].value);
-    }
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       const opts = res.data.data.map((item) => ({
-    //         value: String(item.CORPORATIONID),
-    //         label: item.CORPORATIONNAME,
-    //       }));
-    //       setUlbOptions(opts);
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
-  }, [setValue]);
-
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Prov cheque details (edit mode)
   useEffect(() => {
     if (!provChequeId) return;
 
-    // 🔸 DUMMY — replace with apiService.post("getProvChequeDetail", { provChequeId: Number(provChequeId) })
-    const dummyDetail = {
-      NUM_PROVCHEQUE_ID: provChequeId,
-      NUM_ULB_ID: "1",
-      FLG_CONNO: "Y",
+    const fetchDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getProvisionalDetails?provChequeId=${provChequeId}`,
+        );
+        if (res?.success && res?.data?.length > 0) {
+          setProvChequeDetail(res.data[0]);
+        } else {
+          alert(res?.message || "Data Not Found");
+        }
+      } catch (err) {
+        console.error("Prov cheque details error:", err);
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchDetails();
+  }, [provChequeId]);
 
-    reset({
-      ulbId: String(dummyDetail.NUM_ULB_ID || ""),
-      connoFlag: dummyDetail.FLG_CONNO || "Y",
-    });
+  // Prefill flag (raw Y/N)
+  useEffect(() => {
+    if (!provChequeDetail) return;
+    setValue("connoFlag", provChequeDetail.NUM_PROVCHEQUE_FLAG || "Y");
+  }, [provChequeDetail, setValue]);
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getProvChequeDetail", {
-    //       provChequeId: Number(provChequeId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         ulbId: String(d.NUM_ULB_ID || ""),
-    //         connoFlag: d.FLG_CONNO || "Y",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Prov cheque detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Prov cheque detail error:", err);
-    //     alert("Failed to fetch prov cheque detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [provChequeId, reset]);
+  // Prefill ULB (from details API)
+  useEffect(() => {
+    if (!provChequeDetail || ulbOptions.length === 0) return;
+    const id = String(provChequeDetail.NUM_PROVCHEQUE_ULBID || "");
+    if (ulbOptions.some((o) => o.value === id)) {
+      setValue("ulbId", id);
+    }
+  }, [provChequeDetail, ulbOptions, setValue]);
 
-  // ---------- Submit ----------
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -131,34 +116,32 @@ const FrmProvChequeMst = () => {
 
       const payload = {
         in_UserId: userId,
-        in_Mode: isEdit ? 2 : 1,
-        in_ProvChequeId: isEdit ? Number(provChequeId) : null,
-        in_UlbId: Number(data.ulbId),
-        in_ConnoFlag: data.connoFlag,
+        in_provchqid: isEdit ? Number(provChequeId) : null,
+        in_ulbid: Number(data.ulbId),
+        in_activeflag: data.connoFlag,
         in_ipaddress: ip,
         in_source: config.source,
+        in_Mode: isEdit ? 2 : 1,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Prov Cheque payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmProvChequeList");
+      const res = await apiService.post(
+        "/master/aowt_provchequeconfig_ins",
+        payload,
+      );
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_provcheque_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmProvChequeList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save prov cheque",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving prov cheque:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmProvChequeList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving prov cheque config:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -174,9 +157,8 @@ const FrmProvChequeMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. ULB Name */}
+          {/* ULB Name — user selects */}
           <div>
             <Label text="ULB Name : " required />
             <select
@@ -199,7 +181,7 @@ const FrmProvChequeMst = () => {
             )}
           </div>
 
-          {/* 2. Conno Flag — radio (Yes default) */}
+          {/* Conno Flag */}
           <div>
             <Label text="Conno Flag : " required />
             <div className="flex flex-wrap items-center gap-6 mt-2">
@@ -234,7 +216,6 @@ const FrmProvChequeMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}
