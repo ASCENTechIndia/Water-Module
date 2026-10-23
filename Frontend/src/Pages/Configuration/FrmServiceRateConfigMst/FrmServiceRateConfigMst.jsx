@@ -342,7 +342,7 @@ const FrmServiceRateConfigMst = () => {
                 ? response.data[0] || null
                 : response.data;
 
-            console.log("Service rate details record:", data);
+
 
             setServiceDetails(data);
             return data;

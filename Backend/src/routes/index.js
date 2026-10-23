@@ -3,6 +3,7 @@ const authRoutes = require("../modules/auth/auth.routes");
 const adminRoutes = require("../modules/Admin/Admin.routes");
 const masterRoutes = require("../modules/masters/master.routes");
 const configRoutes = require("../modules/Configuration/config.routes");
+const waterRoutes = require("../modules/Water/water.routes");
 const transactionRoutes = require("../modules/Transaction/transaction.route")
 const router = express.Router();
 
@@ -18,6 +19,9 @@ router.use("/auth", authRoutes);
 router.use("/admin", adminRoutes);
 router.use('/master', masterRoutes);
 router.use("/config", configRoutes);
+router.use("/water", waterRoutes);
+
+
 router.use("/transaction", transactionRoutes)
 
 module.exports = router;
