@@ -141,4 +141,99 @@ const billGenInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
-module.exports = { meterReadingInsSchema, billGenInsSchema };
+const chequeBounceInsSchema = z.object({
+  in_userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_zoneid: z
+    .number({
+      required_error: "Zone Id is required",
+      invalid_type_error: "Zone Id must be a number",
+    })
+    .int("Zone Id must be an integer"),
+
+  in_chequeno: z
+    .number({
+      required_error: "Cheque No is required",
+      invalid_type_error: "Cheque No must be a number",
+    })
+    .int("Cheque No must be an integer"),
+
+  in_bankid: z
+    .number({
+      required_error: "Bank Id is required",
+      invalid_type_error: "Bank Id must be a number",
+    })
+    .int("Bank Id must be an integer"),
+
+  in_proprecstr: z
+    .string({
+      required_error: "Property/Receipt string is required",
+      invalid_type_error: "Property/Receipt string must be a string",
+    })
+    .trim()
+    .min(1, "Property/Receipt string is required")
+    .refine(
+      (val) => {
+        const rows = val.split("#");
+        return rows.every((row) => {
+          const parts = row.split("$");
+          return parts.length === 3 && parts.every((p) => p.trim() !== "");
+        });
+      },
+      {
+        message:
+          "Each row must have 3 $-delimited non-empty fields: zoneId$connId$recId",
+      },
+    ),
+
+  in_remark: z
+    .string({
+      required_error: "Remark is required",
+      invalid_type_error: "Remark must be a string",
+    })
+    .trim()
+    .min(1, "Remark is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_FinYear: z
+    .string({
+      required_error: "Financial Year is required",
+      invalid_type_error: "Financial Year must be a string",
+    })
+    .trim()
+    .min(1, "Financial Year is required"),
+});
+
+module.exports = {
+  meterReadingInsSchema,
+  billGenInsSchema,
+  chequeBounceInsSchema,
+};

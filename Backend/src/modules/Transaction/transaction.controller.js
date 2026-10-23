@@ -9,6 +9,9 @@ const {
   meterReadingInsService,
   getZoneDropdownWithUlbIdService,
   billGenInsService,
+  getBankDropdownService,
+  getReasonDropdownService,
+  chequeBounceInsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -242,6 +245,97 @@ async function billGenInsController(req, res, next) {
   }
 }
 
+async function getBankDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getBankDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Bank dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bank dropdown error");
+    return next(err);
+  }
+}
+
+async function getReasonDropdownController(req, res, next) {
+  try {
+    const rows = await getReasonDropdownService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Reason dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Reason dropdown error");
+    return next(err);
+  }
+}
+
+async function chequeBounceInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await chequeBounceInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          ulbId: payload.in_ulbid,
+          zoneId: payload.in_zoneid,
+          chequeNo: payload.in_chequeno,
+          rowCount: payload.in_proprecstr.split("#").length,
+        },
+        out.out_errormssg || "Cheque bounce processed successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormssg, "Cheque bounce insert failed");
+    }
+
+    auditLog({
+      action: "CHEQUEBOUNCE_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "chequebounce",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormssg,
+        ulbId: payload.in_ulbid,
+        zoneId: payload.in_zoneid,
+        chequeNo: payload.in_chequeno,
+        bankId: payload.in_bankid,
+        remark: payload.in_remark,
+        finYear: payload.in_FinYear,
+        rowCount: payload.in_proprecstr.split("#").length,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Cheque bounce insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -251,4 +345,7 @@ module.exports = {
   meterReadingInsController,
   getZoneDropdownWithUlbIdController,
   billGenInsController,
+  getBankDropdownController,
+  getReasonDropdownController,
+  chequeBounceInsController,
 };

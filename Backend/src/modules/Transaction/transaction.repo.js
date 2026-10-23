@@ -303,6 +303,85 @@ async function aowt_billgen_ins(payload) {
   return result.outBinds;
 }
 
+async function getBankDropdown(payload) {
+  const { chequeNo } = payload;
+
+  if (!chequeNo) {
+    throw new Error("chequeNo is required");
+  }
+
+  const sql = `
+    select var_rec_banknm,
+           num_rec_bankid
+      from aowt_rec_mas
+     where var_rec_instruno = :chequeNo
+     order by var_rec_banknm
+  `;
+
+  const binds = {
+    chequeNo: String(chequeNo),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getReasonDropdown() {
+  // In .net code num_deletereason_id is passing hard coded value that is 4
+  const sql = `
+    select var_deletereason_reason,
+           num_deletereason_id
+      from aowt_deletereason_mas
+     where num_deletereason_id = '4'
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function aowt_chequebounce_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_chequebounce_ins(
+        :in_userid,
+        :in_ulbid,
+        :in_zoneid,
+        :in_chequeno,
+        :in_bankid,
+        :in_proprecstr,
+        :in_remark,
+        :in_ipaddress,
+        :in_source,
+        :in_FinYear,
+        :out_errorcode,
+        :out_errormssg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_ulbid: Number(payload.in_ulbid),
+    in_zoneid: Number(payload.in_zoneid),
+    in_chequeno: Number(payload.in_chequeno),
+    in_bankid: Number(payload.in_bankid),
+    in_proprecstr: payload.in_proprecstr,
+    in_remark: payload.in_remark,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+    in_FinYear: payload.in_FinYear,
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormssg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 2000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -315,4 +394,7 @@ module.exports = {
   aowt_mtrreading_ins,
   getZoneDropdownWithUlbId,
   aowt_billgen_ins,
+  getBankDropdown,
+  getReasonDropdown,
+  aowt_chequebounce_ins,
 };

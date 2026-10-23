@@ -9,10 +9,14 @@ const {
   meterReadingInsController,
   getZoneDropdownWithUlbIdController,
   billGenInsController,
+  getBankDropdownController,
+  getReasonDropdownController,
+  chequeBounceInsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
   billGenInsSchema,
+  chequeBounceInsSchema,
 } = require("./transaction.validation");
 
 const router = express.Router();
@@ -35,5 +39,14 @@ router.post(
   "/aowt_billgen_ins",
   validate(billGenInsSchema),
   billGenInsController,
+);
+
+//Cheque bounce
+router.get("/getBankDropdown", getBankDropdownController);
+router.get("/getReasonDropdown", getReasonDropdownController);
+router.post(
+  "/aowt_chequebounce_ins",
+  validate(chequeBounceInsSchema),
+  chequeBounceInsController,
 );
 module.exports = router;

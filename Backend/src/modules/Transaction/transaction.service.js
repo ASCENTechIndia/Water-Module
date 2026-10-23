@@ -10,6 +10,9 @@ const {
   aowt_mtrreading_ins,
   getZoneDropdownWithUlbId,
   aowt_billgen_ins,
+  getBankDropdown,
+  getReasonDropdown,
+  aowt_chequebounce_ins,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -86,6 +89,18 @@ async function billGenInsService(payload) {
   return aowt_billgen_ins(payload);
 }
 
+async function getBankDropdownService(payload) {
+  return getBankDropdown(payload);
+}
+
+async function getReasonDropdownService() {
+  return getReasonDropdown();
+}
+
+async function chequeBounceInsService(payload) {
+  return aowt_chequebounce_ins(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -95,4 +110,7 @@ module.exports = {
   meterReadingInsService,
   getZoneDropdownWithUlbIdService,
   billGenInsService,
+  getBankDropdownService,
+  getReasonDropdownService,
+  chequeBounceInsService,
 };
