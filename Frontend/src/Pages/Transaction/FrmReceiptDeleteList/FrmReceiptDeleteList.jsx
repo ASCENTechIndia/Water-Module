@@ -19,6 +19,10 @@ const getToday = () => {
 
 const FrmReceiptDeleteList = () => {
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
     const location = useLocation();
@@ -40,31 +44,21 @@ const FrmReceiptDeleteList = () => {
     ]);
     const [tableData, setTableData] = useState([]);
 
-    const [financialYearOptions, setFinancialYearOptions] = useState([
-        { label: "Current Year", value: "1" }
-    ]);
-    const [wardOptions, setWardOptions] = useState([
-        { label: "उत्तन विभाग", value: "1" },
-        { label: "डोंगरी विभाग", value: "2" },
-        { label: "मीरा विभाग", value: "3" }
-    ]);
-    const [zoneOptions, setZoneOptions] = useState([
-        { label: "B", value: "1" },
-        { label: "A", value: "2" },
-        { label: "zone name", value: "3" },
-        { label: "zone name three", value: "4" }
-    ]);
+    const [financialYearOptions, setFinancialYearOptions] = useState([]);
+    const [wardOptions, setWardOptions] = useState([]);
+    const [zoneOptions, setZoneOptions] = useState([]);
 
     const {
         register,
         reset,
         setValue,
         getValues,
+        watch,
         handleSubmit,
         formState: { errors }
     } = useForm({
         defaultValues: {
-            financialYear: "1",
+            financialYear: "",
             wardName: "",
             zoneName: "",
             connectionNumber: "",
@@ -74,14 +68,16 @@ const FrmReceiptDeleteList = () => {
         }
     });
 
-    const fetchDropdowns = async (endpoint, valueKey, labelKey, setter, payload) => {
+    const watchWard = watch("wardName");
+
+    const fetchDropdowns = async (endpoint, valueKey, labelKey, setter) => {
         try {
             setLoading(true);
 
-            const response = await apiService.post(endpoint, payload);
+            const response = await apiService.get(endpoint);
 
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formatted = response.data.data.map(item => ({
+            if (response.success && Array.isArray(response.data)) {
+                const formatted = response.data.map(item => ({
                     label: item[labelKey],
                     value: item[valueKey]
                 }));
@@ -96,6 +92,51 @@ const FrmReceiptDeleteList = () => {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        const loadDropdowns = async () => {
+            if (!ulbId) return;
+
+            await fetchDropdowns(
+                `/transaction/getYearDropdown`,
+                "NUM_YEAR_ID", 
+                "VAR_YEAR_YEARNAME", 
+                setFinancialYearOptions
+            );
+
+            await fetchDropdowns(
+                `/transaction/getWardMenu?ulbId=${ulbId}`,
+                "NUM_WARD_ID",
+                "VAR_WARD_NAME",
+                setWardOptions
+            );
+        }
+
+        loadDropdowns().catch(error => console.error("Error: ", error));
+    }, [ulbId])
+
+    useEffect(() => {
+        const loadZones = async () => {
+            if (!watchWard) return;
+
+            await fetchDropdowns(
+                `/transaction/getZoneMenu?wardId=${encodeURIComponent(watchWard)}`,
+                "NUM_ZONE_ID",
+                "VAR_ZONE_NAME",
+                setZoneOptions
+            );
+        }
+
+        loadZones().catch(error => console.error("Error: ", error));
+    }, [watchWard]);
+
+    useEffect(() => {
+        if (financialYearOptions.length) {
+            const obj = financialYearOptions.find(opt => opt.label === "Current Year");
+
+            setValue("financialYear", obj.value);
+        }
+    }, [financialYearOptions])
 
     const handleSearch = async (values) => {
         try {
@@ -238,7 +279,7 @@ const FrmReceiptDeleteList = () => {
                         <Label
                             text={"Connection Number"}
                         />
-                        <input 
+                        <input
                             type="text"
                             className="form-input-box"
                             {...register("connectionNumber")}
@@ -248,7 +289,7 @@ const FrmReceiptDeleteList = () => {
                         <Label
                             text={"पावती क्र."}
                         />
-                        <input 
+                        <input
                             type="text"
                             className="form-input-box"
                             {...register("receiptNumber")}
@@ -258,7 +299,7 @@ const FrmReceiptDeleteList = () => {
                         <Label
                             text={"दिनांकापासून"}
                         />
-                        <input 
+                        <input
                             type="date"
                             className="form-input-box"
                             {...register("fromDate")}
@@ -268,7 +309,7 @@ const FrmReceiptDeleteList = () => {
                         <Label
                             text={"दिनांकापर्यंत"}
                         />
-                        <input 
+                        <input
                             type="date"
                             className="form-input-box"
                             {...register("toDate")}
@@ -276,18 +317,18 @@ const FrmReceiptDeleteList = () => {
                     </div>
                 </div>
                 <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
-                    <Button 
+                    <Button
                         type="button"
-                        onClick={() => { 
+                        onClick={() => {
                             // handleSearch();
                         }}
                     >
                         Search
                     </Button>
-                    <Button 
+                    <Button
                         type="button"
                         variant="secondary"
-                        onClick={() => { 
+                        onClick={() => {
                             reset({
                                 connectionNumber: "",
                                 fromDate: getToday(),
@@ -303,7 +344,7 @@ const FrmReceiptDeleteList = () => {
                     </Button>
                 </div>
                 {tableData.length > 0 && <div className="mt-3">
-                    <Table 
+                    <Table
                         headers={tableHeader}
                         data={tableData}
                     />
