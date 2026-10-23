@@ -339,6 +339,81 @@ async function getReasonDropdown() {
   return result.rows || [];
 }
 
+async function getChequeBounceDetails(payload) {
+  const {
+    ulbId,
+    chequeNo,
+    bankId,
+    zoneId,
+    chequeAmount,
+    receiptDate,
+    mobileNo,
+  } = payload;
+
+  if (!chequeNo) {
+    throw new Error("chequeNo is required");
+  }
+
+  let sql = `
+    select num_zone_id zoneid,
+           var_zone_name zonename,
+           num_ward_id wardno,
+           num_conn_connid connid,
+           num_rec_id rec_id,
+           var_rec_recno receiptno,
+           var_rec_bookno bookno,
+           num_rec_ownername ownername,
+           num_rec_amount amount,
+           dat_rec_receiptdt receiptdate,
+           num_rec_mobile mobile
+      from aowt_rec_mas
+      inner join aowt_conn_mas
+        on num_rec_connid = num_conn_connid
+       and num_rec_ulbid  = num_conn_ulbid
+      inner join aowt_block_mas
+        on num_block_zoneid = num_conn_zoneid
+       and num_block_id     = num_conn_blockid
+      inner join aowt_zone_mas
+        on num_zone_id = num_block_zoneid
+      inner join aowt_ward_mas
+        on num_ward_id    = num_zone_wardid
+       and num_ward_ulbid = num_rec_ulbid
+     where var_rec_instruno = :chequeNo
+  `;
+
+  const binds = {
+    chequeNo: String(chequeNo),
+  };
+
+  if (bankId) {
+    sql += ` and num_rec_bankid = :bankId`;
+    binds.bankId = Number(bankId);
+  }
+
+  if (zoneId) {
+    sql += ` and num_zone_id = :zoneId`;
+    binds.zoneId = Number(zoneId);
+  }
+
+  if (chequeAmount) {
+    sql += ` and num_rec_amount = :amount`;
+    binds.amount = Number(chequeAmount);
+  }
+
+  if (receiptDate) {
+    sql += ` and trunc(dat_rec_receiptdt) = to_date(:recDate, 'YYYY-MM-DD')`;
+    binds.recDate = String(receiptDate);
+  }
+
+  if (mobileNo) {
+    sql += ` and num_rec_mobile = :mobileNo`;
+    binds.mobileNo = String(mobileNo);
+  }
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 async function aowt_chequebounce_ins(payload) {
   const statement = `
     BEGIN
@@ -380,6 +455,69 @@ async function aowt_chequebounce_ins(payload) {
 
   const result = await executeProcedure({ statement, binds, useTx: false });
   return result.outBinds;
+}
+
+async function getReceiptDeleteAuthList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select num_rec_ulbid uldbid,
+           var_corporation_name corpname,
+           num_rec_id recid,
+           num_ward_id wardid,
+           var_ward_name wardname,
+           num_zone_id zoneid,
+           var_zone_name zonename,
+           num_block_id blockid,
+           var_block_name blockname,
+           num_rec_connid connid,
+           var_conn_connno connno,
+           var_rec_recno recno,
+           dat_rec_receiptdt recdate,
+           num_rec_amount recamount,
+           var_rec_ownername ownername,
+           '-' ocpname,
+           num_rec_mobile mobileno,
+           num_rec_collcenterid collcenid,
+           var_rec_insby insby,
+           '-' subject,
+           '-' narration,
+           var_conn_address address,
+           '-' remarks
+      from aowt_rec_mas_hst
+      inner join aowt_conn_mas
+        on num_conn_ulbid = num_rec_ulbid
+       and num_conn_connid = num_rec_connid
+      inner join prop.vw_recmodeconfig
+        on ulbid = num_conn_ulbid
+       and recmodeid = num_rec_amttype
+      inner join admins.aoma_corporation_mas
+        on num_corporation_id = num_rec_ulbid
+      inner join admins.aoma_user_def
+        on num_user_ulbid = num_rec_ulbid
+       and num_user_userid = var_rec_insby
+      inner join aowt_block_mas
+        on num_block_zoneid = num_conn_zoneid
+       and num_block_id = num_conn_blockid
+      inner join aowt_zone_mas
+        on num_zone_id = num_block_zoneid
+      inner join aowt_ward_mas
+        on num_ward_id = num_zone_wardid
+       and num_ward_ulbid = num_rec_ulbid
+     where num_corporation_id = :ulbId
+       and var_rec_authflag = 'P'
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
 }
 
 // Receipt Delete List
@@ -438,38 +576,7 @@ async function getReceiptDeleteZoneDropdownRepo(payload) {
 
   const result = await executeQuery(sql, binds);
   return result.rows || [];
-
 }
-
-// async function getReceiptSearchDetails(payload) {
-//   const { 
-//     ulbId,
-//     connectionNumber = "",
-//     receiptNumber = "",
-//     wardId = "",
-//     zoneId = "",
-//     fromDate = "",
-//     toDate = "",
-//     userTypeId = "", 
-//   } = payload;
-
-//   let sql = `
-//     select * from view_receiptdet  
-//     where 1=1 and uldbid = :ulbId
-//   `;
-
-//   if (wardId) {
-//     sql += ` and  wardid =:wardId`;
-//   }
-//   if (zoneId) {
-//     sql += ` and  zoneid =:zoneId`;
-//   }
-//   if (fromDate && toDate) {
-
-//   }
-// }
-
-
 
 module.exports = {
   getWardDropdown,
@@ -486,7 +593,9 @@ module.exports = {
   getBankDropdown,
   getReasonDropdown,
   aowt_chequebounce_ins,
+  getChequeBounceDetails,
+  getReceiptDeleteAuthList,
   getYearDropdownRepo,
   getReceiptDeleteWardDropdownRepo,
-  getReceiptDeleteZoneDropdownRepo
+  getReceiptDeleteZoneDropdownRepo,
 };

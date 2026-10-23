@@ -12,6 +12,8 @@ const {
   getBankDropdownController,
   getReasonDropdownController,
   chequeBounceInsController,
+  chequeBounceSearchController,
+  getReceiptDeleteAuthListController,
   getYearDropdownController,
   getReceiptDeleteWardDropdownController,
   getReceiptDeleteZoneDropdownController,
@@ -47,16 +49,18 @@ router.post(
 //Cheque bounce
 router.get("/getBankDropdown", getBankDropdownController);
 router.get("/getReasonDropdown", getReasonDropdownController);
+router.post("/searchChequeBounce", chequeBounceSearchController);
 router.post(
   "/aowt_chequebounce_ins",
   validate(chequeBounceInsSchema),
   chequeBounceInsController,
 );
 
-// Receipt Delete List 
+// Receipt Delete List
 router.get("/getYearDropdown", getYearDropdownController);
 router.get("/getWardMenu", getReceiptDeleteWardDropdownController);
 router.get("/getZoneMenu", getReceiptDeleteZoneDropdownController);
 
-
+//Receipt delete authorization list
+router.get("/getReceiptDeleteAuthList", getReceiptDeleteAuthListController);
 module.exports = router;

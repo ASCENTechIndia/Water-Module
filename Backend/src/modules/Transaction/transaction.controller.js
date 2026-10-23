@@ -12,6 +12,8 @@ const {
   getBankDropdownService,
   getReasonDropdownService,
   chequeBounceInsService,
+  chequeBounceSearchService,
+  getReceiptDeleteAuthListService,
   getYearDropdownService,
   getReceiptDeleteWardDropdownService,
   getReceiptDeleteZoneDropdownService,
@@ -285,6 +287,27 @@ async function getReasonDropdownController(req, res, next) {
   }
 }
 
+async function chequeBounceSearchController(req, res, next) {
+  try {
+    const payload = req.body;
+    const rows = await chequeBounceSearchService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, chequeNo: payload.chequeNo },
+      rows?.length > 0
+        ? `Cheque bounce records retrieved`
+        : `No cheque bounce records found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Cheque bounce search error");
+    return next(err);
+  }
+}
+
 async function chequeBounceInsController(req, res, next) {
   try {
     const payload = req.body;
@@ -335,6 +358,27 @@ async function chequeBounceInsController(req, res, next) {
     return res.ok(out);
   } catch (err) {
     logApiError(req, 500, err.message, "Cheque bounce insert error");
+    return next(err);
+  }
+}
+
+async function getReceiptDeleteAuthListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteAuthListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, ulbId: payload.ulbId },
+      rows?.length > 0
+        ? `Receipt delete auth list retrieved`
+        : `No pending delete auth receipts found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Receipt delete auth list error");
     return next(err);
   }
 }
@@ -409,7 +453,9 @@ module.exports = {
   getBankDropdownController,
   getReasonDropdownController,
   chequeBounceInsController,
+  chequeBounceSearchController,
+  getReceiptDeleteAuthListController,
   getYearDropdownController,
   getReceiptDeleteWardDropdownController,
-  getReceiptDeleteZoneDropdownController
+  getReceiptDeleteZoneDropdownController,
 };

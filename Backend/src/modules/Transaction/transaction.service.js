@@ -13,6 +13,8 @@ const {
   getBankDropdown,
   getReasonDropdown,
   aowt_chequebounce_ins,
+  getChequeBounceDetails,
+  getReceiptDeleteAuthList,
   getYearDropdownRepo,
   getReceiptDeleteWardDropdownRepo,
   getReceiptDeleteZoneDropdownRepo,
@@ -100,11 +102,17 @@ async function getReasonDropdownService() {
   return getReasonDropdown();
 }
 
+async function chequeBounceSearchService(payload) {
+  return getChequeBounceDetails(payload);
+}
+
 async function chequeBounceInsService(payload) {
   return aowt_chequebounce_ins(payload);
 }
 
-// Receipt Delete List
+async function getReceiptDeleteAuthListService(payload) {
+  return getReceiptDeleteAuthList(payload);
+}
 
 async function getYearDropdownService() {
   return getYearDropdownRepo();
@@ -130,7 +138,9 @@ module.exports = {
   getBankDropdownService,
   getReasonDropdownService,
   chequeBounceInsService,
+  chequeBounceSearchService,
+  getReceiptDeleteAuthListService,
   getYearDropdownService,
   getReceiptDeleteWardDropdownService,
-  getReceiptDeleteZoneDropdownService
+  getReceiptDeleteZoneDropdownService,
 };
