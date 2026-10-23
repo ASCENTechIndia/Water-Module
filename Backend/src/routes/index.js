@@ -4,6 +4,7 @@ const adminRoutes = require("../modules/Admin/Admin.routes");
 const masterRoutes = require("../modules/masters/master.routes");
 const configRoutes = require("../modules/Configuration/config.routes");
 const waterRoutes = require("../modules/Water/water.routes");
+const transactionRoutes = require("../modules/Transaction/transaction.route")
 const router = express.Router();
 
 router.get("/health", (req, res) => {
@@ -21,5 +22,6 @@ router.use("/config", configRoutes);
 router.use("/water", waterRoutes);
 
 
+router.use("/transaction", transactionRoutes)
 
 module.exports = router;

@@ -316,6 +316,11 @@ const STATIC_MENU = [
     MENUTITLE: "Transaction",
     children: [
       {
+        MENUID: 503,
+        MENUTITLE: "Meter Reading Entry",
+        PAGEPATH: "/Transaction/FrmMeterReadingEntry"
+      },
+      {
         MENUID: 501,
         MENUTITLE: "Bill Generation",
         PAGEPATH: "/Transaction/FrmBillGeneration"
@@ -324,11 +329,6 @@ const STATIC_MENU = [
         MENUID: 502,
         MENUTITLE: "Receipt Delete Auth List",
         PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
-      },
-      {
-        MENUID: 503,
-        MENUTITLE: "Meter Reading Entry",
-        PAGEPATH: "/Transaction/FrmMeterReadingEntry"
       },
       {
         MENUID: 504,

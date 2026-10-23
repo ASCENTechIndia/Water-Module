@@ -61,6 +61,26 @@ const {
   serviceMasInsService,
   getChargeListService,
   chargeTypeInsService,
+  getAccTaxConfigListService,
+  getTaxNameDropdownService,
+  getUsageTypeNameDropdownService,
+  accTaxInsService,
+  getAccTaxConfigDetailsService,
+  getMicrCodeListService,
+  micrCodeInsService,
+  getBillScheduleListService,
+  getBillFreqDropdownService,
+  getFromMonthDropdownService,
+  billScheduleInsService,
+  getBillScheduleDetailsService,
+  getConnAutoGerateListService,
+  getConnAutoGerateDetailsService,
+  connNoConfigInsService,
+  getProvChequeListService,
+  getProvChequeDetailsService,
+  provChequeConfigInsService,
+  getAllUserListService,
+  userAllConfigInsService,
 } = require("./master.service");
 const { logApiSuccess, logApiError } = require("../../utils/log");
 const { auditLog } = require("../../utils/audit-log");
@@ -1788,6 +1808,550 @@ async function chargeTypeInsController(req, res, next) {
   }
 }
 
+async function getAccTaxConfigListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getAccTaxConfigListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Account tax config list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Account tax config list error");
+    return next(err);
+  }
+}
+
+async function getTaxNameDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getTaxNameDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Tax name dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Tax name dropdown error");
+    return next(err);
+  }
+}
+
+async function getUsageTypeNameDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUsageTypeNameDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage type name dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage type name dropdown error");
+    return next(err);
+  }
+}
+
+async function accTaxInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await accTaxInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { accTaxId: payload.in_AccTaxid },
+        out.Out_ErrorMsg || "Account tax saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Account tax insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "ACCTAX_UPDATE" : "ACCTAX_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "acctax",
+      entityId: payload.in_AccTaxid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Account tax insert error");
+    return next(err);
+  }
+}
+
+async function getAccTaxConfigDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getAccTaxConfigDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Account tax config details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Account tax config details error");
+    return next(err);
+  }
+}
+
+async function getMicrCodeListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getMicrCodeListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `MICR code list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "MICR code list error");
+    return next(err);
+  }
+}
+
+async function micrCodeInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await micrCodeInsService(payload);
+
+    const isSuccess = Number(out.out_ErrCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { micrId: payload.in_MICRCodeid },
+        out.out_ErrMsg || "MICR code saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_ErrMsg, "MICR code insert failed");
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "MICRCODE_UPDATE" : "MICRCODE_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "micrcode",
+      entityId: payload.in_MICRCodeid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrCode: out.out_ErrCode,
+        outErrMsg: out.out_ErrMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "MICR code insert error");
+    return next(err);
+  }
+}
+
+async function getBillScheduleListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getBillScheduleListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Bill schedule list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill schedule list error");
+    return next(err);
+  }
+}
+
+async function getBillFreqDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getBillFreqDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Bill frequency dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill frequency dropdown error");
+    return next(err);
+  }
+}
+
+async function getFromMonthDropdownController(req, res, next) {
+  try {
+    const rows = await getFromMonthDropdownService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `From month dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "From month dropdown error");
+    return next(err);
+  }
+}
+
+async function getBillScheduleDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getBillScheduleDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Bill schedule details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill schedule details error");
+    return next(err);
+  }
+}
+
+async function billScheduleInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await billScheduleInsService(payload);
+
+    const isSuccess = Number(out.out_Errcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { billSchedId: payload.in_BilSchedid },
+        out.out_ErrMsg || "Bill schedule saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_ErrMsg, "Bill schedule insert failed");
+    }
+
+    auditLog({
+      action: payload.in_mode === 2 ? "BILLSCHED_UPDATE" : "BILLSCHED_CREATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "billschedule",
+      entityId: payload.in_BilSchedid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrCode: out.out_Errcode,
+        outErrMsg: out.out_ErrMsg,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill schedule insert error");
+    return next(err);
+  }
+}
+
+async function getConnAutoGerateListController(req, res, next) {
+  try {
+    const rows = await getConnAutoGerateListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection auto-generate list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection auto-generate list error");
+    return next(err);
+  }
+}
+
+async function getConnAutoGerateDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getConnAutoGerateDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection auto-generate details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Connection auto-generate details error",
+    );
+    return next(err);
+  }
+}
+
+async function connNoConfigInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await connNoConfigInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { connoId: payload.in_Connoid },
+        out.Out_ErrorMsg || "Connection no config saved successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Connection no config insert failed",
+      );
+    }
+
+    auditLog({
+      action:
+        payload.in_Mode === 2 ? "CONNNOCONFIG_UPDATE" : "CONNNOCONFIG_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "connnoconfig",
+      entityId: payload.in_Connoid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection no config insert error");
+    return next(err);
+  }
+}
+
+async function getProvChequeListController(req, res, next) {
+  try {
+    const rows = await getProvChequeListService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Provisional cheque list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Provisional cheque list error");
+    return next(err);
+  }
+}
+
+async function getProvChequeDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getProvChequeDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Provisional cheque details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Provisional cheque details error");
+    return next(err);
+  }
+}
+
+async function provChequeConfigInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await provChequeConfigInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { provChequeId: payload.in_provchqid },
+        out.Out_ErrorMsg || "Provisional cheque config saved successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Provisional cheque config insert failed",
+      );
+    }
+
+    auditLog({
+      action: payload.in_Mode === 2 ? "PROVCHEQUE_UPDATE" : "PROVCHEQUE_CREATE",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "provcheque",
+      entityId: payload.in_provchqid || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Provisional cheque config insert error",
+    );
+    return next(err);
+  }
+}
+
+async function getAllUserListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getAllUserListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `User all list retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "User all list error");
+    return next(err);
+  }
+}
+
+async function userAllConfigInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await userAllConfigInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { id: payload.in_id, userId: payload.in_UserId },
+        out.Out_ErrorMsg || "User all config saved successfully",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "User all config insert failed");
+    }
+
+    auditLog({
+      action:
+        payload.in_Mode === 2 ? "USERALLCONFIG_UPDATE" : "USERALLCONFIG_CREATE",
+      actor: req.user?.userId || "system",
+      module: "userallconfig",
+      entityId: payload.in_id || payload.in_UserId || null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        mode: payload.in_Mode,
+        targetUserId: payload.in_UserId,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "User all config insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getMenuListController,
   getUlbDropdownController,
@@ -1851,4 +2415,24 @@ module.exports = {
   serviceMasInsController,
   getChargeListController,
   chargeTypeInsController,
+  getAccTaxConfigListController,
+  getTaxNameDropdownController,
+  getUsageTypeNameDropdownController,
+  accTaxInsController,
+  getAccTaxConfigDetailsController,
+  getMicrCodeListController,
+  micrCodeInsController,
+  getBillScheduleListController,
+  getBillFreqDropdownController,
+  getFromMonthDropdownController,
+  billScheduleInsController,
+  getBillScheduleDetailsController,
+  getConnAutoGerateListController,
+  getConnAutoGerateDetailsController,
+  connNoConfigInsController,
+  getProvChequeListController,
+  getProvChequeDetailsController,
+  provChequeConfigInsController,
+  getAllUserListController,
+  userAllConfigInsController,
 };

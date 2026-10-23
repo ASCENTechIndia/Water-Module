@@ -61,6 +61,26 @@ const {
   aowt_servicemas_ins,
   getChargeList,
   aowt_chargestype_ins,
+  getAccTaxConfigList,
+  getTaxNameDropdown,
+  getUsageTypeNameDropdown,
+  aowt_acctax_ins,
+  getAccTaxConfigDetails,
+  getMicrCodeList,
+  aowt_micrcode_ins,
+  getBillScheduleList,
+  getBillFreqDropdown,
+  getFromMonthDropdown,
+  aowt_billschedule_ins,
+  getBillScheduleDetails,
+  getConnAutoGerateList,
+  getConnAutoGerateDetails,
+  aowt_connectionnoconfig_ins,
+  getProvChequeList,
+  getProvChequeDetails,
+  aowt_provchequeconfig_ins,
+  getAllUserList,
+  aowt_userallconfig_ins,
 } = require("./master.repo");
 
 async function getMenuListService(payload) {
@@ -311,6 +331,86 @@ async function chargeTypeInsService(payload) {
   return aowt_chargestype_ins(payload);
 }
 
+async function getAccTaxConfigListService(payload) {
+  return getAccTaxConfigList(payload);
+}
+
+async function getTaxNameDropdownService(payload) {
+  return getTaxNameDropdown(payload);
+}
+
+async function getUsageTypeNameDropdownService(payload) {
+  return getUsageTypeNameDropdown(payload);
+}
+
+async function accTaxInsService(payload) {
+  return aowt_acctax_ins(payload);
+}
+
+async function getAccTaxConfigDetailsService(payload) {
+  return getAccTaxConfigDetails(payload);
+}
+
+async function getMicrCodeListService(payload) {
+  return getMicrCodeList(payload);
+}
+
+async function micrCodeInsService(payload) {
+  return aowt_micrcode_ins(payload);
+}
+
+async function getBillScheduleListService(payload) {
+  return getBillScheduleList(payload);
+}
+
+async function getBillFreqDropdownService(payload) {
+  return getBillFreqDropdown(payload);
+}
+
+async function getFromMonthDropdownService() {
+  return getFromMonthDropdown();
+}
+
+async function getBillScheduleDetailsService(payload) {
+  return getBillScheduleDetails(payload);
+}
+
+async function billScheduleInsService(payload) {
+  return aowt_billschedule_ins(payload);
+}
+
+async function getConnAutoGerateListService() {
+  return getConnAutoGerateList();
+}
+
+async function getConnAutoGerateDetailsService(payload) {
+  return getConnAutoGerateDetails(payload);
+}
+
+async function connNoConfigInsService(payload) {
+  return aowt_connectionnoconfig_ins(payload);
+}
+
+async function getProvChequeListService() {
+  return getProvChequeList();
+}
+
+async function getProvChequeDetailsService(payload) {
+  return getProvChequeDetails(payload);
+}
+
+async function provChequeConfigInsService(payload) {
+  return aowt_provchequeconfig_ins(payload);
+}
+
+async function getAllUserListService(payload) {
+  return getAllUserList(payload);
+}
+
+async function userAllConfigInsService(payload) {
+  return aowt_userallconfig_ins(payload);
+}
+
 module.exports = {
   getMenuListService,
   getUlbDropdownService,
@@ -374,4 +474,24 @@ module.exports = {
   serviceMasInsService,
   getChargeListService,
   chargeTypeInsService,
+  getAccTaxConfigListService,
+  getTaxNameDropdownService,
+  getUsageTypeNameDropdownService,
+  accTaxInsService,
+  getAccTaxConfigDetailsService,
+  getMicrCodeListService,
+  micrCodeInsService,
+  getBillScheduleListService,
+  getBillFreqDropdownService,
+  getFromMonthDropdownService,
+  billScheduleInsService,
+  getBillScheduleDetailsService,
+  getConnAutoGerateListService,
+  getConnAutoGerateDetailsService,
+  connNoConfigInsService,
+  getProvChequeListService,
+  getProvChequeDetailsService,
+  provChequeConfigInsService,
+  getAllUserListService,
+  userAllConfigInsService,
 };

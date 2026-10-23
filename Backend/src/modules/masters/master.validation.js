@@ -1465,6 +1465,404 @@ const chargeTypeInsSchema = z.object({
     .int("Mode must be an integer"),
 });
 
+const accTaxInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_AccTaxid: z
+    .number({
+      invalid_type_error: "Acc Tax Id must be a number",
+    })
+    .int("Acc Tax Id must be an integer")
+    .nullable(),
+
+  in_AccTaxtaxid: z
+    .string({
+      required_error: "Tax Id is required",
+      invalid_type_error: "Tax Id must be a string",
+    })
+    .trim()
+    .min(1, "Tax Id is required"),
+
+  in_AccTaxusagetype: z
+    .string({
+      required_error: "Usage Type is required",
+      invalid_type_error: "Usage Type must be a string",
+    })
+    .trim()
+    .min(1, "Usage Type is required"),
+
+  in_AccTaxminorcode: z
+    .string({
+      required_error: "Arreas Minor Code is required",
+      invalid_type_error: "Arreas Minor Code must be a string",
+    })
+    .trim()
+    .min(1, "Arreas Minor Code is required"),
+
+  in_AccTaxmajorcode: z
+    .string({
+      required_error: "Arreas Major Code is required",
+      invalid_type_error: "Arreas Major Code must be a string",
+    })
+    .trim()
+    .min(1, "Arreas Major Code is required"),
+
+  in_AccTaxcminorcode: z
+    .string({
+      required_error: "Current Minor Code is required",
+      invalid_type_error: "Current Minor Code must be a string",
+    })
+    .trim()
+    .min(1, "Current Minor Code is required"),
+
+  in_AccTaxcmajorcode: z
+    .string({
+      required_error: "Current Major Code is required",
+      invalid_type_error: "Current Major Code must be a string",
+    })
+    .trim()
+    .min(1, "Current Major Code is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_UlbId: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const micrCodeInsSchema = z.object({
+  in_userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_MICRCodeid: z
+    .number({
+      invalid_type_error: "MICR Code Id must be a number",
+    })
+    .int("MICR Code Id must be an integer")
+    .nullable(),
+
+  in_MICRCode: z
+    .number({
+      required_error: "MICR Code is required",
+      invalid_type_error: "MICR Code must be a number",
+    })
+    .int("MICR Code must be an integer"),
+
+  in_BankName: z
+    .string({
+      required_error: "Bank name is required",
+      invalid_type_error: "Bank name must be a string",
+    })
+    .trim()
+    .min(1, "Bank name is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+});
+
+const billScheduleInsSchema = z.object({
+  in_userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_BilSchedid: z
+    .number({
+      invalid_type_error: "Bill Schedule Id must be a number",
+    })
+    .int("Bill Schedule Id must be an integer")
+    .nullable(),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_freqid: z
+    .number({
+      required_error: "Billing Frequency Id is required",
+      invalid_type_error: "Billing Frequency Id must be a number",
+    })
+    .int("Billing Frequency Id must be an integer"),
+
+  in_Fromid: z
+    .number({
+      required_error: "From Month Id is required",
+      invalid_type_error: "From Month Id must be a number",
+    })
+    .int("From Month Id must be an integer"),
+
+  in_FromMname: z
+    .string({
+      required_error: "From Month name is required",
+      invalid_type_error: "From Month name must be a string",
+    })
+    .trim()
+    .min(1, "From Month name is required"),
+
+  in_Toid: z
+    .number({
+      required_error: "To Month Id is required",
+      invalid_type_error: "To Month Id must be a number",
+    })
+    .int("To Month Id must be an integer"),
+
+  in_ToMname: z
+    .string({
+      required_error: "To Month name is required",
+      invalid_type_error: "To Month name must be a string",
+    })
+    .trim()
+    .min(1, "To Month name is required"),
+
+  in_mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_ipSource: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Status: z
+    .string({
+      required_error: "Status is required",
+      invalid_type_error: "Status must be a string",
+    })
+    .trim()
+    .min(1, "Status is required"),
+});
+
+const connNoConfigInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_Connoid: z
+    .number({
+      invalid_type_error: "Connection No Config Id must be a number",
+    })
+    .int("Connection No Config Id must be an integer")
+    .nullable(),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_activeflag: z
+    .string({
+      required_error: "Active flag is required",
+      invalid_type_error: "Active flag must be a string",
+    })
+    .trim()
+    .min(1, "Active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+});
+
+const provChequeConfigInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_provchqid: z
+    .number({
+      invalid_type_error: "Provisional Cheque Id must be a number",
+    })
+    .int("Provisional Cheque Id must be an integer")
+    .nullable(),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_activeflag: z
+    .string({
+      required_error: "Active flag is required",
+      invalid_type_error: "Active flag must be a string",
+    })
+    .trim()
+    .min(1, "Active flag is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+});
+
+const userAllConfigInsSchema = z.object({
+  in_id: z
+    .number({
+      invalid_type_error: "User All Config Id must be a number",
+    })
+    .int("User All Config Id must be an integer")
+    .nullable(),
+
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_activeflag: z
+    .string({
+      required_error: "Active flag is required",
+      invalid_type_error: "Active flag must be a string",
+    })
+    .trim()
+    .min(1, "Active flag is required"),
+
+  in_Orgid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+  in_Mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+});
+
 module.exports = {
   wardInsSchema,
   zoneInsSchema,
@@ -1489,4 +1887,10 @@ module.exports = {
   collCentreInsSchema,
   serviceMasInsSchema,
   chargeTypeInsSchema,
+  accTaxInsSchema,
+  micrCodeInsSchema,
+  billScheduleInsSchema,
+  connNoConfigInsSchema,
+  provChequeConfigInsSchema,
+  userAllConfigInsSchema,
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Button from "../../../Components/Button";
 import Table from "../../../Components/Table";
@@ -9,89 +9,47 @@ import { useLoader } from "../../../Context/LoaderContext";
 
 const FrmConnectionNoList = () => {
   const { user } = useAuth();
-  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
-  const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
   const tableHeader = ["Select", "ULB Name", "Connection No Status"];
 
-  const fetchConnectionNoList = async () => {
+  const fetchConnAutoGenerateList = async () => {
     try {
       setLoading(true);
+      const res = await apiService.get("/master/getConnAutoGenerateList");
 
-      // 🔸 DUMMY — replace with apiService.get("getConnectionNoList")
-      const dummyData = [
-        {
-          CONNECTIONNOID: 1,
-          ULBNAME: "Pune Municipal Corporation",
-          CONNFLAG: "Y",
-        },
-        {
-          CONNECTIONNOID: 2,
-          ULBNAME: "Mumbai Municipal Corporation",
-          CONNFLAG: "N",
-        },
-        {
-          CONNECTIONNOID: 3,
-          ULBNAME: "Nashik Municipal Corporation",
-          CONNFLAG: "Y",
-        },
-      ];
-
-      if (dummyData.length > 0) {
-        const data = dummyData.map((item) => [
+      if (res?.success && res?.data?.length > 0) {
+        const data = res.data.map((item) => [
           <Link
-            key={item.CONNECTIONNOID}
-            state={{ connectionNoId: item.CONNECTIONNOID }}
+            key={item.NUM_CONNOGEN_ID}
+            state={{ connogenId: item.NUM_CONNOGEN_ID }}
             to={`/Masters/FrmConnectionNoMst`}
             className="text-blue-600 underline hover:text-blue-800 font-medium"
           >
             Select
           </Link>,
           item.ULBNAME || "",
-          item.CONNFLAG === "Y" ? "Yes" : "No",
+          item.FLAG || "",
         ]);
         setTableData(data);
       } else {
-        alert("No record found");
         setTableData([]);
+        alert(res?.message || "Data Not Found");
       }
-
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.get("getConnectionNoList");
-      // if (res?.data?.success && res?.data?.data?.length > 0) {
-      //   const data = res.data.data.map((item) => [
-      //     <Link
-      //       key={item.CONNECTIONNOID}
-      //       state={{ connectionNoId: item.CONNECTIONNOID }}
-      //       to={`/Masters/FrmConnectionNoMst`}
-      //       className="text-blue-600 underline hover:text-blue-800 font-medium"
-      //     >
-      //       Select
-      //     </Link>,
-      //     item.ULBNAME || "",
-      //     item.CONNFLAG === "Y" ? "Yes" : "No",
-      //   ]);
-      //   setTableData(data);
-      // } else {
-      //   alert("No record found");
-      //   setTableData([]);
-      // }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error fetching conn auto generate list:", err);
       setTableData([]);
-      console.error("Error fetching connection no list:", error);
-      alert("Failed to fetch connection no list.");
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchConnectionNoList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchConnAutoGenerateList();
   }, []);
 
   return (
@@ -104,7 +62,7 @@ const FrmConnectionNoList = () => {
       }}
     >
       <div className="w-full space-y-6">
-        {/* ---------- Add New ---------- */}
+        {/* Add New */}
         <div className="flex justify-end">
           <Link to={"/Masters/FrmConnectionNoMst"}>
             <Button
@@ -117,9 +75,11 @@ const FrmConnectionNoList = () => {
           </Link>
         </div>
 
-        {/* ---------- Table ---------- */}
+        {/* Table */}
         <div className="mt-3">
-          <Table headers={tableHeader} data={tableData} />
+          {tableData?.length > 0 && (
+            <Table headers={tableHeader} data={tableData} />
+          )}
         </div>
       </div>
     </Layout>

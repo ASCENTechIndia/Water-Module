@@ -18,25 +18,25 @@ const FrmAccTaxConfigMst = () => {
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
 
-  const accTaxConfigId = state?.accTaxConfigId;
-  const isEdit = !!accTaxConfigId;
+  const taxId = state?.taxId;
+  const isEdit = !!taxId;
 
   const [ulbOptions, setUlbOptions] = useState([]);
   const [taxOptions, setTaxOptions] = useState([]);
   const [usageTypeOptions, setUsageTypeOptions] = useState([]);
+  const [accTaxDetail, setAccTaxDetail] = useState(null);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       ulbId: "",
-      taxId: "",
-      usageTypeId: "",
+      taxName: "",
+      usageType: "",
       arreasMinorCode: "",
       arreasMajorCode: "",
       cMinorCode: "",
@@ -46,187 +46,147 @@ const FrmAccTaxConfigMst = () => {
 
   const watchUlbId = watch("ulbId");
 
-  // ---------- Load ULB dropdown (DUMMY) ----------
+  // ULB dropdown
   useEffect(() => {
-    // 🔸 DUMMY — replace with apiService.get("getUlbDropdown") later
-    const dummyUlbs = [
-      { value: "1", label: "Pune Municipal Corporation" },
-      { value: "2", label: "Mumbai Municipal Corporation" },
-      { value: "3", label: "Nashik Municipal Corporation" },
-      { value: "4", label: "Nagpur Municipal Corporation" },
-    ];
-    setUlbOptions(dummyUlbs);
+    const fetchUlbDropdown = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get("/master/getUlbDropdownController");
+        if (res?.success && Array.isArray(res.data)) {
+          setUlbOptions(
+            res.data.map((item) => ({
+              value: String(item.CORPORATIONID),
+              label: item.CORPORATIONNAME,
+            })),
+          );
+        } else {
+          setUlbOptions([]);
+        }
+      } catch (err) {
+        console.error("ULB dropdown error:", err);
+        alert(err.message);
+        setUlbOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUlbDropdown();
+  }, []);
 
-    // Auto-select first ULB by default
-    if (dummyUlbs.length > 0) {
-      setValue("ulbId", dummyUlbs[0].value);
-    }
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchUlb = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.get("getUlbDropdown");
-    //     if (res?.data?.success && Array.isArray(res.data.data)) {
-    //       const opts = res.data.data.map((item) => ({
-    //         value: String(item.CORPORATIONID),
-    //         label: item.CORPORATIONNAME,
-    //       }));
-    //       setUlbOptions(opts);
-    //     } else {
-    //       setUlbOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("ULB dropdown error:", err);
-    //     setUlbOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchUlb();
-  }, [setValue]);
-
-  // ---------- Load Tax + Usage Type dropdowns when ULB changes (DUMMY) ----------
+  // Load Tax and Usage Type dropdowns when ULB changes
   useEffect(() => {
     setTaxOptions([]);
     setUsageTypeOptions([]);
-    setValue("taxId", "");
-    setValue("usageTypeId", "");
 
     if (!watchUlbId) return;
 
-    // 🔸 DUMMY — keyed by ULB
-    const dummyTaxes = {
-      1: [
-        { value: "1", label: "Water Tax" },
-        { value: "2", label: "Sewerage Tax" },
-      ],
-      2: [
-        { value: "3", label: "Property Tax" },
-      ],
-      3: [
-        { value: "4", label: "Water Tax" },
-      ],
-      4: [
-        { value: "5", label: "Water Tax" },
-      ],
+    const fetchDependents = async () => {
+      try {
+        setLoading(true);
+        const results = await Promise.allSettled([
+          apiService.get(`/master/getTaxNameDropdown?ulbId=${watchUlbId}`),
+          apiService.get(
+            `/master/getUsageTypeNameDropdown?ulbId=${watchUlbId}`,
+          ),
+        ]);
+
+        const [taxRes, usageRes] = results;
+
+        if (taxRes.status === "fulfilled" && taxRes.value?.success) {
+          setTaxOptions(
+            taxRes.value.data.map((item) => ({
+              value: String(item.NUM_TAX_ID),
+              label: item.VAR_TAX_MNAME,
+            })),
+          );
+        } else {
+          setTaxOptions([]);
+        }
+
+        if (usageRes.status === "fulfilled" && usageRes.value?.success) {
+          setUsageTypeOptions(
+            usageRes.value.data.map((item) => ({
+              value: String(item.VAR_USAGETYPE_CODE),
+              label: item.VAR_USAGETYPE_CODE,
+            })),
+          );
+        } else {
+          setUsageTypeOptions([]);
+        }
+      } catch (err) {
+        console.error("Dependent dropdown error:", err);
+        alert(err.message);
+        setTaxOptions([]);
+        setUsageTypeOptions([]);
+      } finally {
+        setLoading(false);
+      }
     };
-    setTaxOptions(dummyTaxes[watchUlbId] || []);
+    fetchDependents();
+  }, [watchUlbId]);
 
-    const dummyUsageTypes = {
-      1: [
-        { value: "1", label: "Residential" },
-        { value: "2", label: "Commercial" },
-      ],
-      2: [
-        { value: "3", label: "Industrial" },
-      ],
-      3: [
-        { value: "4", label: "Residential" },
-      ],
-      4: [
-        { value: "5", label: "Commercial" },
-      ],
-    };
-    setUsageTypeOptions(dummyUsageTypes[watchUlbId] || []);
-
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDependents = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const [taxRes, usageRes] = await Promise.all([
-    //       apiService.post("getTaxDropdown", { ulbId: Number(watchUlbId) }),
-    //       apiService.post("getUsageTypeDropdown", { ulbId: Number(watchUlbId) }),
-    //     ]);
-    //     if (taxRes?.data?.success && Array.isArray(taxRes.data.data)) {
-    //       setTaxOptions(
-    //         taxRes.data.data.map((i) => ({
-    //           value: String(i.TAXID),
-    //           label: i.TAXNAME,
-    //         })),
-    //       );
-    //     } else {
-    //       setTaxOptions([]);
-    //     }
-    //     if (usageRes?.data?.success && Array.isArray(usageRes.data.data)) {
-    //       setUsageTypeOptions(
-    //         usageRes.data.data.map((i) => ({
-    //           value: String(i.USAGETYPEID),
-    //           label: i.USAGETYPENAME,
-    //         })),
-    //       );
-    //     } else {
-    //       setUsageTypeOptions([]);
-    //     }
-    //   } catch (err) {
-    //     console.error("Dependent dropdown error:", err);
-    //     setTaxOptions([]);
-    //     setUsageTypeOptions([]);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDependents();
-  }, [watchUlbId, setValue]);
-
-  // ---------- Load detail in edit mode (DUMMY) ----------
+  // Acc Tax Config details for update mode
   useEffect(() => {
-    if (!accTaxConfigId) return;
+    if (!taxId) return;
 
-    // 🔸 DUMMY — replace with apiService.post("getAccTaxConfigDetail", { accTaxConfigId: Number(accTaxConfigId) })
-    const dummyDetail = {
-      NUM_ACCTAXCONFIG_ID: accTaxConfigId,
-      NUM_ULB_ID: "1",
-      NUM_TAX_ID: "1",
-      NUM_USAGETYPE_ID: "1",
-      VAR_ARREAS_MINORCODE: "AR-MIN-01",
-      VAR_ARREAS_MAJORCODE: "AR-MAJ-01",
-      VAR_C_MINORCODE: "C-MIN-01",
-      VAR_C_MAJORCODE: "C-MAJ-01",
+    const fetchAccTaxDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await apiService.get(
+          `/master/getAccTaxConfigDetails?taxId=${taxId}`,
+        );
+        if (res?.success && res?.data?.length > 0) {
+          setAccTaxDetail(res.data[0]);
+        } else {
+          alert("Data Not Found");
+        }
+      } catch (err) {
+        console.error("Acc tax config details error:", err);
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchAccTaxDetails();
+  }, [taxId]);
 
-    reset({
-      ulbId: String(dummyDetail.NUM_ULB_ID || ""),
-      taxId: String(dummyDetail.NUM_TAX_ID || ""),
-      usageTypeId: String(dummyDetail.NUM_USAGETYPE_ID || ""),
-      arreasMinorCode: dummyDetail.VAR_ARREAS_MINORCODE || "",
-      arreasMajorCode: dummyDetail.VAR_ARREAS_MAJORCODE || "",
-      cMinorCode: dummyDetail.VAR_C_MINORCODE || "",
-      cMajorCode: dummyDetail.VAR_C_MAJORCODE || "",
-    });
+  // Prefill simple fields
+  useEffect(() => {
+    if (!accTaxDetail) return;
+    setValue("arreasMinorCode", accTaxDetail.VAR_ACCTAX_MINORCODE || "");
+    setValue("arreasMajorCode", accTaxDetail.VAR_ACCTAX_MAJORCODE || "");
+    setValue("cMinorCode", accTaxDetail.VAR_ACCTAX_CMINORCODE || "");
+    setValue("cMajorCode", accTaxDetail.VAR_ACCTAX_CMAJORCODE || "");
+  }, [accTaxDetail, setValue]);
 
-    // 🔸 REAL API — uncomment when ready
-    // const fetchDetail = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const res = await apiService.post("getAccTaxConfigDetail", {
-    //       accTaxConfigId: Number(accTaxConfigId),
-    //     });
-    //     if (res?.data?.success && res?.data?.data?.length > 0) {
-    //       const d = res.data.data[0];
-    //       reset({
-    //         ulbId: String(d.NUM_ULB_ID || ""),
-    //         taxId: String(d.NUM_TAX_ID || ""),
-    //         usageTypeId: String(d.NUM_USAGETYPE_ID || ""),
-    //         arreasMinorCode: d.VAR_ARREAS_MINORCODE || "",
-    //         arreasMajorCode: d.VAR_ARREAS_MAJORCODE || "",
-    //         cMinorCode: d.VAR_C_MINORCODE || "",
-    //         cMajorCode: d.VAR_C_MAJORCODE || "",
-    //       });
-    //     } else {
-    //       alert(res?.data?.errorMessage || "Acc tax config detail not found");
-    //     }
-    //   } catch (err) {
-    //     console.error("Acc tax config detail error:", err);
-    //     alert("Failed to fetch acc tax config detail.");
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDetail();
-  }, [accTaxConfigId, reset]);
+  // Prefill ULB after ulb dropdown options load
+  useEffect(() => {
+    if (!accTaxDetail || ulbOptions.length === 0) return;
+    const id = String(accTaxDetail.NUM_ACCTAX_ULBID || "");
+    if (ulbOptions.some((o) => o.value === id)) {
+      setValue("ulbId", id);
+    }
+  }, [accTaxDetail, ulbOptions, setValue]);
 
-  // ---------- Submit ----------
+  // Prefill Tax Name after taxOptions load
+  useEffect(() => {
+    if (!accTaxDetail || taxOptions.length === 0) return;
+    const id = String(accTaxDetail.NUM_ACCTAX_TAXID || "");
+    if (taxOptions.some((o) => o.value === id)) {
+      setValue("taxName", id);
+    }
+  }, [accTaxDetail, taxOptions, setValue]);
+
+  // Prefill Usage Type after usageTypeOptions load
+  useEffect(() => {
+    if (!accTaxDetail || usageTypeOptions.length === 0) return;
+    const id = String(accTaxDetail.VAR_ACCTAX_USAGETYPE || "");
+    if (usageTypeOptions.some((o) => o.value === id)) {
+      setValue("usageType", id);
+    }
+  }, [accTaxDetail, usageTypeOptions, setValue]);
+
+  // Submit
   const onSubmit = async (data) => {
     if (!userId || !ulbid) {
       alert("User Id or Ulb Id is not set");
@@ -239,39 +199,34 @@ const FrmAccTaxConfigMst = () => {
 
       const payload = {
         in_UserId: userId,
+        in_AccTaxid: isEdit ? Number(taxId) : null,
+        in_AccTaxtaxid: data.taxName,
+        in_AccTaxusagetype: data.usageType,
+        in_AccTaxminorcode: data.arreasMinorCode.trim(),
+        in_AccTaxmajorcode: data.arreasMajorCode.trim(),
+        in_AccTaxcminorcode: data.cMinorCode.trim(),
+        in_AccTaxcmajorcode: data.cMajorCode.trim(),
         in_Mode: isEdit ? 2 : 1,
-        in_AccTaxConfigId: isEdit ? Number(accTaxConfigId) : null,
         in_UlbId: Number(data.ulbId),
-        in_TaxId: Number(data.taxId),
-        in_UsageTypeId: Number(data.usageTypeId),
-        in_ArreasMinorCode: data.arreasMinorCode.trim(),
-        in_ArreasMajorCode: data.arreasMajorCode.trim(),
-        in_CMinorCode: data.cMinorCode.trim(),
-        in_CMajorCode: data.cMajorCode.trim(),
         in_ipaddress: ip,
         in_source: config.source,
       };
 
-      // 🔸 DUMMY — replace with real endpoint when ready
-      console.log("Acc Tax Config payload →", payload);
-      alert("Saved successfully (dummy)");
-      navigate("/Masters/FrmAccTaxConfigList");
+      const res = await apiService.post("/master/aowt_acctax_ins", payload);
 
-      // 🔸 REAL API — uncomment when ready
-      // const res = await apiService.post("aoio_acctaxconfig_ins", payload);
-      // if (res?.data?.success && res?.data?.errorCode === 9999) {
-      //   alert(res.data.errorMessage);
-      //   navigate("/Masters/FrmAccTaxConfigList");
-      // } else {
-      //   alert(
-      //     res?.data?.errorMessage ||
-      //       res?.data?.message ||
-      //       "Failed to save account tax config",
-      //   );
-      // }
-    } catch (error) {
-      console.error("Error saving acc tax config:", error);
-      alert("API Error — check console for details.");
+      if (res?.success && res?.data?.Out_errorCode === 9999) {
+        alert(res.data.Out_ErrorMsg || "Record saved successfully");
+        navigate("/Masters/FrmAccTaxConfigList");
+      } else {
+        alert(
+          res?.data?.Out_ErrorMsg ||
+            res?.message ||
+            "Failed to Insert or update",
+        );
+      }
+    } catch (err) {
+      console.error("Error saving acc tax config:", err);
+      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -287,9 +242,8 @@ const FrmAccTaxConfigMst = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
-        {/* 2 columns per row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 1. Ulb Name */}
+          {/* Ulb Name */}
           <div>
             <Label text="Ulb Name : " required />
             <select
@@ -312,7 +266,7 @@ const FrmAccTaxConfigMst = () => {
             )}
           </div>
 
-          {/* 2. Tax Name */}
+          {/* Tax Name */}
           <div>
             <Label text="Tax Name : " required />
             <select
@@ -320,8 +274,8 @@ const FrmAccTaxConfigMst = () => {
               className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
                 focus:outline-none focus:ring-2 focus:ring-blue-500/40
                 ${!watchUlbId ? "bg-slate-100 cursor-not-allowed" : ""}
-                ${errors.taxId ? "border-red-500" : ""}`}
-              {...register("taxId", { required: "Tax name is required" })}
+                ${errors.taxName ? "border-red-500" : ""}`}
+              {...register("taxName", { required: "Tax name is required" })}
             >
               <option value="">
                 {watchUlbId ? "-- Select Tax --" : "-- Select Ulb first --"}
@@ -332,14 +286,14 @@ const FrmAccTaxConfigMst = () => {
                 </option>
               ))}
             </select>
-            {errors.taxId && (
+            {errors.taxName && (
               <p className="text-sm text-red-500 mt-1">
-                {errors.taxId.message}
+                {errors.taxName.message}
               </p>
             )}
           </div>
 
-          {/* 3. Usage Type Name */}
+          {/* Usage Type Name */}
           <div>
             <Label text="Usage Type Name : " required />
             <select
@@ -347,8 +301,8 @@ const FrmAccTaxConfigMst = () => {
               className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
                 focus:outline-none focus:ring-2 focus:ring-blue-500/40
                 ${!watchUlbId ? "bg-slate-100 cursor-not-allowed" : ""}
-                ${errors.usageTypeId ? "border-red-500" : ""}`}
-              {...register("usageTypeId", {
+                ${errors.usageType ? "border-red-500" : ""}`}
+              {...register("usageType", {
                 required: "Usage Type is required",
               })}
             >
@@ -363,14 +317,14 @@ const FrmAccTaxConfigMst = () => {
                 </option>
               ))}
             </select>
-            {errors.usageTypeId && (
+            {errors.usageType && (
               <p className="text-sm text-red-500 mt-1">
-                {errors.usageTypeId.message}
+                {errors.usageType.message}
               </p>
             )}
           </div>
 
-          {/* 4. Arreas MinorCode */}
+          {/* Arreas MinorCode */}
           <div>
             <Label text="Arreas MinorCode : " required />
             <input
@@ -392,7 +346,7 @@ const FrmAccTaxConfigMst = () => {
             )}
           </div>
 
-          {/* 5. Arreas MajorCode */}
+          {/* Arreas MajorCode */}
           <div>
             <Label text="Arreas MajorCode : " required />
             <input
@@ -414,7 +368,7 @@ const FrmAccTaxConfigMst = () => {
             )}
           </div>
 
-          {/* 6. Current MinorCode */}
+          {/* Current MinorCode */}
           <div>
             <Label text="Current MinorCode : " required />
             <input
@@ -436,7 +390,7 @@ const FrmAccTaxConfigMst = () => {
             )}
           </div>
 
-          {/* 7. Current MajorCode */}
+          {/* Current MajorCode */}
           <div>
             <Label text="Current MajorCode : " required />
             <input
@@ -459,7 +413,6 @@ const FrmAccTaxConfigMst = () => {
           </div>
         </div>
 
-        {/* Buttons — centered */}
         <div className="flex justify-center gap-3">
           <Button type="submit" disabled={isSubmitting}>
             {isEdit ? "Update" : "Submit"}
