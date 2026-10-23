@@ -20,6 +20,26 @@ const getDate = (dateString) => {
     return `${d.getFullYear()}-${month}-${day}`;
 };
 
+const formatDateForPayload = (dateString) => {
+    const [year, month, day] = dateString.split("-");
+    const monthMap = {
+        "1": "Jan",
+        "2": "Feb",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Jun",
+        "7": "Jul",
+        "8": "Aug",
+        "9": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+    };
+    let date = `${day}-${monthMap[month]}-${year}`;
+    return date;
+}
+
 const FrmConnectionMst = () => {
     const { user } = useAuth();
     const ulbId = user?.ulbId;
@@ -585,8 +605,8 @@ const FrmConnectionMst = () => {
                 in_oldconnno: values.registerNumber ? values.registerNumber : null,
                 in_ptnno: values.ptnNumber ? values.ptnNumber : null,
                 in_applino: values.applicationNumber,
-                in_applidt: values.applicationDate,
-                in_appliaprovdt: values.approveDate,
+                in_applidt: formatDateForPayload(values.applicationDate),
+                in_appliaprovdt: formatDateForPayload(values.approveDate),
                 in_ownername: values.applicationName,
                 in_uid: values.aadharNumber ? Number(values.aadharNumber) : null,
                 in_address: values.address,
@@ -607,10 +627,10 @@ const FrmConnectionMst = () => {
                 in_meterno: values.meterNumber ? values.meterNumber : null,
                 in_metermake: values.meterMake ? values.meterMake : null,
                 in_connownerid: values.meterOwnerShip ? Number(values.meterOwnerShip) : 0,
-                in_insatalldt: values.instDate ? values.instDate : null,
+                in_insatalldt: values.instDate ? formatDateForPayload(values.instDate) : null,
                 in_intilreading: values.initialReading ? Number(values.initialReading) : 0,
                 in_plumberid: ulbCode === "MBMC" ? 1 : values.plumber ? Number(values.plumber) : 0,
-                in_conndt: values.connectionDate ? values.connectionDate : null,
+                in_conndt: values.connectionDate ? formatDateForPayload(values.connectionDate) : null,
                 in_billmethoid: values.billingMethod ? Number(values.billingMethod) : 0,
                 in_billcycleid: values.billingType ? Number(values.billingType) : 0,
                 in_arrearsamt: 0,
@@ -621,13 +641,15 @@ const FrmConnectionMst = () => {
                 in_source: config.source
             };
 
-            console.log(payload);
-            return;
+
             const response = await apiService.post("/water/water-connnection-master", payload);
 
             if (response.success && response.data.Out_ErrorCode === 9999) {
                 alert(response.data.Out_ErrorMsg);
                 reset();
+                navigate("/Transaction/FrmConnSearch", {
+                    replace: true
+                })
             } else {
                 alert(response.data.Out_ErrorMsg);
             }
