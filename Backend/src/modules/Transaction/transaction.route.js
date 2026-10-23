@@ -12,6 +12,9 @@ const {
   getBankDropdownController,
   getReasonDropdownController,
   chequeBounceInsController,
+  getYearDropdownController,
+  getReceiptDeleteWardDropdownController,
+  getReceiptDeleteZoneDropdownController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -49,4 +52,11 @@ router.post(
   validate(chequeBounceInsSchema),
   chequeBounceInsController,
 );
+
+// Receipt Delete List 
+router.get("/getYearDropdown", getYearDropdownController);
+router.get("/getWardMenu", getReceiptDeleteWardDropdownController);
+router.get("/getZoneMenu", getReceiptDeleteZoneDropdownController);
+
+
 module.exports = router;
