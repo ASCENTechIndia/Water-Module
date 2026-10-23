@@ -15,10 +15,7 @@ async function getPremiseTypeDataRepo(payload) {
     const { ulbId } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required",
-        };
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -42,10 +39,7 @@ async function getPremiseTypeDataStatusRepo(payload) {
     const { ulbId } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required",
-        };
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -115,10 +109,7 @@ async function getUsageTypeTableDataRepo(payload) {
     const { ulbId } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -141,10 +132,7 @@ async function getUsageTypeTableDataStatusRepo(payload) {
     const { ulbId } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -235,16 +223,10 @@ async function getUsageSubTypeTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
     if (!usageTypeId) {
-        return {
-            success: false,
-            message: "Usage Type ID is required"
-        }
+        throw new Error("Usage Type ID is required");
     }
 
     let sql = `
@@ -277,16 +259,10 @@ async function getUsageSubTypeTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
     if (!usageTypeId) {
-        return {
-            success: false,
-            message: "Usage Type ID is required"
-        }
+        throw new Error("Usage Type ID is required");
     }
 
     let sql = `
@@ -362,10 +338,7 @@ async function getBillingMethodTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -395,10 +368,7 @@ async function getBillingMethodTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -469,10 +439,7 @@ async function getConsumerTypeTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -502,10 +469,7 @@ async function getConsumerTypeTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -576,10 +540,7 @@ async function getConnCodeTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -609,10 +570,7 @@ async function getConnCodeTableeDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -682,10 +640,7 @@ async function getMeterOwnerTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -715,10 +670,7 @@ async function getMeterOwnerTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -788,10 +740,7 @@ async function getBankTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -819,10 +768,7 @@ async function getBankTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -891,10 +837,7 @@ async function getBillingFrequencyTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -925,10 +868,7 @@ async function getBillingFrequencyTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -998,10 +938,7 @@ async function getConnectionSizeTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1031,10 +968,7 @@ async function getConnectionSizeTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1104,10 +1038,7 @@ async function getConnectionStatusTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1137,10 +1068,7 @@ async function getConnectionStatusTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1210,10 +1138,7 @@ async function getMeterGapCodeTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1242,10 +1167,7 @@ async function getMeterGapCodeTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1315,10 +1237,7 @@ async function getTaxConfigTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1349,10 +1268,7 @@ async function getTaxConfigTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1422,10 +1338,7 @@ async function getConnectionTypeTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1455,10 +1368,7 @@ async function getConnectionTypeTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1528,10 +1438,7 @@ async function getCollectionCenterTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1563,10 +1470,7 @@ async function getCollectionCenterTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1638,10 +1542,7 @@ async function getServiceConfigTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1672,10 +1573,7 @@ async function getServiceConfigTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1746,10 +1644,7 @@ async function getChargesTypeTableDataRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1779,10 +1674,7 @@ async function getChargesTypeTableDataStatusRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1853,10 +1745,7 @@ async function getUserDropdownRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1881,10 +1770,7 @@ async function getCollectionCenterDropdownRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1957,10 +1843,7 @@ async function getServiceRateConfigListByULBRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -1996,10 +1879,7 @@ async function getServiceNamesByULBRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -2025,10 +1905,7 @@ async function getUsageTypeByULBRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -2055,17 +1932,11 @@ async function getSubUsageTypeByUsageTypeRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     if (!usageTypeId) {
-        return {
-            success: false,
-            message: "Usage Type is required"
-        }
+        throw new Error("Usage Type ID is required");
     }
 
     let sql = `
@@ -2093,10 +1964,7 @@ async function getChargesTypeByULBRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     let sql = `
@@ -2142,17 +2010,11 @@ async function fetchServiceRateConfigDetailsRepo(payload) {
     } = payload;
 
     if (!ulbId) {
-        return {
-            success: false,
-            message: "ULB ID is required"
-        }
+        throw new Error("ULB ID is required");
     }
 
     if (!serviceRateId) {
-        return {
-            success: false,
-            message: "Service Rate ID is required"
-        }
+        throw new Error("Service Rate ID is required");
     }
 
     let sql = `
@@ -2188,10 +2050,7 @@ async function fetchServiceRateConfigTableDetailsRepo(payload) {
     } = payload;
 
     if (!serviceRateId) {
-        return {
-            success: false,
-            message: "Service Rate ID is required"
-        }
+        throw new Error("Service Rate ID is required");
     }
 
     let sql = `
