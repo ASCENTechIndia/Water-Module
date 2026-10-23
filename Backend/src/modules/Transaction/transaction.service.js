@@ -13,6 +13,7 @@ const {
   getBankDropdown,
   getReasonDropdown,
   aowt_chequebounce_ins,
+  getChequeBounceDetails,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -97,6 +98,10 @@ async function getReasonDropdownService() {
   return getReasonDropdown();
 }
 
+async function chequeBounceSearchService(payload) {
+  return getChequeBounceDetails(payload);
+}
+
 async function chequeBounceInsService(payload) {
   return aowt_chequebounce_ins(payload);
 }
@@ -113,4 +118,5 @@ module.exports = {
   getBankDropdownService,
   getReasonDropdownService,
   chequeBounceInsService,
+  chequeBounceSearchService,
 };

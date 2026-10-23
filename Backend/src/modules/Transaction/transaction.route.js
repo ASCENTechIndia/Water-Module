@@ -12,6 +12,7 @@ const {
   getBankDropdownController,
   getReasonDropdownController,
   chequeBounceInsController,
+  chequeBounceSearchController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -44,6 +45,7 @@ router.post(
 //Cheque bounce
 router.get("/getBankDropdown", getBankDropdownController);
 router.get("/getReasonDropdown", getReasonDropdownController);
+router.post("/searchChequeBounce", chequeBounceSearchController);
 router.post(
   "/aowt_chequebounce_ins",
   validate(chequeBounceInsSchema),

@@ -12,6 +12,7 @@ const {
   getBankDropdownService,
   getReasonDropdownService,
   chequeBounceInsService,
+  chequeBounceSearchService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -336,6 +337,27 @@ async function chequeBounceInsController(req, res, next) {
   }
 }
 
+async function chequeBounceSearchController(req, res, next) {
+  try {
+    const payload = req.body;
+    const rows = await chequeBounceSearchService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, chequeNo: payload.chequeNo },
+      rows?.length > 0
+        ? `Cheque bounce records retrieved`
+        : `No cheque bounce records found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Cheque bounce search error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -348,4 +370,5 @@ module.exports = {
   getBankDropdownController,
   getReasonDropdownController,
   chequeBounceInsController,
+  chequeBounceSearchController,
 };
