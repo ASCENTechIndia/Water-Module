@@ -14,6 +14,9 @@ const {
   chequeBounceInsService,
   chequeBounceSearchService,
   getReceiptDeleteAuthListService,
+  getYearDropdownService,
+  getReceiptDeleteWardDropdownService,
+  getReceiptDeleteZoneDropdownService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -342,6 +345,11 @@ async function chequeBounceSearchController(req, res, next) {
   try {
     const payload = req.body;
     const rows = await chequeBounceSearchService(payload);
+// Reciept Delete List
+
+async function getYearDropdownController(req, res, next) {
+  try {
+    const rows = await getYearDropdownService();
 
     logApiSuccess(
       req,
@@ -394,4 +402,4 @@ module.exports = {
   chequeBounceInsController,
   chequeBounceSearchController,
   getReceiptDeleteAuthListController,
-};
+}
