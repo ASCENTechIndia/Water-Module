@@ -8,6 +8,8 @@ const {
   getActiveBillingCycleForUlb,
   getGapCodeDropdown,
   aowt_mtrreading_ins,
+  getZoneDropdownWithUlbId,
+  aowt_billgen_ins,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -76,6 +78,14 @@ async function meterReadingInsService(payload) {
   return aowt_mtrreading_ins(payload);
 }
 
+async function getZoneDropdownWithUlbIdService(payload) {
+  return getZoneDropdownWithUlbId(payload);
+}
+
+async function billGenInsService(payload) {
+  return aowt_billgen_ins(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -83,4 +93,6 @@ module.exports = {
   searchMeterConnectionsService,
   getGapCodeDropdownService,
   meterReadingInsService,
+  getZoneDropdownWithUlbIdService,
+  billGenInsService,
 };

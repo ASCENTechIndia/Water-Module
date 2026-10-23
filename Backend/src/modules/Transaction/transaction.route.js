@@ -7,8 +7,13 @@ const {
   searchMeterConnectionsController,
   getGapCodeDropdownController,
   meterReadingInsController,
+  getZoneDropdownWithUlbIdController,
+  billGenInsController,
 } = require("./transaction.controller");
-const { meterReadingInsSchema } = require("./transaction.validation");
+const {
+  meterReadingInsSchema,
+  billGenInsSchema,
+} = require("./transaction.validation");
 
 const router = express.Router();
 
@@ -22,5 +27,13 @@ router.post(
   "/aowt_mtrreading_ins",
   validate(meterReadingInsSchema),
   meterReadingInsController,
+);
+
+// Bill generation
+router.get("/getZoneDropdownWithUlbId", getZoneDropdownWithUlbIdController);
+router.post(
+  "/aowt_billgen_ins",
+  validate(billGenInsSchema),
+  billGenInsController,
 );
 module.exports = router;

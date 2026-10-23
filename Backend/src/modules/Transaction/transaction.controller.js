@@ -7,6 +7,8 @@ const {
   searchMeterConnectionsService,
   getGapCodeDropdownService,
   meterReadingInsService,
+  getZoneDropdownWithUlbIdService,
+  billGenInsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -168,6 +170,78 @@ async function meterReadingInsController(req, res, next) {
   }
 }
 
+async function getZoneDropdownWithUlbIdController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getZoneDropdownWithUlbIdService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Zone dropdown (by ULB) retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone dropdown (by ULB) error");
+    return next(err);
+  }
+}
+
+async function billGenInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await billGenInsService(payload);
+
+    // here i check in procedure, -100 is success error code for this procedure instead of 9999 like other procedure does
+    const isSuccess = Number(out.out_errorcode) === -100;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          ulbId: payload.in_ULBId,
+          zoneId: payload.in_zoneid,
+          blockId: payload.in_blockno,
+        },
+        out.out_errormsg || "Bill generated successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormsg, "Bill generation failed");
+    }
+
+    auditLog({
+      action: "BILL_GENERATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "billgeneration",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        ulbId: payload.in_ULBId,
+        zoneId: payload.in_zoneid,
+        blockId: payload.in_blockno,
+        connNo: payload.in_conno || null,
+        billDate: payload.in_billdate,
+        dueDate: payload.in_duedate,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill generation error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -175,4 +249,6 @@ module.exports = {
   searchMeterConnectionsController,
   getGapCodeDropdownController,
   meterReadingInsController,
+  getZoneDropdownWithUlbIdController,
+  billGenInsController,
 };

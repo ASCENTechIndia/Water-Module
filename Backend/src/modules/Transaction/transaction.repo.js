@@ -2,6 +2,13 @@ const { executeQuery } = require("../../db/queryExecutor");
 const { executeProcedure } = require("../../db/procedureExecutor");
 const oracledb = require("oracledb");
 
+function normalizeNullable(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+  return value;
+}
+
 async function getWardDropdown(payload) {
   const { ulbId } = payload;
 
@@ -228,6 +235,74 @@ async function aowt_mtrreading_ins(payload) {
   return result.outBinds;
 }
 
+async function getZoneDropdownWithUlbId(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select distinct var_zone_name,
+                    num_zone_id
+      from vw_zonemas
+     where num_zone_wardid in (
+        select num_ward_id
+          from vw_wardmas
+         where num_ward_ulbid = :ulbId
+     )
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_billgen_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_billgen_ins(
+        :in_userid,
+        :in_ULBId,
+        :in_zoneid,
+        :in_blockno,
+        :in_conno,
+        :in_billdate,
+        :in_duedate,
+        :in_ipaddress,
+        :in_source,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_ULBId: Number(payload.in_ULBId),
+    in_zoneid: Number(payload.in_zoneid),
+    in_blockno: Number(payload.in_blockno),
+    in_conno: normalizeNullable(payload.in_conno),
+    in_billdate: new Date(payload.in_billdate),
+    in_duedate: new Date(payload.in_duedate),
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -238,4 +313,6 @@ module.exports = {
   queryConnectionsByRange,
   getGapCodeDropdown,
   aowt_mtrreading_ins,
+  getZoneDropdownWithUlbId,
+  aowt_billgen_ins,
 };
