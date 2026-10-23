@@ -89,10 +89,12 @@ const FrmConnectionMst = () => {
 
     const watchWard = watch("ward");
     const watchZone = watch("zone");
-    const watchUsage = watch("usageType")
+    const watchUsage = watch("usageType");
+    const watchConnectionType = watch("connectionType");
 
     const [editData, setEditData] = useState(null);
     const [baseDropdownsLoaded, setBaseDropdownsLoaded] = useState(false);
+    const [connCode, setConnCode] = useState("");
 
     const [ulbCode, setULBCode] = useState("");
     const [connectionGenFlag, setConnectionGenFlag] = useState("");
@@ -248,6 +250,33 @@ const FrmConnectionMst = () => {
         }
     }
 
+    const fetchConnTypeCode = async () => {
+        try {
+            const response = await apiService.get(
+                `/water/getConnTypeCode?ulbId=${ulbId}&connTypeId=${encodeURIComponent(watchConnectionType)}`
+            );
+
+            if (
+                response.success &&
+                Array.isArray(response.data) &&
+                response.data.length > 0
+            ) {
+                setConnCode(response.data[0].CONNTYPECODE);
+            } else {
+                setConnCode("");
+            }
+        } catch (error) {
+            setConnCode("");
+            console.error("Error fetching connection details:", error);
+        }
+    };
+
+
+    useEffect(() => {
+        if (ulbId && watchConnectionType) {
+            fetchConnTypeCode();
+        }
+    }, [ulbId, watchConnectionType])
 
     useEffect(() => {
         const loadDropdowns = async () => {
@@ -526,29 +555,44 @@ const FrmConnectionMst = () => {
         try {
             setLoading(true);
 
+            if (Number(values.connectionType) === 2 && (!values.meterOwnerShip || (values.meterOwnerShip) === 0)) {
+                alert("Select Meter Ownership");
+                return;
+            }
+
+            if ((Number(ulbId) === 890 || Number(ulbId) === 1710) && !values.pageNumber) {
+                alert("Enter Page Number");
+                return;
+            }
+
+            if (values.pageNumber && values.pageNumber > 100) {
+                alert("Page Number should be less than 100");
+                return;
+            }
+
             const ipAddress = await GetIPAddress();
             const payload = {
                 in_UserId: userId,
                 in_ulbid: Number(ulbId),
                 in_Mode: Number(mode),
-                in_connid: mode === 1 ? null : Number(connectionId),
+                in_connid: mode === 1 ? 0 : Number(connectionId),
                 in_wardid: Number(values.ward),
                 in_zoneid: Number(values.zone),
                 in_blockid: Number(values.block),
-                in_srno: "",
-                in_seqno: "",
-                in_connno: values.connectionNumber,
-                in_oldconnno: values.registerNumber,
-                in_ptnno: values.ptnNumber,
+                in_srno: mode === 2 ? Number(editData.SRNO) : 0,
+                in_seqno: mode === 2 ? Number(editData.SEQNO) : 0,
+                in_connno: mode === 2 ? values.connectionNumber : null,
+                in_oldconnno: values.registerNumber ? values.registerNumber : null,
+                in_ptnno: values.ptnNumber ? values.ptnNumber : null,
                 in_applino: values.applicationNumber,
                 in_applidt: values.applicationDate,
                 in_appliaprovdt: values.approveDate,
                 in_ownername: values.applicationName,
-                in_uid: "",
+                in_uid: values.aadharNumber ? Number(values.aadharNumber) : null,
                 in_address: values.address,
-                in_panno: values.panNumber,
-                in_mobno: Number(values.mobileNumber),
-                in_emailid: values.email,
+                in_panno: values.panNumber ? values.panNumber : null,
+                in_mobno: values.mobileNumber ? Number(values.mobileNumber) : null,
+                in_emailid: values.email ? values.email : null,
                 in_statusid: Number(values.status),
                 in_sequrityamt: Number(values.securityDeposit),
                 in_conntypeid: Number(values.connectionType),
@@ -557,22 +601,22 @@ const FrmConnectionMst = () => {
                 in_connusageid: Number(values.usageType),
                 in_connusagesubid: Number(values.usageSubType),
                 in_noofconn: Number(values.numberOfConnection),
-                in_nooffamily: Number(values.numberOfFamilies),
+                in_nooffamily: ulbCode === "MBMC" ? 1 : values.numberOfFamilies ? Number(values.numberOfFamilies) : 0,
                 in_consurmerid: Number(values.consumerType),
-                in_bulituparea: Number(values.buildUpArea),
-                in_meterno: values.meterNumber,
-                in_metermake: values.meterMake,
-                in_connownerid: Number(values.meterOwnerShip),
-                in_insatalldt: values.instDate,
-                in_intilreading: Number(values.initialReading),
-                in_plumberid: Number(values.plumber),
-                in_conndt: values.connectionDate,
-                in_billmethoid: Number(values.billingMethod),
-                in_billcycleid: Number(values.billingType),
+                in_bulituparea: ulbCode === "MBMC" ? 1 : values.buildUpArea ? Number(values.buildUpArea) : 0,
+                in_meterno: values.meterNumber ? values.meterNumber : null,
+                in_metermake: values.meterMake ? values.meterMake : null,
+                in_connownerid: values.meterOwnerShip ? Number(values.meterOwnerShip) : 0,
+                in_insatalldt: values.instDate ? values.instDate : null,
+                in_intilreading: values.initialReading ? Number(values.initialReading) : 0,
+                in_plumberid: ulbCode === "MBMC" ? 1 : values.plumber ? Number(values.plumber) : 0,
+                in_conndt: values.connectionDate ? values.connectionDate : null,
+                in_billmethoid: values.billingMethod ? Number(values.billingMethod) : 0,
+                in_billcycleid: values.billingType ? Number(values.billingType) : 0,
                 in_arrearsamt: 0,
-                in_Watertank: Number(values.waterTank),
-                in_Remark: values.remark,
-                in_pageno: Number(values.pageNumber),
+                in_Watertank: values.waterTank ? Number(values.waterTank) : 0,
+                in_Remark: values.remark ? values.remark : null,
+                in_pageno: values.pageNumber ? Number(values.pageNumber) : null,
                 in_ipaddress: ipAddress,
                 in_source: config.source
             };
@@ -609,10 +653,13 @@ const FrmConnectionMst = () => {
                     <div>
                         <Label
                             text={"Ward"}
+                            required
                         />
                         <select
-                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""}`}
-                            {...register("ward")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""} ${errors.ward ? "is-invalid" : ""}`}
+                            {...register("ward", {
+                                required: "Ward is required"
+                            })}
                             disabled={mode === 2}
                         >
                             <option value="">
@@ -628,14 +675,22 @@ const FrmConnectionMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.ward &&
+                            <div className="mt-3 text-red-500">
+                                {errors.ward.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
                             text={"Zone"}
+                            required
                         />
                         <select
-                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""}`}
-                            {...register("zone")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""} ${errors.zone ? "is-invalid" : ""}`}
+                            {...register("zone", {
+                                required: "Zone is required"
+                            })}
                             disabled={mode === 2}
                         >
                             <option value="">
@@ -651,14 +706,22 @@ const FrmConnectionMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.zone &&
+                            <div className="mt-3 text-red-500">
+                                {errors.zone.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
-                            text={"Register No / Block"}
+                            text={ulbCode === "MBMC" ? "Register No / Block" : "Block"}
+                            required
                         />
                         <select
-                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""}`}
-                            {...register("block")}
+                            className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${mode === 2 ? "bg-slate-200 cursor-not-allowed" : ""} ${errors.block ? "is-invalid" : ""}`}
+                            {...register("block", {
+                                required: "Block is required"
+                            })}
                             disabled={mode === 2}
                         >
                             <option value="">
@@ -674,6 +737,11 @@ const FrmConnectionMst = () => {
                                 </option>
                             ))}
                         </select>
+                        {errors.block &&
+                            <div className="mt-3 text-red-400">
+                                {errors.block.message}
+                            </div>
+                        }
                     </div>
                     <div>
                         <Label
@@ -689,12 +757,12 @@ const FrmConnectionMst = () => {
                     </div>
                     <div>
                         <Label
-                            text={"Register No"}
+                            text={ulbCode === "MBMC" ? "Register No" : (Number(ulbId) === 870 || Number(ulbId) === 1690) ? "Customer No" : "Old Connection No."}
                         />
                         <input
                             type="text"
                             className="form-input-box"
-                            {...register("connectionNumber")}
+                            {...register("registerNumber")}
                             placeholder="Enter Register Number"
                         />
                     </div>
@@ -712,13 +780,15 @@ const FrmConnectionMst = () => {
                     <div>
                         <Label
                             text={"Page No"}
-                            required
                         />
                         <input
                             type="text"
                             className="form-input-box"
                             {...register("pageNumber")}
                             placeholder="Enter Page Number"
+                            onInput={(e) => {
+                                e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                            }}
                         />
                     </div>
                 </div>
@@ -753,9 +823,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
-                                {...register("applicationNumber")}
+                                className={`form-input-box ${errors.applicationNumber ? "is-invalid" : ""}`}
+                                {...register("applicationNumber", {
+                                    required: "Application Number is required"
+                                })}
                             />
+                            {errors.applicationNumber &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.applicationNumber.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -764,9 +841,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="date"
-                                className="form-input-box w-full"
-                                {...register("applicationDate")}
+                                className={`form-input-box w-full ${errors.applicationDate ? "is-invalid" : ""}`}
+                                {...register("applicationDate", {
+                                    required: "Application Date is required"
+                                })}
                             />
+                            {errors.applicationDate &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.applicationDate.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -775,9 +859,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="date"
-                                className="form-input-box w-full"
-                                {...register("approveDate")}
+                                className={`form-input-box w-full ${errors.approveDate ? "is-invalid" : ""}`}
+                                {...register("approveDate", {
+                                    required: "Approve Date is required"
+                                })}
                             />
+                            {errors.approveDate &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.approveDate.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -786,9 +877,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
-                                {...register("applicationName")}
+                                className={`form-input-box ${errors.applicationName ? "is-invalid" : ""}`}
+                                {...register("applicationName", {
+                                    required: "Application Name is required"
+                                })}
                             />
+                            {errors.applicationName &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.applicationName.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -798,6 +896,10 @@ const FrmConnectionMst = () => {
                                 type="text"
                                 className="form-input-box"
                                 {...register("aadharNumber")}
+                                onInput={(e) => {
+                                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                                }}
+                                maxLength={12}
                             />
                         </div>
                         <div>
@@ -807,9 +909,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
-                                {...register("address")}
+                                className={`form-input-box ${errors.address ? "is-invalid" : ""}`}
+                                {...register("address", {
+                                    required: "Address is required"
+                                })}
                             />
+                            {errors.address &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.address.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -819,6 +928,7 @@ const FrmConnectionMst = () => {
                                 type="text"
                                 className="form-input-box"
                                 {...register("panNumber")}
+                                maxLength={10}
                             />
                         </div>
                         <div>
@@ -829,6 +939,10 @@ const FrmConnectionMst = () => {
                                 type="text"
                                 className="form-input-box"
                                 {...register("mobileNumber")}
+                                onInput={(e) => {
+                                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                                }}
+                                maxLength={10}
                             />
                         </div>
                         <div>
@@ -847,8 +961,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("status")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.status ? "is-invalid" : ""}`}
+                                {...register("status", {
+                                    required: "Status is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -863,6 +979,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.status &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.status.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -871,9 +992,18 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
+                                className={`form-input-box ${errors.securityDeposit ? "is-invalid" : ""}`}
                                 {...register("securityDeposit")}
+                                onInput={(e) => {
+                                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                                }}
+
                             />
+                            {errors.securityDeposit &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.securityDeposit.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -881,8 +1011,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("connectionType")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.connectionType ? "is-invalid" : ""}`}
+                                {...register("connectionType", {
+                                    required: "Connection Type is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -897,6 +1029,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.connectionType &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.connectionType.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -904,8 +1041,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("connectionCode")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.connectionCode ? "is-invalid" : ""}`}
+                                {...register("connectionCode", {
+                                    required: "Connection Code is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -920,6 +1059,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.connectionCode &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.connectionCode.message}
+                                </div>
+                            }
                         </div>
                     </div>
                 )}
@@ -932,8 +1076,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("connectionSize")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.connectionSize ? "is-invalid" : ""}`}
+                                {...register("connectionSize", {
+                                    required: "Connection Size is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -948,6 +1094,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.connectionSize &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.connectionSize.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -955,8 +1106,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("usageType")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.usageType ? "is-invalid" : ""}`}
+                                {...register("usageType", {
+                                    required: "Usage Type is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -971,6 +1124,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.usageType &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.usageType.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -978,8 +1136,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("usageSubType")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.usageSubType ? "is-invalid" : ""}`}
+                                {...register("usageSubType", {
+                                    required: "Sub Usage Type is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -994,6 +1154,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.usageSubType &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.usageSubType.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -1002,9 +1167,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
-                                {...register("numberOfConnection")}
+                                className={`form-input-box ${errors.numberOfConnection ? "is-invalid" : ""}`}
+                                {...register("numberOfConnection", {
+                                    required: "Number of Connections is required"
+                                })}
                             />
+                            {errors.numberOfConnection &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.numberOfConnection.message}
+                                </div>
+                            }
                         </div>
                         {ulbCode !== "MBMC" && <div>
                             <Label
@@ -1013,9 +1185,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
-                                {...register("numberOfFamilies")}
+                                className={`form-input-box ${errors.numberOfFamilies ? "is-invalid" : ""}`}
+                                {...register("numberOfFamilies", {
+                                    required: "Number of Families is required"
+                                })}
                             />
+                            {errors.numberOfFamilies &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.numberOfFamilies.message}
+                                </div>
+                            }
                         </div>}
                         <div>
                             <Label
@@ -1023,8 +1202,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("consumerType")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.consumerType ? "is-invalid" : ""}`}
+                                {...register("consumerType", {
+                                    required: "Consumer Type is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -1039,6 +1220,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.consumerType &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.consumerType.message}
+                                </div>
+                            }
                         </div>
                         {ulbCode !== "MBMC" && <div>
                             <Label
@@ -1047,9 +1233,16 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
-                                {...register("buildUpArea")}
+                                className={`form-input-box ${errors.buildUpArea ? "is-invalid" : ""}`}
+                                {...register("buildUpArea", {
+                                    required: "Build Up Area is required"
+                                })}
                             />
+                            {errors.buildUpArea &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.buildUpArea.message}
+                                </div>
+                            }
                         </div>}
                         <div>
                             <Label
@@ -1057,8 +1250,9 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
+                                className={`form-input-box ${connCode === "NMTR" ? "bg-slate-200 cursor-not-allowed" : ""}`}
                                 {...register("meterNumber")}
+                                disabled={connCode === "NMTR"}
                             />
                         </div>
                         <div>
@@ -1067,8 +1261,9 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
+                                className={`form-input-box ${connCode === "NMTR" ? "bg-slate-200 cursor-not-allowed" : ""}`}
                                 {...register("meterMake")}
+                                disabled={connCode === "NMTR"}
                             />
                         </div>
                         <div>
@@ -1076,8 +1271,9 @@ const FrmConnectionMst = () => {
                                 text={"Meter Ownership"}
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${connCode === "NMTR" ? "bg-slate-200 cursor-not-allowed" : ""}`}
                                 {...register("meterOwnerShip")}
+                                disabled={connCode === "NMTR"}
                             >
                                 <option value="">
                                     -- Select --
@@ -1099,8 +1295,9 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="date"
-                                className="form-input-box"
+                                className={`form-input-box ${connCode === "NMTR" ? "bg-slate-200 cursor-not-allowed" : ""}`}
                                 {...register("instDate")}
+                                disabled={connCode === "NMTR"}
                             />
                         </div>
                         <div>
@@ -1109,17 +1306,31 @@ const FrmConnectionMst = () => {
                             />
                             <input
                                 type="text"
-                                className="form-input-box"
-                                {...register("initialReading")}
+                                className={`form-input-box ${connCode === "NMTR" ? "bg-slate-200 cursor-not-allowed" : ""}`}
+                                {...register("initialReading", {
+                                    required: "Initial Reading is required"
+                                })}
+                                disabled={connCode === "NMTR"}
+                                onInput={(e) => {
+                                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                                }}
                             />
+                            {errors.initialReading &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.initialReading.message}
+                                </div>
+                            }
                         </div>
                         {ulbCode !== "MBMC" && <div>
                             <Label
                                 text={"Plumber: "}
+                                required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("plumber")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.plumber ? "is-invalid" : ""}`}
+                                {...register("plumber", {
+                                    required: "Plumber is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -1134,6 +1345,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.plumber &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.plumber.message}
+                                </div>
+                            }
                         </div>}
                         <div>
                             <Label
@@ -1151,8 +1367,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("billingType")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.billingType ? "is-invalid" : ""}`}
+                                {...register("billingType", {
+                                    required: "Billing Type is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -1174,8 +1392,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("billingMethod")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.billingMethod ? "is-invalid" : ""}`}
+                                {...register("billingMethod", {
+                                    required: "Billing Method is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -1190,6 +1410,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.billingMethod &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.billingMethod.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -1197,8 +1422,10 @@ const FrmConnectionMst = () => {
                                 required
                             />
                             <select
-                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                                {...register("waterTank")}
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${errors.waterTank ? "is-invalid" : ""}`}
+                                {...register("waterTank", {
+                                    required: "Water Tank is required"
+                                })}
                             >
                                 <option value="">
                                     -- Select --
@@ -1213,6 +1440,11 @@ const FrmConnectionMst = () => {
                                     </option>
                                 ))}
                             </select>
+                            {errors.waterTank &&
+                                <div className="mt-3 text-red-400">
+                                    {errors.waterTank.message}
+                                </div>
+                            }
                         </div>
                         <div>
                             <Label
@@ -1229,7 +1461,7 @@ const FrmConnectionMst = () => {
 
                 <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
                     <Button type="submit">
-                        Submit
+                        {mode === 1 ? "Submit" : "Update"}
                     </Button>
 
                     <Button

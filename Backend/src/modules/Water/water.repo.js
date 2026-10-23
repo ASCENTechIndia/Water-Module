@@ -560,6 +560,34 @@ async function getConnectionNumberGenRepo(payload) {
     return result.rows || [];
 }
 
+async function getConnTypeCodeRepo(payload) {
+    const { ulbId, connTypeId } = payload;
+
+    if (!ulbId) {
+        throw new Error("ULB ID is required");
+    }
+
+    if (!connTypeId) {
+        throw new Error("Connection Type ID is required");
+    }
+
+    let sql = `
+        select distinct 
+            conntypecode 
+        from vw_conntypeconfig 
+        where conntypeid=:connTypeId and ulbid=:ulbId
+    `;
+
+    const binds = {
+        ulbId,
+        connTypeId
+    };
+
+    const result = await executeQuery(sql, binds);
+
+    return result.rows || [];
+}
+
 async function connectionNumberDetailsSubmitRepo(payload) {
 
     const { 
@@ -748,5 +776,6 @@ module.exports = {
     getBillingMethodDropdownKNPRepo,
     getConnectionNumberGenRepo,
     getConnectionDetailsRepo,
+    getConnTypeCodeRepo,
     connectionNumberDetailsSubmitRepo
 };

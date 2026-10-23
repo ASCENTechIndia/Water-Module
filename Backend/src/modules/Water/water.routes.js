@@ -21,7 +21,8 @@ const {
     getBlockDropdownController,
     getConnectionNumberGenController,
     getConnectionDetailsController,
-    connectionMasterSubmitController
+    connectionMasterSubmitController,
+    getConnTypeCodeController
 } = require("./water.controller");
 const validateMiddleware = require("../../middleware/validate.middleware");
 const { connectionMstSchema } = require("./water.validation");
@@ -52,7 +53,7 @@ router.get("/billMethodKNPDropdown", getBillingMethodKNPDropdownController);
 router.get("/billMethodDropdown", getBillingMethodDropdownController);
 router.get("/connectionnogen", getConnectionNumberGenController);
 router.get("/getConnectionDetails", getConnectionDetailsController);
-
+router.get("/getConnTypeCode", getConnTypeCodeController);
 router.post("/water-connnection-master", validateMiddleware(connectionMstSchema), connectionMasterSubmitController);
 
 module.exports = router;

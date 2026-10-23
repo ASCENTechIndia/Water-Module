@@ -21,7 +21,8 @@ const {
     getBlockDropdownService,
     getConnectionNumberGenService,
     getConnectionDetailsService,
-    connectionMasterSubmitService
+    connectionMasterSubmitService,
+    getConnTypeCodeService
 } = require("./water.service");
 
 // Connection Search
@@ -445,6 +446,26 @@ async function getConnectionDetailsController(req, res, next) {
     }
 }
 
+async function getConnTypeCodeController(req, res, next) {
+    try {
+        const payload = req.query;
+        const rows = await getConnTypeCodeService(payload);
+
+        logApiSuccess(
+            req,
+            200,
+            { count: rows?.length || 0 },
+            `Connection Type Code retrieved successfully`,
+        );
+
+        return res.ok(rows);
+    } catch (error) {
+        // console.error(error);
+        logApiError(req, 500, error.message, "Connection Type Code fetch error");
+        return next(error);
+    }
+}
+
 async function connectionMasterSubmitController(req, res, next) {
     try {
         const payload = req.body;
@@ -487,5 +508,6 @@ module.exports = {
     getBillingMethodDropdownController,
     getConnectionNumberGenController,
     getConnectionDetailsController,
+    getConnTypeCodeController,
     connectionMasterSubmitController
 };

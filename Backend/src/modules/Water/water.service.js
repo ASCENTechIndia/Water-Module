@@ -20,7 +20,8 @@ const {
     getBlockDropdownRepo,
     getConnectionNumberGenRepo,
     getConnectionDetailsRepo,
-    connectionNumberDetailsSubmitRepo
+    connectionNumberDetailsSubmitRepo,
+    getConnTypeCodeRepo
 } = require("./water.repo");
 
 // Water Connection Master
@@ -113,6 +114,10 @@ async function getConnectionDetailsService(payload) {
     return getConnectionDetailsRepo(payload);
 }
 
+async function getConnTypeCodeService(payload) {
+    return getConnTypeCodeRepo(payload);
+}
+
 async function connectionMasterSubmitService(payload) {
     return connectionNumberDetailsSubmitRepo(payload);
 }
@@ -139,5 +144,6 @@ module.exports = {
     getBillingMethodDropdownKNPService,
     getConnectionNumberGenService,
     getConnectionDetailsService,
+    getConnTypeCodeService,
     connectionMasterSubmitService
 }

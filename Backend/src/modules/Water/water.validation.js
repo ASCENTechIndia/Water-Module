@@ -72,19 +72,22 @@ const connectionMstSchema = z.object({
             invalid_type_error: "Connection number must be a string",
         })
         .trim()
-        .min(1, "Connection number is required"),
+        .min(1, "Connection number is required")
+        .nullable(),
 
     in_oldconnno: z
         .string({
             required_error: "Old connection number is required",
             invalid_type_error: "Old connection number must be a string",
-        }),
+        })
+        .nullable(),
 
     in_ptnno: z
         .string({
             required_error: "PTN number is required",
             invalid_type_error: "PTN number must be a string",
-        }),
+        })
+        .nullable(),
 
     in_applino: z
         .string({
@@ -106,7 +109,9 @@ const connectionMstSchema = z.object({
         .string({
             required_error: "Application approval date is required",
             invalid_type_error: "Application approval date must be a string",
-        }),
+        })
+        .trim()
+        .min(1, "Approval Date is required"),
 
     in_ownername: z
         .string({
@@ -118,10 +123,11 @@ const connectionMstSchema = z.object({
 
     in_uid: z.coerce
         .number({
-            required_error: "UID is required",
+            // required_error: "UID is required",
             invalid_type_error: "UID must be a number",
         })
-        .int("UID must be an integer"),
+        .int("UID must be an integer")
+        .nullable(),
 
     in_address: z
         .string({
@@ -133,25 +139,27 @@ const connectionMstSchema = z.object({
 
     in_panno: z
         .string({
-            required_error: "PAN number is required",
+            // required_error: "PAN number is required",
             invalid_type_error: "PAN number must be a string",
-        }),
+        })
+        .nullable(),
 
     in_mobno: z
-        .string({
+        .number({
             required_error: "Mobile number is required",
-            invalid_type_error: "Mobile number must be a string",
+            invalid_type_error: "Mobile number must be a number",
         })
-        .trim()
-        .regex(/^[0-9]{10}$/, "Mobile number must be exactly 10 digits"),
+        .int("Mobile number must be integer")
+        .nullable(),
 
     in_emailid: z
         .string({
-            required_error: "Email ID is required",
+            // required_error: "Email ID is required",
             invalid_type_error: "Email ID must be a string",
         })
         .trim()
-        .email("Invalid email address"),
+        .email("Invalid email address")
+        .nullable(),
 
     in_statusid: z.coerce
         .number({
@@ -244,7 +252,8 @@ const connectionMstSchema = z.object({
         .string({
             required_error: "Meter make is required",
             invalid_type_error: "Meter make must be a string",
-        }),
+        })
+        .nullable(),
 
     in_connownerid: z.coerce
         .number({
@@ -313,7 +322,8 @@ const connectionMstSchema = z.object({
         .string({
             required_error: "Remark is required",
             invalid_type_error: "Remark must be a string",
-        }),
+        })
+        .nullable(),
 
     in_pageno: z.coerce
         .number({
