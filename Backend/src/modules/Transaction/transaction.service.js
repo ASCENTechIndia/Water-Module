@@ -14,6 +14,7 @@ const {
   getReasonDropdown,
   aowt_chequebounce_ins,
   getChequeBounceDetails,
+  getReceiptDeleteAuthList,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -106,6 +107,10 @@ async function chequeBounceInsService(payload) {
   return aowt_chequebounce_ins(payload);
 }
 
+async function getReceiptDeleteAuthListService(payload) {
+  return getReceiptDeleteAuthList(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -119,4 +124,5 @@ module.exports = {
   getReasonDropdownService,
   chequeBounceInsService,
   chequeBounceSearchService,
+  getReceiptDeleteAuthListService,
 };

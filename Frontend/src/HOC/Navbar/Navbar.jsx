@@ -326,19 +326,19 @@ const STATIC_MENU = [
         PAGEPATH: "/Transaction/FrmBillGeneration"
       },
       {
-        MENUID: 502,
-        MENUTITLE: "Receipt Delete Auth List",
-        PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
-      },
-      {
         MENUID: 504,
         MENUTITLE: "Cheque Bounce",
         PAGEPATH: "/Transaction/FrmChequeBounce"
       },
       {
         MENUID: 505,
-        MENUTITLE: "Receipt Delete List",
+        MENUTITLE: "Receipt Delete",
         PAGEPATH: "/Transaction/FrmReceiptDeleteList"
+      },
+      {
+        MENUID: 502,
+        MENUTITLE: "Receipt Delete Authorization List",
+        PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
       },
       {
         MENUID: 506,

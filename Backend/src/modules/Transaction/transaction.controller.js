@@ -13,6 +13,7 @@ const {
   getReasonDropdownService,
   chequeBounceInsService,
   chequeBounceSearchService,
+  getReceiptDeleteAuthListService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -358,6 +359,27 @@ async function chequeBounceSearchController(req, res, next) {
   }
 }
 
+async function getReceiptDeleteAuthListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteAuthListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, ulbId: payload.ulbId },
+      rows?.length > 0
+        ? `Receipt delete auth list retrieved`
+        : `No pending delete auth receipts found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Receipt delete auth list error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -371,4 +393,5 @@ module.exports = {
   getReasonDropdownController,
   chequeBounceInsController,
   chequeBounceSearchController,
+  getReceiptDeleteAuthListController,
 };

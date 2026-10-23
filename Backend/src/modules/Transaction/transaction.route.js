@@ -13,6 +13,7 @@ const {
   getReasonDropdownController,
   chequeBounceInsController,
   chequeBounceSearchController,
+  getReceiptDeleteAuthListController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -51,4 +52,7 @@ router.post(
   validate(chequeBounceInsSchema),
   chequeBounceInsController,
 );
+
+//Receipt delete authorization list
+router.get("/getReceiptDeleteAuthList", getReceiptDeleteAuthListController);
 module.exports = router;

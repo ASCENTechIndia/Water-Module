@@ -457,6 +457,69 @@ async function aowt_chequebounce_ins(payload) {
   return result.outBinds;
 }
 
+async function getReceiptDeleteAuthList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select num_rec_ulbid uldbid,
+           var_corporation_name corpname,
+           num_rec_id recid,
+           num_ward_id wardid,
+           var_ward_name wardname,
+           num_zone_id zoneid,
+           var_zone_name zonename,
+           num_block_id blockid,
+           var_block_name blockname,
+           num_rec_connid connid,
+           var_conn_connno connno,
+           var_rec_recno recno,
+           dat_rec_receiptdt recdate,
+           num_rec_amount recamount,
+           var_rec_ownername ownername,
+           '-' ocpname,
+           num_rec_mobile mobileno,
+           num_rec_collcenterid collcenid,
+           var_rec_insby insby,
+           '-' subject,
+           '-' narration,
+           var_conn_address address,
+           '-' remarks
+      from aowt_rec_mas_hst
+      inner join aowt_conn_mas
+        on num_conn_ulbid = num_rec_ulbid
+       and num_conn_connid = num_rec_connid
+      inner join prop.vw_recmodeconfig
+        on ulbid = num_conn_ulbid
+       and recmodeid = num_rec_amttype
+      inner join admins.aoma_corporation_mas
+        on num_corporation_id = num_rec_ulbid
+      inner join admins.aoma_user_def
+        on num_user_ulbid = num_rec_ulbid
+       and num_user_userid = var_rec_insby
+      inner join aowt_block_mas
+        on num_block_zoneid = num_conn_zoneid
+       and num_block_id = num_conn_blockid
+      inner join aowt_zone_mas
+        on num_zone_id = num_block_zoneid
+      inner join aowt_ward_mas
+        on num_ward_id = num_zone_wardid
+       and num_ward_ulbid = num_rec_ulbid
+     where num_corporation_id = :ulbId
+       and var_rec_authflag = 'P'
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -473,4 +536,5 @@ module.exports = {
   getReasonDropdown,
   aowt_chequebounce_ins,
   getChequeBounceDetails,
+  getReceiptDeleteAuthList,
 };
