@@ -56,7 +56,7 @@ const FrmChequeBounce = () => {
       chequeNumber: "",
       bankName: "",
       chequeAmount: "",
-      receiptDate: getToday(),
+      receiptDate: "",
       mobileNumber: "",
       reason: "",
       tableRow: [],

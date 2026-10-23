@@ -287,6 +287,27 @@ async function getReasonDropdownController(req, res, next) {
   }
 }
 
+async function chequeBounceSearchController(req, res, next) {
+  try {
+    const payload = req.body;
+    const rows = await chequeBounceSearchService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, chequeNo: payload.chequeNo },
+      rows?.length > 0
+        ? `Cheque bounce records retrieved`
+        : `No cheque bounce records found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Cheque bounce search error");
+    return next(err);
+  }
+}
+
 async function chequeBounceInsController(req, res, next) {
   try {
     const payload = req.body;
@@ -341,32 +362,6 @@ async function chequeBounceInsController(req, res, next) {
   }
 }
 
-async function chequeBounceSearchController(req, res, next) {
-  try {
-    const payload = req.body;
-    const rows = await chequeBounceSearchService(payload);
-// Reciept Delete List
-
-async function getYearDropdownController(req, res, next) {
-  try {
-    const rows = await getYearDropdownService();
-
-    logApiSuccess(
-      req,
-      200,
-      { count: rows?.length || 0, chequeNo: payload.chequeNo },
-      rows?.length > 0
-        ? `Cheque bounce records retrieved`
-        : `No cheque bounce records found`,
-    );
-
-    return res.ok(rows);
-  } catch (err) {
-    logApiError(req, 400, err.message, "Cheque bounce search error");
-    return next(err);
-  }
-}
-
 async function getReceiptDeleteAuthListController(req, res, next) {
   try {
     const payload = req.query;
@@ -388,6 +383,64 @@ async function getReceiptDeleteAuthListController(req, res, next) {
   }
 }
 
+// Reciept Delete List
+
+async function getYearDropdownController(req, res, next) {
+  try {
+    const rows = await getYearDropdownService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Year dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Year dropdown error");
+    return next(err);
+  }
+}
+
+async function getReceiptDeleteWardDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteWardDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Ward dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ward dropdown error");
+    return next(err);
+  }
+}
+
+async function getReceiptDeleteZoneDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteZoneDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Zone dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Zone dropdown error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -402,4 +455,7 @@ module.exports = {
   chequeBounceInsController,
   chequeBounceSearchController,
   getReceiptDeleteAuthListController,
-}
+  getYearDropdownController,
+  getReceiptDeleteWardDropdownController,
+  getReceiptDeleteZoneDropdownController,
+};

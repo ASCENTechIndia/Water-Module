@@ -520,6 +520,64 @@ async function getReceiptDeleteAuthList(payload) {
   return result.rows || [];
 }
 
+// Receipt Delete List
+
+async function getYearDropdownRepo() {
+  const sql = `
+    select var_year_yearname,num_year_id from aoms_year_mas order by num_year_id
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getReceiptDeleteWardDropdownRepo(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select 
+      var_ward_name,
+      num_ward_id
+    from vw_wardmas
+    where num_ward_ulbid=:ulbId
+    order by var_ward_name
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getReceiptDeleteZoneDropdownRepo(payload) {
+  const { wardId } = payload;
+
+  if (!wardId) {
+    throw new Error("Ward ID is required");
+  }
+
+  const sql = `
+      select 
+        var_zone_name, 
+        num_zone_id  
+      from vw_zonemas 
+      where num_zone_wardid =:wardId
+  `;
+
+  const binds = {
+    wardId: Number(wardId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -537,4 +595,7 @@ module.exports = {
   aowt_chequebounce_ins,
   getChequeBounceDetails,
   getReceiptDeleteAuthList,
+  getYearDropdownRepo,
+  getReceiptDeleteWardDropdownRepo,
+  getReceiptDeleteZoneDropdownRepo,
 };
