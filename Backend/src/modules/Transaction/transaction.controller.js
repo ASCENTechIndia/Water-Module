@@ -17,6 +17,7 @@ const {
   getYearDropdownService,
   getReceiptDeleteWardDropdownService,
   getReceiptDeleteZoneDropdownService,
+  getReceiptDeleteListDetailsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -441,6 +442,25 @@ async function getReceiptDeleteZoneDropdownController(req, res, next) {
   }
 }
 
+async function getReceiptDeleteListDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteListDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Receipt Delete List retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Receipt Delete List fetch error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -458,4 +478,5 @@ module.exports = {
   getYearDropdownController,
   getReceiptDeleteWardDropdownController,
   getReceiptDeleteZoneDropdownController,
+  getReceiptDeleteListDetailsController
 };

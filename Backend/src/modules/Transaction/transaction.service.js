@@ -18,6 +18,7 @@ const {
   getYearDropdownRepo,
   getReceiptDeleteWardDropdownRepo,
   getReceiptDeleteZoneDropdownRepo,
+  getReceiptDeleteListDetailsRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -126,6 +127,10 @@ async function getReceiptDeleteZoneDropdownService(payload) {
   return getReceiptDeleteZoneDropdownRepo(payload);
 }
 
+async function getReceiptDeleteListDetailsService(payload) {
+  return getReceiptDeleteListDetailsRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -143,4 +148,5 @@ module.exports = {
   getYearDropdownService,
   getReceiptDeleteWardDropdownService,
   getReceiptDeleteZoneDropdownService,
+  getReceiptDeleteListDetailsService
 };

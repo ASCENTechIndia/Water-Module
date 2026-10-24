@@ -17,6 +17,7 @@ const {
   getYearDropdownController,
   getReceiptDeleteWardDropdownController,
   getReceiptDeleteZoneDropdownController,
+  getReceiptDeleteListDetailsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -60,6 +61,7 @@ router.post(
 router.get("/getYearDropdown", getYearDropdownController);
 router.get("/getWardMenu", getReceiptDeleteWardDropdownController);
 router.get("/getZoneMenu", getReceiptDeleteZoneDropdownController);
+router.get("/getReceiptDeleteList", getReceiptDeleteListDetailsController);
 
 //Receipt delete authorization list
 router.get("/getReceiptDeleteAuthList", getReceiptDeleteAuthListController);

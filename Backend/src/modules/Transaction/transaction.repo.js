@@ -578,6 +578,109 @@ async function getReceiptDeleteZoneDropdownRepo(payload) {
   return result.rows || [];
 }
 
+async function getReceiptDeleteListDetailsRepo(payload) {
+  const {
+    ulbId,
+    connectionNumber,
+    receiptNumber,
+    wardId,
+    zoneId,
+    flatNumber,
+    fromDate,
+    toDate
+  } = payload;
+
+  const binds = {
+    ulbId
+  };
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+
+  let sql = `
+    select * from view_receiptdet  
+    where 1=1 and uldbid = :ulbId
+  `;
+
+  if (connectionNumber) {
+    sql += ` and  connno = :connectionNumber`;
+    binds.connectionNumber = connectionNumber;
+  }
+
+  if (receiptNumber) {
+    sql += ` and  RECNO = :receiptNumber`;
+    binds.receiptNumber = receiptNumber;
+  }
+
+  if (wardId) {
+    sql += ` and  wardid = :wardId`;
+    binds.wardId = wardId;
+  }
+
+  if (zoneId) {
+    sql += ` and  zoneid = :zoneId`
+    binds.zoneId = zoneId;
+  }
+
+  if (flatNumber) {
+    sql += ` and  var_rec_flatno = :flatNumber`;
+    binds.flatNumber = flatNumber;
+  }
+
+  if (fromDate && toDate) {
+    sql += ` and  trunc(RECDATE) >= :fromDate  and trunc(RECDATE) <= :toDate`
+    binds.fromDate = fromDate;
+    binds.toDate = toDate;
+  }
+
+  sql += `  order by RECNO desc`
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+
+}
+
+async function getReceiptDeleteReasonDropdownRepo(payload) {
+  let sql = `
+    select 
+      var_deletereason_reason,
+      num_deletereason_id
+    from aowt_deletereason_mas
+    where num_deletereason_id not in ('4')
+    order by var_deletereason_reason
+  `
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getReceiptDeletePaymentDropdownRepo(payload) {
+  const {
+    ulbId
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  let sql = `
+    select 
+      recmodname,
+      recmodeid
+    from prop.vw_recmodeconfig
+    where ulbid=:ulbId
+    order by recmodname
+  `;
+
+  const binds = {
+    ulbId
+  }
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -598,4 +701,7 @@ module.exports = {
   getYearDropdownRepo,
   getReceiptDeleteWardDropdownRepo,
   getReceiptDeleteZoneDropdownRepo,
+  getReceiptDeleteListDetailsRepo,
+  getReceiptDeleteReasonDropdownRepo,
+  getReceiptDeletePaymentDropdownRepo
 };

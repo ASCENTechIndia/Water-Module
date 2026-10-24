@@ -17,6 +17,38 @@ const getToday = () => {
     return `${d.getFullYear()}-${month}-${day}`;
 };
 
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+};
+
+const formatDateForPayload = (dateString) => {
+    const [year, month, day] = dateString.split("-");
+    const monthMap = {
+        "01": "Jan",
+        "02": "Feb",
+        "03": "Mar",
+        "04": "Apr",
+        "05": "May",
+        "06": "Jun",
+        "07": "Jul",
+        "08": "Aug",
+        "09": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+    };
+    let date = `${day}-${monthMap[month]}-${year}`;
+    return date;
+}
+
 const FrmReceiptDeleteList = () => {
     const { user } = useAuth();
     const ulbId = user?.ulbId;
@@ -63,8 +95,8 @@ const FrmReceiptDeleteList = () => {
             zoneName: "",
             connectionNumber: "",
             receiptNumber: "",
-            fromDate: getToday(),
-            toDate: getToday()
+            fromDate: "",
+            toDate: ""
         }
     });
 
@@ -99,8 +131,8 @@ const FrmReceiptDeleteList = () => {
 
             await fetchDropdowns(
                 `/transaction/getYearDropdown`,
-                "NUM_YEAR_ID", 
-                "VAR_YEAR_YEARNAME", 
+                "NUM_YEAR_ID",
+                "VAR_YEAR_YEARNAME",
                 setFinancialYearOptions
             );
 
@@ -141,21 +173,54 @@ const FrmReceiptDeleteList = () => {
     const handleSearch = async (values) => {
         try {
             setLoading(true);
-            console.log(values);
-            const payload = {
 
-            };
-            return;
-            const response = await apiService.post("", payload);
+            let url = `/transaction/getReceiptDeleteList?ulbId=${ulbId}`;
 
-            if (response.data.success && Array.isArray(response.data.data)) {
-                const formatted = response.data.data.map(item => ([
+            if (values.fromDate && !values.toDate) {
+                alert("To Date is required");
+                return;
+            }
+
+            if (values.toDate && !values.fromDate) {
+                alert("From Date is required");
+                return;
+            }
+
+            if ((values.fromDate && values.toDate) && (values.fromDate > values.toDate)) {
+                alert("To Date should be greater than the From Date");
+                return;
+            }
+
+            if (values.wardName) {
+                url += `&wardId=${values.wardName}`;
+            }
+            if (values.zoneName) {
+                url += `&zoneId=${values.zoneName}`;
+            }
+            if (values.connectionNumber) {
+                url += `&connectionNumber=${values.connectionNumber}`;
+            }
+            if (values.receiptNumber) {
+                url += `&receiptNumber=${values.receiptNumber}`;
+            }
+
+            if (values.fromDate && values.toDate) {
+                let startDate = formatDateForPayload(values.fromDate);
+                let endDate = formatDateForPayload(values.toDate);
+                url += `&fromDate=${startDate}&toDate=${endDate}`;
+            }
+
+            const response = await apiService.get(url);
+
+
+            if (response.success && Array.isArray(response.data)) {
+                const formatted = response.data.map(item => ([
                     <span
                         className="text-blue-400 underline cursor-pointer"
                         onClick={() => {
                             navigate("/Transaction/FrmReceiptDeleteMst", {
                                 state: {
-                                    receiptNumber: item.recno,
+                                    receiptNumber: item.RECNO,
                                     mode: 2
                                 }
                             })
@@ -163,18 +228,18 @@ const FrmReceiptDeleteList = () => {
                     >
                         Select
                     </span>,
-                    item.book_no,
-                    item.recno,
-                    item.chequeno,
-                    item.date,
-                    item.amt,
-                    item.discount,
-                    item.paymode,
-                    item.propno,
-                    item.paymode,
-                    item.owner,
-                    item.wardId,
-                    item.zoneid
+                    item.BOOKNO ?? "",
+                    item.RECNO ?? "",
+                    item.CHEQUENO ?? "",
+                    item.RECDATE ? formatDate(item.RECDATE) : "" ,
+                    item.AMOUNT ?? "",
+                    item.REBATE ?? "",
+                    item.AMTTYPENAME ?? "",
+                    item.CONNNO ?? "",
+                    item.AMTTYPENAME ?? "",
+                    item.OWNERNAME ?? "",
+                    item.WARDID ?? "",
+                    item.ZONEID ?? ""
                 ]));
 
                 setTableData(formatted);
@@ -318,10 +383,7 @@ const FrmReceiptDeleteList = () => {
                 </div>
                 <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
                     <Button
-                        type="button"
-                        onClick={() => {
-                            // handleSearch();
-                        }}
+                        type="submit"
                     >
                         Search
                     </Button>
