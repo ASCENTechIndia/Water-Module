@@ -18,6 +18,12 @@ const {
   getReceiptDeleteWardDropdownService,
   getReceiptDeleteZoneDropdownService,
   getReceiptDeleteListDetailsService,
+  getReceiptDeleteMstDetailsService,
+  getReceiptDeleteReasonDropdownService,
+  getReceiptDeletePaymentDropdownService,
+  getReceiptDeleteBankDropdownService,
+  getReceiptDeleteBlockDropdownService,
+  receiptDeleteMstSubmitService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -442,6 +448,25 @@ async function getReceiptDeleteZoneDropdownController(req, res, next) {
   }
 }
 
+async function getReceiptDeleteBlockDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteBlockDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Block dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Block dropdown error");
+    return next(err);
+  }
+}
+
 async function getReceiptDeleteListDetailsController(req, res, next) {
   try {
     const payload = req.query;
@@ -457,6 +482,103 @@ async function getReceiptDeleteListDetailsController(req, res, next) {
     return res.ok(rows);
   } catch (err) {
     logApiError(req, 500, err.message, "Receipt Delete List fetch error");
+    return next(err);
+  }
+}
+
+// Receipt Delete Master
+
+async function getReceiptDeleteReasonDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteReasonDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Reason Dropdown retrieved successfully`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Reason Dropdown fetch error");
+    return next(err);
+  }
+}
+
+async function getReceiptDeletePaymentDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeletePaymentDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Payment Dropdown retrieved successfully`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Payment Dropdown fetch error");
+    return next(err);
+  }
+}
+
+async function getReceiptDeleteBankDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteBankDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Bank Dropdown retrieved successfully`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bank Dropdown fetch error");
+    return next(err);
+  }
+}
+
+async function getReceiptDeleteMstDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getReceiptDeleteMstDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Receipt Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Receipt Details fetch error");
+    return next(err);
+  }
+}
+
+async function receiptDeleteMstDataSubmitController(req, res, next) {
+  try {
+    const payload = req.body;
+    const rows = await receiptDeleteMstSubmitService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Receipt Details Delete Data submit successfully`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Receipt Details Delete Data submit error");
     return next(err);
   }
 }
@@ -478,5 +600,11 @@ module.exports = {
   getYearDropdownController,
   getReceiptDeleteWardDropdownController,
   getReceiptDeleteZoneDropdownController,
-  getReceiptDeleteListDetailsController
+  getReceiptDeleteBlockDropdownController,
+  getReceiptDeleteListDetailsController,
+  getReceiptDeleteReasonDropdownController,
+  getReceiptDeletePaymentDropdownController,
+  getReceiptDeleteBankDropdownController,
+  getReceiptDeleteMstDetailsController,
+  receiptDeleteMstDataSubmitController
 };

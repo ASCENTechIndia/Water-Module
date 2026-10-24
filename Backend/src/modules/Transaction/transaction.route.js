@@ -18,6 +18,12 @@ const {
   getReceiptDeleteWardDropdownController,
   getReceiptDeleteZoneDropdownController,
   getReceiptDeleteListDetailsController,
+  getReceiptDeleteMstDetailsController,
+  getReceiptDeleteBlockDropdownController,
+  getReceiptDeleteReasonDropdownController,
+  getReceiptDeletePaymentDropdownController,
+  getReceiptDeleteBankDropdownController,
+  receiptDeleteMstDataSubmitController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -62,6 +68,13 @@ router.get("/getYearDropdown", getYearDropdownController);
 router.get("/getWardMenu", getReceiptDeleteWardDropdownController);
 router.get("/getZoneMenu", getReceiptDeleteZoneDropdownController);
 router.get("/getReceiptDeleteList", getReceiptDeleteListDetailsController);
+// Receipt Delete Mst 
+router.get("/getBlockMenu", getReceiptDeleteBlockDropdownController);
+router.get("/getReasonMenu", getReceiptDeleteReasonDropdownController);
+router.get("/getPaymentMenu", getReceiptDeletePaymentDropdownController);
+router.get("/getBankMenu", getReceiptDeleteBankDropdownController);
+router.get("/getReceiptDeleteMstDetails", getReceiptDeleteMstDetailsController);
+router.post("/receipt-delete-mst", receiptDeleteMstDataSubmitController);
 
 //Receipt delete authorization list
 router.get("/getReceiptDeleteAuthList", getReceiptDeleteAuthListController);

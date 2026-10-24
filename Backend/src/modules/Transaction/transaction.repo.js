@@ -578,6 +578,30 @@ async function getReceiptDeleteZoneDropdownRepo(payload) {
   return result.rows || [];
 }
 
+async function getReceiptDeleteBlockDropdownRepo(payload) {
+  const { zoneId } = payload;
+
+  if (!zoneId) {
+    throw new Error("Zone ID is required");
+  }
+
+  const sql = `
+       select 
+        var_block_name,
+        num_block_id
+      from vw_blockmas
+      where num_block_zoneid=:zoneId
+      order by var_block_name
+  `;
+
+  const binds = {
+    zoneId: Number(zoneId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 async function getReceiptDeleteListDetailsRepo(payload) {
   const {
     ulbId,
@@ -681,6 +705,89 @@ async function getReceiptDeletePaymentDropdownRepo(payload) {
   return result.rows || [];
 }
 
+async function getReceiptDeleteBankDropdownRepo() {
+  let sql = `
+    select 
+      bank_name,
+      bank_id
+    from prop.vw_bankconfig
+    where ulbid='1'
+    order by bank_name
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getReceiptDeleteMstDetailsRepo(payload) {
+  const {
+    connectionNumber,
+    receiptNumber
+  } = payload
+
+  let sql = `
+    select connno,BILLNO,recno,address,rectype,bookno,rec_refno,recdate,amttype,instruno,instrudate,NUM_REC_BANKID,micrcode,instrutype,totalamt,dpc,rebate,amount,wardid,zoneid,blockid,ownername,PAIDBY 
+    from view_receiptdet where 1=1
+    and recno=:receiptNumber
+    and connno=:connectionNumber
+  `;
+
+  const binds = {
+    connectionNumber,
+    receiptNumber
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function receiptDeleteMstSubmitRepo(payload) {
+  const statement = `
+    BEGIN
+      aowt_rec_del(
+        :in_userid,
+        :in_ulbid,
+        :in_wardid,
+        :in_zoneid,
+        :in_blockno,
+        :in_connid,
+        :in_recid,
+        :in_recno,
+        :in_remark,
+        :in_ipaddress,
+        :in_source,
+        :out_errorcode,
+        :out_errormssg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_ulbid: Number(payload.in_ulbid),
+    in_wardid: Number(payload.in_wardid),
+    in_zoneid: Number(payload.in_zoneid),
+    in_blockno: Number(payload.in_blockno),
+    in_connid: Number(payload.in_connid),
+    in_recid: Number(payload.in_recid),
+    in_recno: payload.in_recno,
+    in_remark: payload.in_remark,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormssg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -701,7 +808,11 @@ module.exports = {
   getYearDropdownRepo,
   getReceiptDeleteWardDropdownRepo,
   getReceiptDeleteZoneDropdownRepo,
+  getReceiptDeleteBlockDropdownRepo,
   getReceiptDeleteListDetailsRepo,
   getReceiptDeleteReasonDropdownRepo,
-  getReceiptDeletePaymentDropdownRepo
+  getReceiptDeletePaymentDropdownRepo,
+  getReceiptDeleteBankDropdownRepo,
+  getReceiptDeleteMstDetailsRepo,
+  receiptDeleteMstSubmitRepo
 };
