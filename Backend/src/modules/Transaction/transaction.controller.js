@@ -30,6 +30,8 @@ const {
   fetchDelRecAuthDetailsService,
   getCheckPaymodeService,
   recDelAuthInsService,
+  getVasuliChallanTableDataService,
+  generateChallanNumberService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -743,6 +745,44 @@ async function recDelAuthInsController(req, res, next) {
   }
 }
 
+async function getVasuliChallanTableDataController(req, res, next) {
+  try {
+    const rows = await getVasuliChallanTableDataService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Vasuli Challan Table Data retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Vasuli Challan Table Data fetch error");
+    return next(err);
+  }
+}
+
+async function generateChallanNumberController(req, res, next) {
+  try {
+    const payload = req.body;
+    const rows = await generateChallanNumberService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Challan Number generated successfully`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Challan Number generation error");
+    return next(err);
+  }
+}
+
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -774,4 +814,6 @@ module.exports = {
   getCheckPaymodeController,
   receiptDeleteMstDataSubmitController,
   recDelAuthInsController,
+  getVasuliChallanTableDataController,
+  generateChallanNumberController
 };

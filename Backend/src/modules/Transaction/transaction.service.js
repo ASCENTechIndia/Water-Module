@@ -31,6 +31,8 @@ const {
   fetchDelRecAuthDetails,
   getCheckPaymodeRepo,
   aowt_rec_delauth,
+  getVasuliChallanTableDataRepo,
+  generateChallanNumberRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -193,6 +195,16 @@ async function recDelAuthInsService(payload) {
   return aowt_rec_delauth(payload);
 }
 
+// Vasuli Challan Generation
+
+async function getVasuliChallanTableDataService() {
+  return getVasuliChallanTableDataRepo()
+}
+
+async function generateChallanNumberService(payload) {
+  return generateChallanNumberRepo(payload);
+} 
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -224,4 +236,6 @@ module.exports = {
   getCheckPaymodeService,
   receiptDeleteMstSubmitService,
   recDelAuthInsService,
+  getVasuliChallanTableDataService,
+  generateChallanNumberService
 };

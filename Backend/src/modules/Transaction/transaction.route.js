@@ -30,6 +30,8 @@ const {
   fetchDelRecAuthDetailsController,
   getCheckPaymodeController,
   recDelAuthInsController,
+  getVasuliChallanTableDataController,
+  generateChallanNumberController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -103,4 +105,10 @@ router.post(
   validate(recDelAuthInsSchema),
   recDelAuthInsController,
 );
+
+// Vasuli Challan Generation
+
+router.get("/getVasuliChallanTableData", getVasuliChallanTableDataController);
+router.post("/generate-challan-number", generateChallanNumberController);
+
 module.exports = router;
