@@ -214,6 +214,7 @@ const FrmReceiptDeleteList = () => {
 
 
             if (response.success && Array.isArray(response.data)) {
+                console.log(response.data);
                 const formatted = response.data.map(item => ([
                     <span
                         className="text-blue-400 underline cursor-pointer"
@@ -221,7 +222,10 @@ const FrmReceiptDeleteList = () => {
                             navigate("/Transaction/FrmReceiptDeleteMst", {
                                 state: {
                                     receiptNumber: item.RECNO,
-                                    mode: 2
+                                    connectionNumber: item.CONNNO,
+                                    connectionId: item.CONNID,
+                                    receiptId: item.RECID,
+                                    mode: 1
                                 }
                             })
                         }}

@@ -666,7 +666,7 @@ async function getReceiptDeleteListDetailsRepo(payload) {
 
 }
 
-async function getReceiptDeleteReasonDropdownRepo(payload) {
+async function getReceiptDeleteReasonDropdownRepo() {
   let sql = `
     select 
       var_deletereason_reason,
@@ -735,6 +735,37 @@ async function getReceiptDeleteMstDetailsRepo(payload) {
   const binds = {
     connectionNumber,
     receiptNumber
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getCheckPaymodeRepo(payload) {
+  const {
+    paymentId,
+    ulbId
+  } = payload;
+
+  if (!paymentId) {
+    throw new Error("Payment ID is required");
+  } 
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  let sql = `
+    select 
+      var_recmode_paycode 
+    from prop.aoms_recmodeconfig_mas 
+    inner join prop.aoms_recmode_mas on num_recmode_id = num_recmodeconfig_recmodeid where num_recmode_id=:paymentId
+    AND  num_recmodeeconfig_ulbid=:ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    paymentId: Number(paymentId)
   };
 
   const result = await executeQuery(sql, binds);
@@ -814,5 +845,6 @@ module.exports = {
   getReceiptDeletePaymentDropdownRepo,
   getReceiptDeleteBankDropdownRepo,
   getReceiptDeleteMstDetailsRepo,
+  getCheckPaymodeRepo,
   receiptDeleteMstSubmitRepo
 };
