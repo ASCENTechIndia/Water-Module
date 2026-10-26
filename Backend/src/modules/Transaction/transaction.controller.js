@@ -24,6 +24,10 @@ const {
   getReceiptDeleteBankDropdownService,
   getReceiptDeleteBlockDropdownService,
   receiptDeleteMstSubmitService,
+  getPayTypeDropdownService,
+  getRecDelReasonDropdownService,
+  getRecDeleteBankDropdownService,
+  fetchDelRecAuthDetailsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -486,8 +490,6 @@ async function getReceiptDeleteListDetailsController(req, res, next) {
   }
 }
 
-// Receipt Delete Master
-
 async function getReceiptDeleteReasonDropdownController(req, res, next) {
   try {
     const payload = req.query;
@@ -578,7 +580,89 @@ async function receiptDeleteMstDataSubmitController(req, res, next) {
 
     return res.ok(rows);
   } catch (err) {
-    logApiError(req, 500, err.message, "Receipt Details Delete Data submit error");
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Receipt Details Delete Data submit error",
+    );
+    return next(err);
+  }
+}
+
+async function getPayTypeDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getPayTypeDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Pay type dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Pay type dropdown error");
+    return next(err);
+  }
+}
+
+async function getRecDelReasonDropdownController(req, res, next) {
+  try {
+    const rows = await getRecDelReasonDropdownService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Receipt delete reason dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Receipt delete reason dropdown error");
+    return next(err);
+  }
+}
+
+async function getRecDelBankDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getRecDeleteBankDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Receipt delete bank dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Receipt delete bank dropdown error");
+    return next(err);
+  }
+}
+
+async function fetchDelRecAuthDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await fetchDelRecAuthDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, receiptId: payload.receiptId },
+      rows?.length > 0
+        ? `Receipt delete auth details retrieved`
+        : `Receipt delete auth details not found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Receipt delete auth details error");
     return next(err);
   }
 }
@@ -606,5 +690,9 @@ module.exports = {
   getReceiptDeletePaymentDropdownController,
   getReceiptDeleteBankDropdownController,
   getReceiptDeleteMstDetailsController,
-  receiptDeleteMstDataSubmitController
+  receiptDeleteMstDataSubmitController,
+  getPayTypeDropdownController,
+  getRecDelReasonDropdownController,
+  getRecDelBankDropdownController,
+  fetchDelRecAuthDetailsController,
 };

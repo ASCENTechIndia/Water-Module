@@ -611,17 +611,16 @@ async function getReceiptDeleteListDetailsRepo(payload) {
     zoneId,
     flatNumber,
     fromDate,
-    toDate
+    toDate,
   } = payload;
 
   const binds = {
-    ulbId
+    ulbId,
   };
 
   if (!ulbId) {
     throw new Error("ULB ID is required");
   }
-
 
   let sql = `
     select * from view_receiptdet  
@@ -644,7 +643,7 @@ async function getReceiptDeleteListDetailsRepo(payload) {
   }
 
   if (zoneId) {
-    sql += ` and  zoneid = :zoneId`
+    sql += ` and  zoneid = :zoneId`;
     binds.zoneId = zoneId;
   }
 
@@ -654,16 +653,15 @@ async function getReceiptDeleteListDetailsRepo(payload) {
   }
 
   if (fromDate && toDate) {
-    sql += ` and  trunc(RECDATE) >= :fromDate  and trunc(RECDATE) <= :toDate`
+    sql += ` and  trunc(RECDATE) >= :fromDate  and trunc(RECDATE) <= :toDate`;
     binds.fromDate = fromDate;
     binds.toDate = toDate;
   }
 
-  sql += `  order by RECNO desc`
+  sql += `  order by RECNO desc`;
 
   const result = await executeQuery(sql, binds);
   return result.rows || [];
-
 }
 
 async function getReceiptDeleteReasonDropdownRepo(payload) {
@@ -674,15 +672,13 @@ async function getReceiptDeleteReasonDropdownRepo(payload) {
     from aowt_deletereason_mas
     where num_deletereason_id not in ('4')
     order by var_deletereason_reason
-  `
+  `;
   const result = await executeQuery(sql);
   return result.rows || [];
 }
 
 async function getReceiptDeletePaymentDropdownRepo(payload) {
-  const {
-    ulbId
-  } = payload;
+  const { ulbId } = payload;
 
   if (!ulbId) {
     throw new Error("ULB ID is required");
@@ -698,8 +694,8 @@ async function getReceiptDeletePaymentDropdownRepo(payload) {
   `;
 
   const binds = {
-    ulbId
-  }
+    ulbId,
+  };
 
   const result = await executeQuery(sql, binds);
   return result.rows || [];
@@ -720,10 +716,7 @@ async function getReceiptDeleteBankDropdownRepo() {
 }
 
 async function getReceiptDeleteMstDetailsRepo(payload) {
-  const {
-    connectionNumber,
-    receiptNumber
-  } = payload
+  const { connectionNumber, receiptNumber } = payload;
 
   let sql = `
     select connno,BILLNO,recno,address,rectype,bookno,rec_refno,recdate,amttype,instruno,instrudate,NUM_REC_BANKID,micrcode,instrutype,totalamt,dpc,rebate,amount,wardid,zoneid,blockid,ownername,PAIDBY 
@@ -734,7 +727,7 @@ async function getReceiptDeleteMstDetailsRepo(payload) {
 
   const binds = {
     connectionNumber,
-    receiptNumber
+    receiptNumber,
   };
 
   const result = await executeQuery(sql, binds);
@@ -787,6 +780,130 @@ async function receiptDeleteMstSubmitRepo(payload) {
   return result.outBinds;
 }
 
+async function getPayTypeDropdown(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select recmodname,
+           recmodeid
+      from prop.vw_recmodeconfig
+     where ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getReceiptDeleteReasonDropdown() {
+  const sql = `
+    select var_deletereason_reason,
+           num_deletereason_id
+      from aowt_deletereason_mas
+     where num_deletereason_id not in ('4')
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getReceiptDeleteBankDropdown(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select bank_name,
+           bank_id
+      from prop.vw_bankconfig
+     where ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function fetchDelRecAuthDetails(payload) {
+  const { connId, receiptId, ulbId } = payload;
+
+  if (!connId || !receiptId || !ulbId) {
+    throw new Error("connId, receiptId and ulbId are required");
+  }
+
+  const sql = `
+    select connid,
+           ulbid,
+           receiptno,
+           receipdate,
+           relatedto,
+           cfcref,
+           counterref,
+           receivdfrom,
+           title,
+           narration,
+           oldconnno,
+           recmode,
+           amount,
+           chequeno,
+           chequedate,
+           bankname,
+           referenceno,
+           dtdate,
+           details,
+           payableamtarrears,
+           payableamtcurrent,
+           receivdamtarrears,
+           receivdamtcurrent,
+           excess_advanceamt,
+           payableamt,
+           rebateamt,
+           actualpayableamt,
+           totalreceivdamount,
+           zonename,
+           connno,
+           delremark,
+           delreason,
+           delcharges,
+           rec_flatno,
+           paybleamount,
+           mobileno,
+           email,
+           bankid,
+           instruno,
+           instrudate,
+           micrcode,
+           instrutype,
+           advamt,
+           arrdemand,
+           rebateamount
+      from vw_waterreceptdel
+     where connid = :connId
+       and rec_id = :receiptId
+       and ulbid = :ulbId
+  `;
+
+  const binds = {
+    connId: Number(connId),
+    receiptId: Number(receiptId),
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
 
 module.exports = {
   getWardDropdown,
@@ -814,5 +931,9 @@ module.exports = {
   getReceiptDeletePaymentDropdownRepo,
   getReceiptDeleteBankDropdownRepo,
   getReceiptDeleteMstDetailsRepo,
-  receiptDeleteMstSubmitRepo
+  receiptDeleteMstSubmitRepo,
+  getPayTypeDropdown,
+  getReceiptDeleteReasonDropdown,
+  getReceiptDeleteBankDropdown,
+  fetchDelRecAuthDetails,
 };
