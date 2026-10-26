@@ -9,6 +9,8 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button.jsx";
 import Table from "../../../Components/Table.jsx";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const getToday = () => {
     const d = new Date();
@@ -163,6 +165,20 @@ const FrmVasuliChalanGenerationMBMC = () => {
         try {
             setLoading(true);
             console.log(data);
+            const ipAddress = await GetIPAddress();
+            const payload = {
+                in_ulbid: Number(ulbId),
+                in_userid: userId,
+                in_zoneid: Number(data.ZONEID),
+                in_paymodeid: Number(data.PAYMODEID),
+                in_challandate: formatDate(data.CHALANDATA),
+                in_rcptfromdt: formatDate(data.FRMDATE),
+                in_rcpttodt: formatDate(data.TODATE),
+                in_ipaddress: ipAddress,
+                in_source: config.source
+            };
+
+            console.log(payload);
         } catch (error) {
             console.error("Failed to generate challan number: ", error);
             alert(error.message || "Failed to generate challan number");
