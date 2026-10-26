@@ -1041,6 +1041,63 @@ async function getBillDeleteDetails(payload) {
   const result = await executeQuery(sql, binds);
   return result.rows || [];
 }
+// Vasuli Challan Generation
+
+async function getVasuliChallanTableDataRepo() {
+  let sql = "select * from vw_challanviewed";
+
+  const result = await executeQuery(sql);
+
+  return result.rows || [];
+}
+
+async function generateChallanNumberRepo(payload) {
+  const {
+    in_ulbid,
+    in_userid,
+    in_zoneid,
+    in_paymodeid,
+    in_challandate,
+    in_rcptfromdt,
+    in_rcpttodt,
+    in_ipaddress,
+    in_source
+  } = payload;
+
+  let sql = `
+    BEGIN
+      aowt_challannumbergen_ins(
+        :in_ulbid,
+        :in_userid,
+        :in_zoneid,
+        :in_paymodeid,
+        :in_challandate,
+        :in_rcptfromdt,
+        :in_rcpttodt,
+        :in_ipaddress,
+        :in_source,
+        :out_errorcode,
+        :out_errormsg,
+        :out_challanno
+      );
+    END;
+  `
+
+  const binds = {
+    in_ulbid: Number(in_ulbid),
+    in_userid,
+    in_zoneid: Number(in_zoneid),
+    in_paymodeid: Number(in_paymodeid),
+    in_challandate,
+    in_rcptfromdt,
+    in_rcpttodt,
+    in_ipaddress,
+    in_source
+  };
+
+  const result = await executeProcedure({ sql, binds, useTx: false });
+  return result.outBinds;
+}
 
 module.exports = {
   getWardDropdown,
@@ -1078,4 +1135,6 @@ module.exports = {
   aowt_rec_delauth,
   getConnZoneBlock,
   getBillDeleteDetails,
+  getVasuliChallanTableDataRepo,
+  generateChallanNumberRepo
 };

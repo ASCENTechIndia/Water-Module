@@ -33,6 +33,8 @@ const {
   aowt_rec_delauth,
   getConnZoneBlock,
   getBillDeleteDetails,
+  getVasuliChallanTableDataRepo,
+  generateChallanNumberRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -203,6 +205,14 @@ async function getBillDeleteDetailsService(payload) {
   return getBillDeleteDetails(payload);
 }
 
+async function getVasuliChallanTableDataService() {
+  return getVasuliChallanTableDataRepo()
+}
+
+async function generateChallanNumberService(payload) {
+  return generateChallanNumberRepo(payload);
+} 
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -236,4 +246,6 @@ module.exports = {
   recDelAuthInsService,
   getConnZoneBlockService,
   getBillDeleteDetailsService,
+  getVasuliChallanTableDataService,
+  generateChallanNumberService
 };

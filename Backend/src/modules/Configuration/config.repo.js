@@ -1777,6 +1777,7 @@ async function getCollectionCenterDropdownRepo(payload) {
         select collcentre_name,collcentre_id 
         from prop.vw_collcenterconfig 
         where collcentre_ulbid=:ulbId
+        order by collcentre_name
     `
 
     const binds = {

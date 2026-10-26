@@ -32,6 +32,8 @@ const {
   recDelAuthInsController,
   getConnZoneBlockController,
   getBillDeleteDetailsController,
+  getVasuliChallanTableDataController,
+  generateChallanNumberController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -114,4 +116,8 @@ router.post(
   validate(billDeleteDetailsSchema),
   getBillDeleteDetailsController,
 );
+
+// Vasuli challan
+router.get("/getVasuliChallanTableData", getVasuliChallanTableDataController);
+router.post("/generate-challan-number", generateChallanNumberController);
 module.exports = router;

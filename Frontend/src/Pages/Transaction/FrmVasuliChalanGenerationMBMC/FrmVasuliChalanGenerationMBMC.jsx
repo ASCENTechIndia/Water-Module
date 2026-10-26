@@ -17,29 +17,33 @@ const getToday = () => {
     return `${d.getFullYear()}-${month}-${day}`;
 };
 
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+};
+
 const FrmVasuliChalanGenerationMBMC = () => {
     const { user } = useAuth();
+    const ulbId = user?.ulbId;
+    const userId = user?.userId;
+    const prabhagId = user?.prabhagID;
+    const deptId = user?.deptId;
     const { setLoading } = useLoader();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [ulbOptions, setULBOptions] = useState([{
-        label: "मीरा भाईंदर महानगरपालिका", value: "1"
-    }]);
+    const [ulbOptions, setULBOptions] = useState([]);
 
-    const [collectionCenterOptions, setCollectionCenterOptions] = useState([
-        { label: "Ho", value: "1" }
-    ]);
+    const [collectionCenterOptions, setCollectionCenterOptions] = useState([]);
 
-    const [paymentModeOptions, setPaymentModeOptions] = useState([
-        { label: "Adjustment", value: "1" },
-        { label: "Cash", value: "2" },
-        { label: "Cheque", value: "3" },
-        { label: "Credit / Debit Card", value: "4" },
-        { label: "Demand Draft", value: "5" },
-        { label: "Online", value: "6" },
-        { label: "RTGS/NEFT/IMPS", value: "7" }
-    ]);
+    const [paymentModeOptions, setPaymentModeOptions] = useState([]);
 
     const [tableData, setTableData] = useState([]);
     const [tableHeader, setTableHeader] = useState([
@@ -63,34 +67,128 @@ const FrmVasuliChalanGenerationMBMC = () => {
         control
     } = useForm({
         defaultValues: {
-            ulbName: "1",
+            ulbName: "",
             collectionCenter: "",
             paymentMode: "",
             fromDate: getToday(),
             toDate: getToday(),
             challanDate: getToday()
         }
-    })
+    });
+
+    const watchULB = watch("ulbName");
+
+    const fetchULBDropdown = async () => {
+        try {
+            setLoading(true);
+
+            const response = await apiService.get("/config/getULBDropdown");
+
+            if (
+                response?.success &&
+                Array.isArray(response?.data)
+            ) {
+                const formatted = response.data.map((item) => ({
+                    label: item.CORPORATIONNAME,
+                    value: item.CORPORATIONID,
+                }));
+
+                setULBOptions(formatted);
+            } else {
+                setULBOptions([]);
+            }
+        } catch (error) {
+            setULBOptions([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchPayTypeDropdown = async () => {
+        try {
+            setLoading(true);
+            const url = `/transaction/getPaymentMenu?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (
+                response?.success &&
+                Array.isArray(response?.data)
+            ) {
+                const formatted = response.data.map((item) => ({
+                    label: item.RECMODNAME,
+                    value: item.RECMODEID,
+                }));
+
+                setPaymentModeOptions(formatted);
+            } else {
+                setPaymentModeOptions([]);
+            }
+        } catch (error) {
+            setPaymentModeOptions([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchCollectionCenterDropdown = async () => {
+        try {
+            setLoading(true);
+            const url = `/config/getCollectionCenterDropdown?ulbId=${encodeURIComponent(watchULB)}`;
+            const response = await apiService.get(url);
+
+            if (
+                response?.success &&
+                Array.isArray(response?.data)
+            ) {
+                const formatted = response.data.map((item) => ({
+                    label: item.COLLCENTRE_NAME,
+                    value: item.COLLCENTRE_ID,
+                }));
+
+                setCollectionCenterOptions(formatted);
+            } else {
+                setCollectionCenterOptions([]);
+            }
+        } catch (error) {
+            setCollectionCenterOptions([]);
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGenerate = async (data) => {
+        try {
+            setLoading(true);
+            console.log(data);
+        } catch (error) {
+            console.error("Failed to generate challan number: ", error);
+            alert(error.message || "Failed to generate challan number");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const fetchTableData = async () => {
         try {
             setLoading(true);
-            const payload = {};
-            const response = await apiService.post("", payload);
+            const response = await apiService.get("/transaction/getVasuliChallanTableData");
 
-            if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
-                const formatted = response.data.data.map(item => ([
-                    item.fromDate,
-                    item.toDate,
-                    item.challanDate,
-                    item.paymode,
-                    item.amount,
-                    item.collcenterName,
-                    item.subby,
+            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                const formatted = response.data.map(item => ([
+                    formatDate(item.FRMDATE),
+                    formatDate(item.TODATE),
+                    formatDate(item.CHALANDATA),
+                    item.RECMODNAME,
+                    item.AMOUNT,
+                    item.COLLCENTRE_NAME,
+                    item.USERDL,
                     <span
                         className="text-blue-400 underline cursor-pointer"
                         onClick={() => {
-
+                            handleGenerate(item);
                         }}
                     >
                         Generate
@@ -108,6 +206,18 @@ const FrmVasuliChalanGenerationMBMC = () => {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        fetchULBDropdown();
+        fetchTableData();
+    }, [])
+
+    useEffect(() => {
+        if (watchULB) {
+            fetchPayTypeDropdown();
+            fetchCollectionCenterDropdown();
+        }
+    }, [watchULB]);
 
     return (
         <Layout
@@ -130,9 +240,9 @@ const FrmVasuliChalanGenerationMBMC = () => {
                         />
 
                         <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm bg-slate-100 cursor-not-allowed"
+                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
                             {...register("ulbName")}
-                            disabled
+                            // disabled
                         >
                             <option value="">
                                 -- Select --
@@ -231,7 +341,7 @@ const FrmVasuliChalanGenerationMBMC = () => {
                     </div>
                 </div>
                 <div className="mt-3">
-                    <Table 
+                    <Table
                         headers={tableHeader}
                         data={tableData}
                     />
