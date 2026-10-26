@@ -30,6 +30,8 @@ const {
   fetchDelRecAuthDetailsController,
   getCheckPaymodeController,
   recDelAuthInsController,
+  getConnZoneBlockController,
+  getBillDeleteDetailsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -37,6 +39,7 @@ const {
   chequeBounceInsSchema,
   receiptDeleteMstInsSchema,
   recDelAuthInsSchema,
+  billDeleteDetailsSchema,
 } = require("./transaction.validation");
 
 const router = express.Router();
@@ -102,5 +105,13 @@ router.post(
   "/aowt_rec_delauth",
   validate(recDelAuthInsSchema),
   recDelAuthInsController,
+);
+
+// Bill delete
+router.get("/getConnZoneBlock", getConnZoneBlockController);
+router.post(
+  "/getBillDeleteDetails",
+  validate(billDeleteDetailsSchema),
+  getBillDeleteDetailsController,
 );
 module.exports = router;

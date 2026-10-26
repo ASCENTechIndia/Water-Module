@@ -30,6 +30,8 @@ const {
   fetchDelRecAuthDetailsService,
   getCheckPaymodeService,
   recDelAuthInsService,
+  getConnZoneBlockService,
+  getBillDeleteDetailsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -743,6 +745,52 @@ async function recDelAuthInsController(req, res, next) {
   }
 }
 
+async function getConnZoneBlockController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getConnZoneBlockService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, connNo: payload.connNo },
+      rows?.length > 0
+        ? `Connection zone/block retrieved`
+        : `Connection not found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Connection zone/block error");
+    return next(err);
+  }
+}
+
+async function getBillDeleteDetailsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const rows = await getBillDeleteDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      {
+        count: rows?.length || 0,
+        connNo: payload.connNo,
+        ulbId: payload.ulbId,
+      },
+      rows?.length > 0
+        ? `Bill delete details retrieved`
+        : `Connection not found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Bill delete details error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -774,4 +822,6 @@ module.exports = {
   getCheckPaymodeController,
   receiptDeleteMstDataSubmitController,
   recDelAuthInsController,
+  getConnZoneBlockController,
+  getBillDeleteDetailsController,
 };

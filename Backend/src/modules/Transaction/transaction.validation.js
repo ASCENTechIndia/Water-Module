@@ -427,10 +427,52 @@ const recDelAuthInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const billDeleteDetailsSchema = z.object({
+  ulbId: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  connNo: z
+    .string({
+      required_error: "Connection No is required",
+      invalid_type_error: "Connection No must be a string",
+    })
+    .trim()
+    .min(1, "Connection No is required"),
+
+  zoneId: z
+    .number({
+      invalid_type_error: "Zone Id must be a number",
+    })
+    .int("Zone Id must be an integer")
+    .optional()
+    .nullable(),
+
+  blockId: z
+    .number({
+      invalid_type_error: "Block Id must be a number",
+    })
+    .int("Block Id must be an integer")
+    .optional()
+    .nullable(),
+
+  flatNo: z
+    .string({
+      invalid_type_error: "Flat No must be a string",
+    })
+    .trim()
+    .optional()
+    .nullable(),
+});
+
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
   chequeBounceInsSchema,
   receiptDeleteMstInsSchema,
   recDelAuthInsSchema,
+  billDeleteDetailsSchema,
 };
