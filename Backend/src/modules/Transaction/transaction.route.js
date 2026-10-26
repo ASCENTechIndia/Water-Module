@@ -28,11 +28,13 @@ const {
   getRecDelReasonDropdownController,
   getRecDelBankDropdownController,
   fetchDelRecAuthDetailsController,
+  getCheckPaymodeController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
   billGenInsSchema,
   chequeBounceInsSchema,
+  receiptDeleteMstInsSchema,
 } = require("./transaction.validation");
 
 const router = express.Router();
@@ -78,7 +80,8 @@ router.get("/getReasonMenu", getReceiptDeleteReasonDropdownController);
 router.get("/getPaymentMenu", getReceiptDeletePaymentDropdownController);
 router.get("/getBankMenu", getReceiptDeleteBankDropdownController);
 router.get("/getReceiptDeleteMstDetails", getReceiptDeleteMstDetailsController);
-router.post("/receipt-delete-mst", receiptDeleteMstDataSubmitController);
+router.get("/getCheckPaymode", getCheckPaymodeController);
+router.post("/receipt-delete-mst", validate(receiptDeleteMstInsSchema),receiptDeleteMstDataSubmitController);
 
 //Receipt delete authorization list
 router.get("/getReceiptDeleteAuthList", getReceiptDeleteAuthListController);

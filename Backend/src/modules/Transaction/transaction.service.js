@@ -29,6 +29,7 @@ const {
   getReceiptDeleteReasonDropdown,
   getReceiptDeleteBankDropdown,
   fetchDelRecAuthDetails,
+  getCheckPaymodeRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -145,20 +146,26 @@ async function getReceiptDeleteListDetailsService(payload) {
   return getReceiptDeleteListDetailsRepo(payload);
 }
 
-async function getReceiptDeleteReasonDropdownService(payload) {
-  return getReceiptDeleteReasonDropdownRepo(payload);
+// Receipt Delete Master
+
+async function getReceiptDeleteReasonDropdownService() {
+  return getReceiptDeleteReasonDropdownRepo();
 }
 
 async function getReceiptDeletePaymentDropdownService(payload) {
   return getReceiptDeletePaymentDropdownRepo(payload);
 }
 
-async function getReceiptDeleteBankDropdownService(payload) {
-  return getReceiptDeleteBankDropdownRepo(payload);
+async function getReceiptDeleteBankDropdownService() {
+  return getReceiptDeleteBankDropdownRepo();
 }
 
 async function getReceiptDeleteMstDetailsService(payload) {
   return getReceiptDeleteMstDetailsRepo(payload);
+}
+
+async function getCheckPaymodeService(payload) {
+  return getCheckPaymodeRepo(payload);
 }
 
 async function receiptDeleteMstSubmitService(payload) {
@@ -209,4 +216,6 @@ module.exports = {
   getRecDelReasonDropdownService,
   getRecDeleteBankDropdownService,
   fetchDelRecAuthDetailsService,
+  getCheckPaymodeService,
+  receiptDeleteMstSubmitService
 };

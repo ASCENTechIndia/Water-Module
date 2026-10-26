@@ -28,6 +28,7 @@ const {
   getRecDelReasonDropdownService,
   getRecDeleteBankDropdownService,
   fetchDelRecAuthDetailsService,
+  getCheckPaymodeService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -492,8 +493,7 @@ async function getReceiptDeleteListDetailsController(req, res, next) {
 
 async function getReceiptDeleteReasonDropdownController(req, res, next) {
   try {
-    const payload = req.query;
-    const rows = await getReceiptDeleteReasonDropdownService(payload);
+    const rows = await getReceiptDeleteReasonDropdownService();
 
     logApiSuccess(
       req,
@@ -562,6 +562,25 @@ async function getReceiptDeleteMstDetailsController(req, res, next) {
     return res.ok(rows);
   } catch (err) {
     logApiError(req, 500, err.message, "Receipt Details fetch error");
+    return next(err);
+  }
+}
+
+async function getCheckPaymodeController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getCheckPaymodeService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Paymode type retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Paymode type fetch error");
     return next(err);
   }
 }
@@ -695,4 +714,6 @@ module.exports = {
   getRecDelReasonDropdownController,
   getRecDelBankDropdownController,
   fetchDelRecAuthDetailsController,
+  getCheckPaymodeController,
+  receiptDeleteMstDataSubmitController
 };
