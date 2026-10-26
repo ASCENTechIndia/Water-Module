@@ -99,6 +99,7 @@ import FrmReceiptDeleteList from "./Pages/Transaction/FrmReceiptDeleteList/FrmRe
 import FrmReceiptDeleteMst from "./Pages/Transaction/FrmReceiptDeleteMst/FrmReceiptDeleteMst.jsx";
 import FrmVasuliChalanGenerationMBMC from "./Pages/Transaction/FrmVasuliChalanGenerationMBMC/FrmVasuliChalanGenerationMBMC.jsx";
 import FrmReceiptDeleteAuthMst from "./Pages/Transaction/FrmReceiptDeleteAuthList/FrmReceiptDeleteAuthMst.jsx";
+import FrmBillDelete from "./Pages/Transaction/BillDelete/FrmBillDelete.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -251,6 +252,11 @@ function App() {
                   <Route 
                     path="/Transaction/FrmVasuliChalanGenerationMBMC"
                     element={<FrmVasuliChalanGenerationMBMC />}
+                  />
+
+                  <Route 
+                    path="/Transaction/FrmBillDelete"
+                    element={<FrmBillDelete />}
                   />
 
                   {/* Master routes */}

@@ -740,10 +740,7 @@ async function getReceiptDeleteMstDetailsRepo(payload) {
 }
 
 async function getCheckPaymodeRepo(payload) {
-  const {
-    paymentId,
-    ulbId
-  } = payload;
+  const { paymentId, ulbId } = payload;
 
   if (!paymentId) {
     throw new Error("Payment ID is required");
@@ -763,7 +760,7 @@ async function getCheckPaymodeRepo(payload) {
 
   const binds = {
     ulbId: Number(ulbId),
-    paymentId: Number(paymentId)
+    paymentId: Number(paymentId),
   };
 
   const result = await executeQuery(sql, binds);
@@ -957,6 +954,93 @@ async function aowt_rec_delauth(payload) {
   return result.outBinds;
 }
 
+async function getConnZoneBlock(payload) {
+  const { ulbId, connNo } = payload;
+
+  if (!ulbId || !connNo) {
+    throw new Error("ulbId and connNo are required");
+  }
+
+  const sql = `
+    select num_conn_zoneid zoneid,
+           num_conn_blockid blockid
+      from aowt_conn_mas
+     where num_conn_ulbid = :ulbId
+       and var_conn_connno = :connNo
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    connNo: String(connNo).trim(),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getBillDeleteDetails(payload) {
+  const { ulbId, zoneId, blockId, connNo, flatNo } = payload;
+
+  if (!ulbId || !connNo) {
+    throw new Error("ulbId and connNo are required");
+  }
+
+  let sql = `
+    select connid,
+           ownername owner_name,
+           var_conntax_flatno || ' ' || address address,
+           var_tax_ename tax_ename,
+           nvl(num_conntax_taxamt, 0) arrears_taxamt,
+           nvl(num_billtax_billamt_s1, 0) + nvl(num_billtax_billamt_s2, 0) current_total,
+           null ulborder
+      from vw_conntax_dtl
+      inner join aowt_tax_mas
+        on num_tax_id = num_conntax_taxid
+      left join vw_billtax_dtl
+        on num_billtax_taxid = num_conntax_taxid
+       and num_bill_connid = connid
+       and var_bill_flatno = var_conntax_flatno
+     where 1 = 1
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    connNo: String(connNo).trim(),
+  };
+
+  // ULB — always added (required)
+  sql += ` and ulbid = :ulbId`;
+
+  // Connection No — always added (required)
+  sql += ` and connno = :connNo`;
+
+  // Zone 
+  if (zoneId !== null && zoneId !== undefined && String(zoneId).trim() !== "") {
+    sql += ` and zoneid = :zoneId`;
+    binds.zoneId = Number(zoneId);
+  }
+
+  // Block
+  if (
+    blockId !== null &&
+    blockId !== undefined &&
+    String(blockId).trim() !== ""
+  ) {
+    sql += ` and num_conn_blockid = :blockId`;
+    binds.blockId = Number(blockId);
+  }
+
+  // Flat No
+  if (flatNo && String(flatNo).trim() !== "") {
+    sql += ` and var_conntax_flatno = :flatNo`;
+    binds.flatNo = String(flatNo).trim();
+  }
+
+  sql += ` order by ownername`;
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
 // Vasuli Challan Generation
 
 async function getVasuliChallanTableDataRepo() {
@@ -1049,6 +1133,8 @@ module.exports = {
   getCheckPaymodeRepo,
   receiptDeleteMstSubmitRepo,
   aowt_rec_delauth,
+  getConnZoneBlock,
+  getBillDeleteDetails,
   getVasuliChallanTableDataRepo,
   generateChallanNumberRepo
 };

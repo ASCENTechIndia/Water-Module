@@ -341,6 +341,11 @@ const STATIC_MENU = [
         PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
       },
       {
+        MENUID: 512,
+        MENUTITLE: "Bill Delete",
+        PAGEPATH: "/Transaction/FrmBillDelete"
+      },
+      {
         MENUID: 506,
         MENUTITLE: "वसुली चलन निर्मिती",
         PAGEPATH: "/Transaction/FrmVasuliChalanGenerationMBMC"

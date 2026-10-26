@@ -31,6 +31,8 @@ const {
   fetchDelRecAuthDetails,
   getCheckPaymodeRepo,
   aowt_rec_delauth,
+  getConnZoneBlock,
+  getBillDeleteDetails,
   getVasuliChallanTableDataRepo,
   generateChallanNumberRepo,
 } = require("./transaction.repo");
@@ -195,7 +197,13 @@ async function recDelAuthInsService(payload) {
   return aowt_rec_delauth(payload);
 }
 
-// Vasuli Challan Generation
+async function getConnZoneBlockService(payload) {
+  return getConnZoneBlock(payload);
+}
+
+async function getBillDeleteDetailsService(payload) {
+  return getBillDeleteDetails(payload);
+}
 
 async function getVasuliChallanTableDataService() {
   return getVasuliChallanTableDataRepo()
@@ -236,6 +244,8 @@ module.exports = {
   getCheckPaymodeService,
   receiptDeleteMstSubmitService,
   recDelAuthInsService,
+  getConnZoneBlockService,
+  getBillDeleteDetailsService,
   getVasuliChallanTableDataService,
   generateChallanNumberService
 };

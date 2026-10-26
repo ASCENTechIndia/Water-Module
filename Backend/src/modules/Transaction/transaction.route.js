@@ -30,6 +30,8 @@ const {
   fetchDelRecAuthDetailsController,
   getCheckPaymodeController,
   recDelAuthInsController,
+  getConnZoneBlockController,
+  getBillDeleteDetailsController,
   getVasuliChallanTableDataController,
   generateChallanNumberController,
 } = require("./transaction.controller");
@@ -39,6 +41,7 @@ const {
   chequeBounceInsSchema,
   receiptDeleteMstInsSchema,
   recDelAuthInsSchema,
+  billDeleteDetailsSchema,
 } = require("./transaction.validation");
 
 const router = express.Router();
@@ -106,9 +109,15 @@ router.post(
   recDelAuthInsController,
 );
 
-// Vasuli Challan Generation
+// Bill delete
+router.get("/getConnZoneBlock", getConnZoneBlockController);
+router.post(
+  "/getBillDeleteDetails",
+  validate(billDeleteDetailsSchema),
+  getBillDeleteDetailsController,
+);
 
+// Vasuli challan
 router.get("/getVasuliChallanTableData", getVasuliChallanTableDataController);
 router.post("/generate-challan-number", generateChallanNumberController);
-
 module.exports = router;
