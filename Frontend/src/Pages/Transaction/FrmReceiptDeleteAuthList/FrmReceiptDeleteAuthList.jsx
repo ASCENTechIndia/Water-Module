@@ -55,10 +55,10 @@ const FrmReceiptDeleteAuthList = () => {
             state={{
               recId: item.RECID,
               recNo: item.RECNO,
-              connNo: item.CONNNO,
-              ownerName: item.OWNERNAME,
-              recDate: item.RECDATE,
-              recAmount: item.RECAMOUNT,
+              connId: item.CONNID,
+              wardId: item.WARDID,
+              zoneId: item.ZONEID,
+              blockId: item.BLOCKID,
             }}
           >
             Detail

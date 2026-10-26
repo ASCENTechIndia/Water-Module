@@ -233,81 +233,204 @@ const chequeBounceInsSchema = z.object({
 });
 
 const receiptDeleteMstInsSchema = z.object({
-  in_userid: z.string({
-    required_error: "User ID is required",
-    invalid_type_error: "User ID must be a string"
-  })
-  .trim()
-  .min(1, "User ID is required"),
+  in_userid: z
+    .string({
+      required_error: "User ID is required",
+      invalid_type_error: "User ID must be a string",
+    })
+    .trim()
+    .min(1, "User ID is required"),
 
-  in_ulbid: z.number({
-    required_error: "ULB ID is required",
-    invalid_type_error: "ULB ID must be a number"
-  })
-  .int("ULB ID must be an integer"),
+  in_ulbid: z
+    .number({
+      required_error: "ULB ID is required",
+      invalid_type_error: "ULB ID must be a number",
+    })
+    .int("ULB ID must be an integer"),
 
-  in_wardid: z.number({
-    required_error: "Ward ID is required",
-    invalid_type_error: "Ward ID must be a number"
-  })
-  .int("Ward ID must be an integer"),
+  in_wardid: z
+    .number({
+      required_error: "Ward ID is required",
+      invalid_type_error: "Ward ID must be a number",
+    })
+    .int("Ward ID must be an integer"),
 
-  in_zoneid: z.number({
-    required_error: "Zone ID is required",
-    invalid_type_error: "Zone ID must be a number"
-  })
-  .int("Zone ID must be an integer"),
+  in_zoneid: z
+    .number({
+      required_error: "Zone ID is required",
+      invalid_type_error: "Zone ID must be a number",
+    })
+    .int("Zone ID must be an integer"),
 
-  in_blockno: z.number({
-    required_error: "Block ID is required",
-    invalid_type_error: "Block ID must be a number"
-  })
-  .int("Block ID must be an integer"),
+  in_blockno: z
+    .number({
+      required_error: "Block ID is required",
+      invalid_type_error: "Block ID must be a number",
+    })
+    .int("Block ID must be an integer"),
 
-  in_connid: z.number({
-    required_error: "Connection ID is required",
-    invalid_type_error: "Connection ID must be a number"
-  })
-  .int("Connection ID must be an integer"),
+  in_connid: z
+    .number({
+      required_error: "Connection ID is required",
+      invalid_type_error: "Connection ID must be a number",
+    })
+    .int("Connection ID must be an integer"),
 
-  in_recid: z.number({
-    required_error: "Receipt ID is required",
-    invalid_type_error: "Receipt ID must be a number"
-  })
-  .int("Receipt ID must be an integer"),
+  in_recid: z
+    .number({
+      required_error: "Receipt ID is required",
+      invalid_type_error: "Receipt ID must be a number",
+    })
+    .int("Receipt ID must be an integer"),
 
-  in_recno: z.string({
-    required_error: "Receipt Number is required",
-    invalid_type_error: "Receipt Number must be a string"
-  })
-  .trim()
-  .min(1, "Receipt Number is required"),
+  in_recno: z
+    .string({
+      required_error: "Receipt Number is required",
+      invalid_type_error: "Receipt Number must be a string",
+    })
+    .trim()
+    .min(1, "Receipt Number is required"),
 
-  in_remark: z.string({
-    required_error: "Remark is required",
-    invalid_type_error: "Remark must be a string"
-  })
-  .trim()
-  .min(1, "Remark is required"),
+  in_remark: z
+    .string({
+      required_error: "Remark is required",
+      invalid_type_error: "Remark must be a string",
+    })
+    .trim()
+    .min(1, "Remark is required"),
 
-  in_ipaddress: z.string({
-    required_error: "IP Address is required",
-    invalid_type_error: "IP Address must be a string"
-  })
-  .trim()
-  .min(1, "IP Address is required"),
+  in_ipaddress: z
+    .string({
+      required_error: "IP Address is required",
+      invalid_type_error: "IP Address must be a string",
+    })
+    .trim()
+    .min(1, "IP Address is required"),
 
-  in_source: z.string({
-    required_error: "Source is required",
-    invalid_type_error: "Source must be a string"
-  })
-  .trim()
-  .min(1, "Source is required")
-})
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
+const recDelAuthInsSchema = z.object({
+  in_userid: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ulbid: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_wardid: z
+    .number({
+      required_error: "Ward Id is required",
+      invalid_type_error: "Ward Id must be a number",
+    })
+    .int("Ward Id must be an integer"),
+
+  in_zoneid: z
+    .number({
+      required_error: "Zone Id is required",
+      invalid_type_error: "Zone Id must be a number",
+    })
+    .int("Zone Id must be an integer"),
+
+  in_blockno: z
+    .number({
+      required_error: "Block No is required",
+      invalid_type_error: "Block No must be a number",
+    })
+    .int("Block No must be an integer"),
+
+  in_connid: z
+    .number({
+      required_error: "Connection Id is required",
+      invalid_type_error: "Connection Id must be a number",
+    })
+    .int("Connection Id must be an integer"),
+
+  in_recid: z
+    .number({
+      required_error: "Receipt Id is required",
+      invalid_type_error: "Receipt Id must be a number",
+    })
+    .int("Receipt Id must be an integer"),
+
+  in_recno: z
+    .string({
+      required_error: "Receipt No is required",
+      invalid_type_error: "Receipt No must be a string",
+    })
+    .trim()
+    .min(1, "Receipt No is required"),
+
+  in_status: z.enum(["A", "R"], {
+    required_error: "Status is required",
+    invalid_type_error: "Status must be A (Approve) or R (Reject)",
+  }),
+
+  in_reasonid: z
+    .number({
+      required_error: "Reason is required",
+      invalid_type_error: "Reason must be a number",
+    })
+    .int("Reason must be an integer"),
+
+  in_charges: z
+    .number({
+      required_error: "Charges is required",
+      invalid_type_error: "Charges must be a number",
+    })
+    .int("Charges must be an integer")
+    .nonnegative("Charges cannot be negative"),
+
+  in_password: z
+    .string({
+      required_error: "Password is required",
+      invalid_type_error: "Password must be a string",
+    })
+    .min(1, "Password is required"),
+
+  in_remark: z
+    .string({
+      required_error: "Remark is required",
+      invalid_type_error: "Remark must be a string",
+    })
+    .trim()
+    .min(1, "Remark is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
 
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
   chequeBounceInsSchema,
-  receiptDeleteMstInsSchema
+  receiptDeleteMstInsSchema,
+  recDelAuthInsSchema,
 };

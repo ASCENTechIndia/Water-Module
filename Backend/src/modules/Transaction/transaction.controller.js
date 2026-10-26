@@ -29,6 +29,7 @@ const {
   getRecDeleteBankDropdownService,
   fetchDelRecAuthDetailsService,
   getCheckPaymodeService,
+  recDelAuthInsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -686,6 +687,62 @@ async function fetchDelRecAuthDetailsController(req, res, next) {
   }
 }
 
+async function recDelAuthInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await recDelAuthInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          connId: payload.in_connid,
+          recId: payload.in_recid,
+          status: payload.in_status,
+        },
+        out.out_errormssg || "Receipt delete authorization processed",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.out_errormssg,
+        "Receipt delete authorization failed",
+      );
+    }
+
+    auditLog({
+      action:
+        payload.in_status === "A"
+          ? "RECEIPT_DELETE_APPROVE"
+          : "RECEIPT_DELETE_REJECT",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "receiptdeleteauth",
+      entityId: payload.in_recid,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormssg,
+        ulbId: payload.in_ulbid,
+        connId: payload.in_connid,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Receipt delete auth insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -715,5 +772,6 @@ module.exports = {
   getRecDelBankDropdownController,
   fetchDelRecAuthDetailsController,
   getCheckPaymodeController,
-  receiptDeleteMstDataSubmitController
+  receiptDeleteMstDataSubmitController,
+  recDelAuthInsController,
 };

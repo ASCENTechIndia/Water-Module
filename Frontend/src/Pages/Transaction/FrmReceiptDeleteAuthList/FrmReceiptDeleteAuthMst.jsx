@@ -5,6 +5,8 @@ import Layout from "../../../Components/Layout";
 import Label from "../../../Components/Label";
 import Button from "../../../Components/Button.jsx";
 import apiService from "../../../../apiService";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 import { useAuth } from "../../../Context/AuthContext";
 import { useLoader } from "../../../Context/LoaderContext";
 
@@ -22,11 +24,16 @@ const FrmReceiptDeleteAuthMst = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { user } = useAuth();
+  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
 
   const connId = state?.connId;
   const receiptId = state?.recId;
+  const wardId = state?.wardId;
+  const zoneId = state?.zoneId;
+  const blockId = state?.blockId;
+  const stateRecNo = state?.recNo;
 
   const [payTypeOptions, setPayTypeOptions] = useState([]);
   const [reasonOptions, setReasonOptions] = useState([]);
@@ -37,6 +44,7 @@ const FrmReceiptDeleteAuthMst = () => {
     register,
     handleSubmit,
     setValue,
+    getValues,
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
@@ -84,7 +92,6 @@ const FrmReceiptDeleteAuthMst = () => {
 
         const [payRes, reasonRes, bankRes] = results;
 
-        // Payment type dropdown
         if (payRes.status === "fulfilled" && payRes.value?.success) {
           setPayTypeOptions(
             payRes.value.data.map((item) => ({
@@ -96,7 +103,6 @@ const FrmReceiptDeleteAuthMst = () => {
           setPayTypeOptions([]);
         }
 
-        // Reason dropdown
         if (reasonRes.status === "fulfilled" && reasonRes.value?.success) {
           setReasonOptions(
             reasonRes.value.data.map((item) => ({
@@ -108,7 +114,6 @@ const FrmReceiptDeleteAuthMst = () => {
           setReasonOptions([]);
         }
 
-        // Bank dropdown
         if (bankRes.status === "fulfilled" && bankRes.value?.success) {
           setBankOptions(
             bankRes.value.data.map((item) => ({
@@ -153,7 +158,7 @@ const FrmReceiptDeleteAuthMst = () => {
     fetchDetails();
   }, [connId, receiptId, ulbid]);
 
-  // Prefill form data after fetching form details
+  // Prefill form data after fetching details
   useEffect(() => {
     if (!detail) return;
 
@@ -161,40 +166,32 @@ const FrmReceiptDeleteAuthMst = () => {
     setValue("ownerName", detail.RECEIVDFROM || "");
     setValue("receiptDate", toDateInput(detail.RECEIPDATE));
 
-    // Bill Amt AND Interest/Fine
     setValue("billAmt", String(detail.PAYBLEAMOUNT ?? ""));
     setValue("interestFine", String(detail.PAYBLEAMOUNT ?? ""));
-
-    // Collection Center = zonename
     setValue("collectionCenter", detail.ZONENAME || "");
 
     setValue("mobileNo", String(detail.MOBILENO ?? ""));
     setValue("email", detail.EMAIL || "");
     setValue("instrumentNo", detail.INSTRUNO || "");
     setValue("instrumentDate", toDateInput(detail.INSTRUDATE));
-    setValue("micrCode", detail.MICRCODE ? String(detail.MICRCODE) : "");
-    setValue(
-      "instrumentType",
-      detail.INSTRUTYPE ? String(detail.INSTRUTYPE) : "",
-    );
+    setValue("micrCode", detail.MICRCODE);
+    setValue("instrumentType", detail.INSTRUTYPE);
 
-    // Total Bill Amount = ARRDEMAND, Total Rebate = REBATEAMOUNT, Pay Amount = AMOUNT
     setValue("totalBillAmt", String(detail.ARRDEMAND ?? ""));
     setValue("totalRebate", String(detail.REBATEAMOUNT ?? ""));
     setValue("payAmt", String(detail.AMOUNT ?? ""));
 
-    // Charges prefilled from DELCHARGES
     setValue("charges", String(detail.DELCHARGES ?? ""));
   }, [detail, setValue]);
 
-  // Prefill Pay Type — RECMODE is the label so matching dropdown optins value with label not id
+  // Prefill Pay Type — match by label
   useEffect(() => {
     if (!detail || payTypeOptions.length === 0) return;
     const match = payTypeOptions.find((o) => o.label === detail.RECMODE);
     if (match) setValue("payType", match.value);
   }, [detail, payTypeOptions, setValue]);
 
-  // Prefill Reason — DELREMARK is the id
+  // Prefill Reason
   useEffect(() => {
     if (!detail || reasonOptions.length === 0) return;
     const id = String(detail.DELREMARK || "");
@@ -203,7 +200,7 @@ const FrmReceiptDeleteAuthMst = () => {
     }
   }, [detail, reasonOptions, setValue]);
 
-  // Prefill Bank — BANKID is the id
+  // Prefill Bank
   useEffect(() => {
     if (!detail || bankOptions.length === 0) return;
     const id = String(detail.BANKID ?? "");
@@ -212,9 +209,102 @@ const FrmReceiptDeleteAuthMst = () => {
     }
   }, [detail, bankOptions, setValue]);
 
+  // Submit handler
   const onSubmit = async (values) => {
-    console.log("Submit payload →", values);
-    alert("Submit not implemented yet");
+    if (!userId || !ulbid) {
+      alert("User Id or Ulb Id is not set");
+      return;
+    }
+
+    if (!values.remark?.trim()) {
+      alert("Please Enter Remark");
+      return;
+    }
+    if (!values.status) {
+      alert("Please Select Status");
+      return;
+    }
+    if (!values.reason) {
+      alert("Delete reason is missing");
+      return;
+    }
+    if (
+      values.charges === "" ||
+      values.charges === null ||
+      values.charges === undefined
+    ) {
+      alert("Please Enter Charges");
+      return;
+    }
+    if (!values.password?.trim()) {
+      alert("Please Enter Password");
+      return;
+    }
+    if (!connId || !receiptId || !wardId || !zoneId || !blockId) {
+      alert(
+        "Required identifiers are missing. Please go back to the list and try again.",
+      );
+      return;
+    }
+
+    const recNoForDisplay = detail?.RECEIPTNO || stateRecNo || "";
+    const payAmtForDisplay = values.payAmt || detail?.AMOUNT || "";
+    const recDateForDisplay = values.receiptDate || "";
+
+    const confirmed = window.confirm(
+      `Are You Sure, You Want To Delete Receipt?\n\n` +
+        `Conn No: ${values.connNo}\n` +
+        `Receipt No: ${recNoForDisplay}\n` +
+        `Receipt Amount: ${payAmtForDisplay}\n` +
+        `Receipt Date: ${recDateForDisplay}`,
+    );
+    if (!confirmed) return;
+
+    try {
+      setLoading(true);
+      const ip = await GetIPAddress();
+
+      const payload = {
+        in_userid: userId,
+        in_ulbid: Number(ulbid),
+        in_wardid: Number(wardId),
+        in_zoneid: Number(zoneId),
+        in_blockno: Number(blockId),
+        in_connid: Number(connId),
+        in_recid: Number(receiptId),
+        in_recno: String(detail?.RECEIPTNO || stateRecNo || ""),
+        in_status: values.status,
+        in_reasonid: Number(values.reason),
+        in_charges: Number(values.charges),
+        in_password: values.password,
+        in_remark: values.remark.trim(),
+        in_ipaddress: ip,
+        in_source: config.source,
+      };
+
+      console.log("Receipt delete auth payload →", payload);
+
+      const res = await apiService.post(
+        "/transaction/aowt_rec_delauth",
+        payload,
+      );
+
+      if (res?.success && res?.data?.out_errorcode === 9999) {
+        alert(res.data.out_errormssg || "Receipt processed successfully");
+        navigate("/Transaction/FrmReceiptDeleteAuthList");
+      } else {
+        alert(
+          res?.data?.out_errormssg ||
+            res?.message ||
+            "Failed to process receipt delete authorization",
+        );
+      }
+    } catch (err) {
+      console.error("Receipt delete auth error:", err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Shared classes
@@ -222,8 +312,6 @@ const FrmReceiptDeleteAuthMst = () => {
   const enabledInput = "form-input-box w-full";
   const disabledSelect =
     "form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm bg-slate-100 cursor-not-allowed";
-  const enabledSelect =
-    "form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm";
 
   return (
     <Layout
@@ -245,7 +333,7 @@ const FrmReceiptDeleteAuthMst = () => {
               disabled
               {...register("connNo")}
             />
-          </div>
+          </div>  
           <div>
             <Label text="Flat No: " required />
             <select className={disabledSelect} disabled {...register("flatNo")}>
@@ -322,7 +410,6 @@ const FrmReceiptDeleteAuthMst = () => {
             Payment Details
           </h6>
 
-          {/* Row A */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <Label text="Payment Type: " required />
@@ -359,7 +446,6 @@ const FrmReceiptDeleteAuthMst = () => {
             </div>
           </div>
 
-          {/* Row B */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <Label text="Bank: " required />
@@ -387,7 +473,6 @@ const FrmReceiptDeleteAuthMst = () => {
             </div>
           </div>
 
-          {/* Row C */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <Label text="Instrument No: " />
@@ -409,7 +494,6 @@ const FrmReceiptDeleteAuthMst = () => {
             </div>
           </div>
 
-          {/* Row D */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <Label text="MICR Code: " />
@@ -442,7 +526,6 @@ const FrmReceiptDeleteAuthMst = () => {
             </div>
           </div>
 
-          {/* Row E */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <Label text="Total Bill Amount: " />
@@ -506,7 +589,7 @@ const FrmReceiptDeleteAuthMst = () => {
               </div>
             </div>
 
-            {/* Reason (disabled, prefilled) */}
+            {/* Reason */}
             <div>
               <Label text="Reason: " required />
               <select
@@ -523,20 +606,23 @@ const FrmReceiptDeleteAuthMst = () => {
               </select>
             </div>
 
-            {/* Charges (enabled, prefilled, editable) */}
+            {/* Charges */}
             <div>
               <Label text="Charges: " required />
               <input
                 type="text"
                 className={enabledInput}
                 maxLength={10}
+                onInput={(e) => {
+                  e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                }}
                 {...register("charges", {
                   required: "Charges is required",
                 })}
               />
             </div>
 
-            {/* Password (enabled) */}
+            {/* Password */}
             <div>
               <Label text="Password: " required />
               <input

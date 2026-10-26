@@ -1,6 +1,11 @@
 const { executeQuery } = require("../../db/queryExecutor");
 const { executeProcedure } = require("../../db/procedureExecutor");
 const oracledb = require("oracledb");
+// const { encryptPassword, decryptPassword } = require("../../utils/passwordCrypto");
+const {
+  encryptPassword,
+  decryptPassword,
+} = require("../../utils/login-password-crypto");
 
 function normalizeNullable(value) {
   if (value === null || value === undefined || value === "") {
@@ -875,51 +880,13 @@ async function fetchDelRecAuthDetails(payload) {
   }
 
   const sql = `
-    select connid,
-           ulbid,
-           receiptno,
-           receipdate,
-           relatedto,
-           cfcref,
-           counterref,
-           receivdfrom,
-           title,
-           narration,
-           oldconnno,
-           recmode,
-           amount,
-           chequeno,
-           chequedate,
-           bankname,
-           referenceno,
-           dtdate,
-           details,
-           payableamtarrears,
-           payableamtcurrent,
-           receivdamtarrears,
-           receivdamtcurrent,
-           excess_advanceamt,
-           payableamt,
-           rebateamt,
-           actualpayableamt,
-           totalreceivdamount,
-           zonename,
-           connno,
-           delremark,
-           delreason,
-           delcharges,
-           rec_flatno,
-           paybleamount,
-           mobileno,
-           email,
-           bankid,
-           instruno,
-           instrudate,
-           micrcode,
-           instrutype,
-           advamt,
-           arrdemand,
-           rebateamount
+      select connid, ulbid, receiptno, receipdate, relatedto, cfcref, counterref, receivdfrom, 
+      title, narration, oldconnno, recmode, amount, chequeno, chequedate, bankname, 
+      referenceno, dtdate, details, payableamtarrears, payableamtcurrent, receivdamtarrears, 
+      receivdamtcurrent, excess_advanceamt, payableamt, rebateamt, actualpayableamt, 
+      totalreceivdamount, zonename, connno, DELREMARK, DELREASON, DELCHARGES, 
+      REC_FLATNO, PAYBLEAMOUNT, MOBILENO, EMAIL, BANKID, INSTRUNO, INSTRUDATE, 
+      MICRCODE, INSTRUTYPE, ADVAMT, ARRDEMAND, REBATEAMOUNT
       from vw_waterreceptdel
      where connid = :connId
        and rec_id = :receiptId
@@ -934,6 +901,60 @@ async function fetchDelRecAuthDetails(payload) {
 
   const result = await executeQuery(sql, binds);
   return result.rows || [];
+}
+
+async function aowt_rec_delauth(payload) {
+  const statement = `
+    BEGIN
+      aowt_rec_delauth(
+        :in_userid,
+        :in_ulbid,
+        :in_wardid,
+        :in_zoneid,
+        :in_blockno,
+        :in_connid,
+        :in_recid,
+        :in_recno,
+        :in_status,
+        :in_reasonid,
+        :in_charges,
+        :in_password,
+        :in_remark,
+        :in_ipaddress,
+        :in_source,
+        :out_errorcode,
+        :out_errormssg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_ulbid: Number(payload.in_ulbid),
+    in_wardid: Number(payload.in_wardid),
+    in_zoneid: Number(payload.in_zoneid),
+    in_blockno: Number(payload.in_blockno),
+    in_connid: Number(payload.in_connid),
+    in_recid: Number(payload.in_recid),
+    in_recno: payload.in_recno,
+    in_status: payload.in_status,
+    in_reasonid: Number(payload.in_reasonid),
+    in_charges: Number(payload.in_charges),
+    in_password: encryptPassword(payload.in_password),
+    in_remark: payload.in_remark,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormssg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
 }
 
 module.exports = {
@@ -968,5 +989,6 @@ module.exports = {
   getReceiptDeleteBankDropdown,
   fetchDelRecAuthDetails,
   getCheckPaymodeRepo,
-  receiptDeleteMstSubmitRepo
+  receiptDeleteMstSubmitRepo,
+  aowt_rec_delauth,
 };

@@ -30,6 +30,7 @@ const {
   getReceiptDeleteBankDropdown,
   fetchDelRecAuthDetails,
   getCheckPaymodeRepo,
+  aowt_rec_delauth,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -188,6 +189,10 @@ async function fetchDelRecAuthDetailsService(payload) {
   return fetchDelRecAuthDetails(payload);
 }
 
+async function recDelAuthInsService(payload) {
+  return aowt_rec_delauth(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -217,5 +222,6 @@ module.exports = {
   getRecDeleteBankDropdownService,
   fetchDelRecAuthDetailsService,
   getCheckPaymodeService,
-  receiptDeleteMstSubmitService
+  receiptDeleteMstSubmitService,
+  recDelAuthInsService,
 };
