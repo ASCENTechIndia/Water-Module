@@ -815,7 +815,7 @@ async function getVasuliChallanTableDataController(req, res, next) {
 async function generateChallanNumberController(req, res, next) {
   try {
     const payload = req.body;
-    const rows = await generateChallanNumberService();
+    const rows = await generateChallanNumberService(payload);
 
     logApiSuccess(
       req,

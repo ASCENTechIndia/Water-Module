@@ -9,6 +9,8 @@ import apiService from "../../../../apiService";
 import ConfigTable from "../../../Components/ConfigTable.jsx";
 import Button from "../../../Components/Button.jsx";
 import Table from "../../../Components/Table.jsx";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const getToday = () => {
     const d = new Date();
@@ -28,6 +30,26 @@ const formatDate = (dateString) => {
 
     return `${day}-${month}-${year}`;
 };
+
+const formatDateForPayload = (dateString) => {
+    const [day, month, year] = dateString.split("-");
+    const monthMap = {
+        "01": "Jan",
+        "02": "Feb",
+        "03": "Mar",
+        "04": "Apr",
+        "05": "May",
+        "06": "Jun",
+        "07": "Jul",
+        "08": "Aug",
+        "09": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+    };
+    let date = `${day}-${monthMap[month]}-${year}`;
+    return date;
+}
 
 const FrmVasuliChalanGenerationMBMC = () => {
     const { user } = useAuth();
@@ -162,7 +184,27 @@ const FrmVasuliChalanGenerationMBMC = () => {
     const handleGenerate = async (data) => {
         try {
             setLoading(true);
-            console.log(data);
+
+            const ipAddress = await GetIPAddress();
+            const payload = {
+                in_ulbid: Number(ulbId),
+                in_userid: userId,
+                in_zoneid: Number(data.ZONEID),
+                in_paymodeid: Number(data.PAYMODEID),
+                in_challandate: formatDateForPayload(formatDate(data.CHALANDATA)),
+                in_rcptfromdt: formatDateForPayload(formatDate(data.FRMDATE)),
+                in_rcpttodt: formatDateForPayload(formatDate(data.TODATE)),
+                in_ipaddress: ipAddress,
+                in_source: config.source
+            };
+
+            const response = await apiService.post("/transaction/generate-challan-number", payload);
+
+            if (response.success && response.data.out_errorcode === 9999) {
+                alert(response.data.out_errormsg + " - " + response.data.out_challanno);
+                fetchTableData();
+            }
+
         } catch (error) {
             console.error("Failed to generate challan number: ", error);
             alert(error.message || "Failed to generate challan number");
@@ -242,7 +284,7 @@ const FrmVasuliChalanGenerationMBMC = () => {
                         <select
                             className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
                             {...register("ulbName")}
-                            // disabled
+                        // disabled
                         >
                             <option value="">
                                 -- Select --
@@ -340,13 +382,13 @@ const FrmVasuliChalanGenerationMBMC = () => {
                         />
                     </div>
                 </div>
-                <div className="mt-3">
-                    <Table
-                        headers={tableHeader}
-                        data={tableData}
-                    />
-                </div>
             </form>
+            <div className="mt-3">
+                <Table
+                    headers={tableHeader}
+                    data={tableData}
+                />
+            </div>
         </Layout>
     )
 }
