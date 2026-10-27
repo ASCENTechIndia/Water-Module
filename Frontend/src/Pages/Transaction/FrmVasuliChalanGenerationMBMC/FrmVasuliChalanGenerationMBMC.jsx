@@ -250,9 +250,11 @@ const FrmVasuliChalanGenerationMBMC = () => {
     }
 
     useEffect(() => {
-        fetchULBDropdown();
-        fetchTableData();
-    }, [])
+        if (ulbId) {
+            fetchULBDropdown();
+            fetchTableData();
+        }
+    }, [ulbId])
 
     useEffect(() => {
         if (watchULB) {
