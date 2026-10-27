@@ -36,6 +36,9 @@ const {
   getVasuliChallanTableDataRepo,
   generateChallanNumberRepo,
   billDeleteInsRepo,
+  getOwnershipAuthList,
+  getOwnershipDoc,
+  fetchOwnershipDetailsRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -218,6 +221,18 @@ async function billDeleteInsService(payload) {
   return billDeleteInsRepo(payload);
 }
 
+async function getOwnershipAuthListService(payload) {
+  return getOwnershipAuthList(payload);
+}
+
+async function getOwnershipDocService(payload) {
+  return getOwnershipDoc(payload);
+}
+
+async function fetchOwnershipDetailsService(payload) {
+  return fetchOwnershipDetailsRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -254,4 +269,7 @@ module.exports = {
   getVasuliChallanTableDataService,
   generateChallanNumberService,
   billDeleteInsService,
+  getOwnershipAuthListService,
+  getOwnershipDocService,
+  fetchOwnershipDetailsService,
 };

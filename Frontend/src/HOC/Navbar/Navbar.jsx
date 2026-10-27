@@ -174,12 +174,12 @@ const STATIC_MENU = [
       {
         MENUID: 126,
         MENUTITLE: "Provisional Cheque Config",
-        PAGEPATH: "/Masters/FrmProvChequeList"
+        PAGEPATH: "/Masters/FrmProvChequeList",
       },
       {
         MENUID: 127,
         MENUTITLE: "All User List",
-        PAGEPATH: "/Masters/FrmuserallList"
+        PAGEPATH: "/Masters/FrmuserallList",
       },
     ],
   },
@@ -275,13 +275,13 @@ const STATIC_MENU = [
       {
         MENUID: 218,
         MENUTITLE: "Service Rate Configuration List",
-        PAGEPATH: "/Masters/FrmServiceRateConfigList"
+        PAGEPATH: "/Masters/FrmServiceRateConfigList",
       },
       {
         MENUID: 219,
         MENUTITLE: "User Collection Configuration",
-        PAGEPATH: "/Transaction/FrmUserCollectionConfig"
-      }
+        PAGEPATH: "/Transaction/FrmUserCollectionConfig",
+      },
     ],
   },
   {
@@ -291,9 +291,9 @@ const STATIC_MENU = [
       {
         MENUID: 301,
         MENUTITLE: "Connection Master",
-        PAGEPATH: "/Transaction/FrmConnSearch"
+        PAGEPATH: "/Transaction/FrmConnSearch",
       },
-    ] 
+    ],
   },
   {
     MENUID: 4,
@@ -302,14 +302,14 @@ const STATIC_MENU = [
       {
         MENUID: 401,
         MENUTITLE: "Search Receipt",
-        PAGEPATH: "/Transaction/FrmSearchReciptList"
+        PAGEPATH: "/Transaction/FrmSearchReciptList",
       },
       {
         MENUID: 402,
         MENUTITLE: "Connection Search",
-        PAGEPATH: "/ReportsForm/FrmConnectionSearch"
-      }
-    ]
+        PAGEPATH: "/ReportsForm/FrmConnectionSearch",
+      },
+    ],
   },
   {
     MENUID: 5,
@@ -318,40 +318,45 @@ const STATIC_MENU = [
       {
         MENUID: 503,
         MENUTITLE: "Meter Reading Entry",
-        PAGEPATH: "/Transaction/FrmMeterReadingEntry"
+        PAGEPATH: "/Transaction/FrmMeterReadingEntry",
       },
       {
         MENUID: 501,
         MENUTITLE: "Bill Generation",
-        PAGEPATH: "/Transaction/FrmBillGeneration"
+        PAGEPATH: "/Transaction/FrmBillGeneration",
       },
       {
         MENUID: 504,
         MENUTITLE: "Cheque Bounce",
-        PAGEPATH: "/Transaction/FrmChequeBounce"
+        PAGEPATH: "/Transaction/FrmChequeBounce",
       },
       {
         MENUID: 505,
         MENUTITLE: "Receipt Delete",
-        PAGEPATH: "/Transaction/FrmReceiptDeleteList"
+        PAGEPATH: "/Transaction/FrmReceiptDeleteList",
       },
       {
         MENUID: 502,
         MENUTITLE: "Receipt Delete Authorization List",
-        PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList"
+        PAGEPATH: "/Transaction/FrmReceiptDeleteAuthList",
       },
       {
         MENUID: 512,
         MENUTITLE: "Bill Delete",
-        PAGEPATH: "/Transaction/FrmBillDelete"
+        PAGEPATH: "/Transaction/FrmBillDelete",
       },
       {
         MENUID: 506,
         MENUTITLE: "वसुली चलन निर्मिती",
-        PAGEPATH: "/Transaction/FrmVasuliChalanGenerationMBMC"
-      }
-    ]
-  }
+        PAGEPATH: "/Transaction/FrmVasuliChalanGenerationMBMC",
+      },
+      {
+        MENUID: 507,
+        MENUTITLE: "Change Ownership Auth",
+        PAGEPATH: "/Transaction/FrmChangeOwnershipAuth",
+      },
+    ],
+  },
 ];
 
 const Navbar = ({ title = "Water", isOpen, onClose }) => {

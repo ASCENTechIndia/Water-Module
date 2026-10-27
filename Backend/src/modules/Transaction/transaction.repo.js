@@ -1,11 +1,11 @@
 const { executeQuery } = require("../../db/queryExecutor");
 const { executeProcedure } = require("../../db/procedureExecutor");
 const oracledb = require("oracledb");
-// const { encryptPassword, decryptPassword } = require("../../utils/passwordCrypto");
+const { encryptPassword } = require("../../utils/login-password-crypto");
 const {
-  encryptPassword,
-  decryptPassword,
-} = require("../../utils/login-password-crypto");
+  blobToBuffer,
+  detectMimeType,
+} = require("../../utils/changeBlobToBase64");
 
 function normalizeNullable(value) {
   if (value === null || value === undefined || value === "") {
@@ -1175,6 +1175,102 @@ async function billDeleteInsRepo(payload) {
   return result.outBinds;
 }
 
+async function getOwnershipAuthList(payload) {
+  const { applicationNo } = payload;
+
+  if (!applicationNo || String(applicationNo).trim() === "") {
+    throw new Error("applicationNo is required");
+  }
+
+  const sql = `
+    select num_servappli_id,
+           var_servappli_applino,
+           var_servappli_applicantname
+      from aowt_servappli_mas
+     where var_servappli_applino = :applicationNo
+       and var_servappli_approvstatus = 'P'
+  `;
+
+  const binds = {
+    applicationNo: String(applicationNo).trim(),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getOwnershipDoc(payload) {
+  const { ulbId, applicationId, applicationNo } = payload;
+
+  if (!ulbId || !applicationId || !applicationNo) {
+    throw new Error("ulbId, applicationId and applicationNo are required");
+  }
+
+  const sql = `
+    select blo_servapplidoc_image,
+           num_servappli_id,
+           num_servapplidoc_doctype
+      from aowt_servappli_mas
+     inner join aowt_servapplidoc_det
+        on num_servappli_id = num_servapplidoc_servappliid
+     where 1 = 1
+       and var_servappli_approvstatus = 'P'
+       and num_servappli_ublid = :ulbId
+       and num_servappli_id = :applicationId
+       and var_servappli_applino = :applicationNo
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    applicationId: Number(applicationId),
+    applicationNo: String(applicationNo).trim(),
+  };
+
+  // Ask the driver to return the BLOB column as a Buffer
+  const result = await executeQuery(sql, binds, {
+    fetchInfo: { BLO_SERVAPPLIDOC_IMAGE: { type: oracledb.BUFFER } },
+  });
+
+  const rows = result.rows || [];
+  const docs = [];
+
+  for (const row of rows) {
+    const buf = await blobToBuffer(row.BLO_SERVAPPLIDOC_IMAGE);
+    docs.push({
+      applicationId: row.NUM_SERVAPPLI_ID,
+      docType: row.NUM_SERVAPPLIDOC_DOCTYPE,
+      mimeType: detectMimeType(buf),
+      fileBase64: buf ? buf.toString("base64") : null,
+    });
+  }
+
+  return docs;
+}
+
+async function fetchOwnershipDetailsRepo(payload) {
+  const { ulbId, applicationId, applicationNo } = payload;
+
+  const statement = `
+    select num_servappli_serviceid,num_servappli_wardid,num_servappli_zoneid,num_servappli_blockid,
+    num_servappli_connno,var_servappli_applino,var_servappli_applicantname,var_servappli_oldownername,
+    var_servappli_newownername,var_servappli_newaddress,var_servappli_oldaddress,num_servappli_ammount 
+    from aowt_servappli_mas 
+    where 1=1 and var_servappli_approvstatus='P' 
+    and num_servappli_ublid=:ulbId
+    and num_servappli_id =:applicationId
+    and var_servappli_applino=:applicationNo
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    applicationId: Number(applicationId),
+    applicationNo,
+  };
+
+  const result = await executeQuery(statement, binds);
+  return result.rows;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -1214,4 +1310,7 @@ module.exports = {
   getVasuliChallanTableDataRepo,
   generateChallanNumberRepo,
   billDeleteInsRepo,
+  getOwnershipAuthList,
+  getOwnershipDoc,
+  fetchOwnershipDetailsRepo,
 };

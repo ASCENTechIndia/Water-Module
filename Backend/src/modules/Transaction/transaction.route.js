@@ -35,6 +35,9 @@ const {
   getVasuliChallanTableDataController,
   generateChallanNumberController,
   billDeleteInsController,
+  getOwnershipAuthListController,
+  getOwnershipDocController,
+  fetchOwnershipDetailsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -128,4 +131,9 @@ router.post(
 // Vasuli challan
 router.get("/getVasuliChallanTableData", getVasuliChallanTableDataController);
 router.post("/generate-challan-number", validate(vasulichallanGenerationSchema), generateChallanNumberController);
+
+// Change ownership auth
+router.get("/getOwnershipAuthList", getOwnershipAuthListController);
+router.get("/getOwnershipDoc", getOwnershipDocController);
+router.get("/fetchOwnershipDetails", fetchOwnershipDetailsController);
 module.exports = router;

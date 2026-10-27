@@ -35,6 +35,9 @@ const {
   getVasuliChallanTableDataService,
   generateChallanNumberService,
   billDeleteInsService,
+  getOwnershipAuthListService,
+  getOwnershipDocService,
+  fetchOwnershipDetailsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -882,6 +885,73 @@ async function billDeleteInsController(req, res, next) {
   }
 }
 
+async function getOwnershipAuthListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getOwnershipAuthListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, applicationNo: payload.applicationNo },
+      rows?.length > 0
+        ? "Ownership authorization list retrieved"
+        : "Application not found",
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Ownership authorization list error");
+    return next(err);
+  }
+}
+
+async function getOwnershipDocController(req, res, next) {
+  try {
+    const payload = req.query;
+    const docs = await getOwnershipDocService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      {
+        count: docs?.length || 0,
+        applicationId: payload.applicationId,
+        applicationNo: payload.applicationNo,
+      },
+      docs?.length > 0 ? "Ownership documents retrieved" : "No documents found",
+    );
+
+    return res.ok(docs);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Ownership document fetch error");
+    return next(err);
+  }
+}
+
+async function fetchOwnershipDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await fetchOwnershipDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      {
+        count: rows?.length || 0,
+        applicationNo: payload.applicationNo,
+        applicationId: payload.applicationId,
+      },
+      rows?.length > 0 ? "Ownership details retrieved" : "No records found",
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Ownership details error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -918,4 +988,7 @@ module.exports = {
   getVasuliChallanTableDataController,
   generateChallanNumberController,
   billDeleteInsController,
+  getOwnershipAuthListController,
+  getOwnershipDocController,
+  fetchOwnershipDetailsController,
 };
