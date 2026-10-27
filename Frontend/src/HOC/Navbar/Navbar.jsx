@@ -349,6 +349,11 @@ const STATIC_MENU = [
         MENUID: 506,
         MENUTITLE: "वसुली चलन निर्मिती",
         PAGEPATH: "/Transaction/FrmVasuliChalanGenerationMBMC"
+      },
+      {
+        MENUID: 509,
+        MENUTITLE: "Change Ownership",
+        PAGEPATH: "/Transaction/FrmChangeOwnership"
       }
     ]
   }
