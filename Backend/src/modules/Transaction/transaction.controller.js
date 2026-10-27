@@ -34,6 +34,7 @@ const {
   getBillDeleteDetailsService,
   getVasuliChallanTableDataService,
   generateChallanNumberService,
+  billDeleteInsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -830,6 +831,57 @@ async function generateChallanNumberController(req, res, next) {
   }
 }
 
+async function billDeleteInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await billDeleteInsService(payload);
+
+    const isSuccess = Number(out.out_errorcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          connId: payload.in_Connid,
+          connNo: payload.in_Connno,
+          ulbId: payload.in_ulbid,
+        },
+        out.out_errormsg || "Bill deleted successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errormsg, "Bill delete failed");
+    }
+
+    auditLog({
+      action: "BILL_DELETE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "billdelete",
+      entityId: payload.in_Connid,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errorcode,
+        outErrorMsg: out.out_errormsg,
+        ulbId: payload.in_ulbid,
+        zoneId: payload.in_zoneid,
+        blockNo: payload.in_Blockno,
+        connNo: payload.in_Connno,
+        flatNo: payload.in_flatno ?? null,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Bill delete insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -865,4 +917,5 @@ module.exports = {
   getBillDeleteDetailsController,
   getVasuliChallanTableDataController,
   generateChallanNumberController,
+  billDeleteInsController,
 };

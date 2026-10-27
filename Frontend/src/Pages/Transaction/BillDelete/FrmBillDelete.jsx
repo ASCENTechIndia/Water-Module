@@ -7,11 +7,14 @@ import Button from "../../../Components/Button.jsx";
 import apiService from "../../../../apiService";
 import { useAuth } from "../../../Context/AuthContext";
 import { useLoader } from "../../../Context/LoaderContext";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 
 const FrmBillDelete = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const ulbid = user?.ulbId;
+  const userId = user?.userId;
   const { setLoading } = useLoader();
 
   const [zoneOptions, setZoneOptions] = useState([]);
@@ -213,8 +216,8 @@ const FrmBillDelete = () => {
     });
   };
 
-  // Delete handler (SP not wired yet)
-  const handleDelete = () => {
+  // Delete handler
+  const handleDelete = async () => {
     const values = getValues();
 
     if (!values.zoneName) {
@@ -233,6 +236,16 @@ const FrmBillDelete = () => {
       alert("Please Enter Remark");
       return;
     }
+    if (!userId || !ulbid) {
+      alert("User Id or Ulb Id is not set");
+      return;
+    }
+
+    const connId = taxRows[0]?.CONNID;
+    if (!connId) {
+      alert("Connection Id not found. Please search again.");
+      return;
+    }
 
     // Compute totals for confirmation dialog
     const totalArrears = taxRows.reduce(
@@ -247,10 +260,43 @@ const FrmBillDelete = () => {
     const confirmed = window.confirm(
       `Total Arrears: ${totalArrears} and Total Current: ${totalCurrent} , You Want To Continue?`,
     );
+    if (!confirmed) return;
 
-    if (confirmed) {
-      alert("Delete API not implemented yet");
-      // TODO: call /transaction/aowt_billdel_ins when SP signature is ready
+    try {
+      setLoading(true);
+      const ip = await GetIPAddress();
+
+      const payload = {
+        in_userid: userId,
+        in_ulbid: Number(ulbid),
+        in_zoneid: Number(values.zoneName),
+        in_Blockno: Number(values.blockName),
+        in_Connid: Number(connId),
+        in_Connno: values.connNo.trim(),
+        in_remark: values.remark.trim(),
+        in_ipaddress: ip,
+        in_source: config.source,
+        in_flatno: values.flatNo?.trim() || "",
+      };
+
+      const res = await apiService.post(
+        "/transaction/aowt_billdel_ins",
+        payload,
+      );
+
+      if (res?.success && Number(res?.data?.out_errorcode) === 9999) {
+        alert(res.data.out_errormsg || "Bill deleted successfully");
+        handleReset();
+      } else {
+        alert(
+          res?.data?.out_errormsg || res?.message || "Failed to delete bill",
+        );
+      }
+    } catch (err) {
+      console.error("Bill delete error:", err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -317,7 +363,6 @@ const FrmBillDelete = () => {
             <select
               className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm
                 bg-slate-200"
-              
               {...register("flatNo")}
             >
               <option value="">-- Select --</option>

@@ -35,6 +35,7 @@ const {
   getBillDeleteDetails,
   getVasuliChallanTableDataRepo,
   generateChallanNumberRepo,
+  billDeleteInsRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -206,12 +207,16 @@ async function getBillDeleteDetailsService(payload) {
 }
 
 async function getVasuliChallanTableDataService() {
-  return getVasuliChallanTableDataRepo()
+  return getVasuliChallanTableDataRepo();
 }
 
 async function generateChallanNumberService(payload) {
   return generateChallanNumberRepo(payload);
-} 
+}
+
+async function billDeleteInsService(payload) {
+  return billDeleteInsRepo(payload);
+}
 
 module.exports = {
   getWardDropdownService,
@@ -247,5 +252,6 @@ module.exports = {
   getConnZoneBlockService,
   getBillDeleteDetailsService,
   getVasuliChallanTableDataService,
-  generateChallanNumberService
+  generateChallanNumberService,
+  billDeleteInsService,
 };

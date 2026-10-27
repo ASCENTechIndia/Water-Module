@@ -1014,7 +1014,7 @@ async function getBillDeleteDetails(payload) {
   // Connection No — always added (required)
   sql += ` and connno = :connNo`;
 
-  // Zone 
+  // Zone
   if (zoneId !== null && zoneId !== undefined && String(zoneId).trim() !== "") {
     sql += ` and zoneid = :zoneId`;
     binds.zoneId = Number(zoneId);
@@ -1041,7 +1041,6 @@ async function getBillDeleteDetails(payload) {
   const result = await executeQuery(sql, binds);
   return result.rows || [];
 }
-// Vasuli Challan Generation
 
 async function getVasuliChallanTableDataRepo() {
   let sql = "select * from vw_challanviewed";
@@ -1061,7 +1060,7 @@ async function generateChallanNumberRepo(payload) {
     in_rcptfromdt,
     in_rcpttodt,
     in_ipaddress,
-    in_source
+    in_source,
   } = payload;
 
   let sql = `
@@ -1081,7 +1080,7 @@ async function generateChallanNumberRepo(payload) {
         :out_challanno
       );
     END;
-  `
+  `;
 
   const binds = {
     in_ulbid: Number(in_ulbid),
@@ -1092,10 +1091,72 @@ async function generateChallanNumberRepo(payload) {
     in_rcptfromdt,
     in_rcpttodt,
     in_ipaddress,
-    in_source
+    in_source,
   };
 
   const result = await executeProcedure({ sql, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function billDeleteInsRepo(payload) {
+  const {
+    in_userid,
+    in_ulbid,
+    in_zoneid,
+    in_Blockno,
+    in_Connid,
+    in_Connno,
+    in_remark,
+    in_ipaddress,
+    in_source,
+    in_flatno,
+  } = payload;
+
+  const statement = `
+    BEGIN
+      aowt_billdel_ins(
+        :in_userid,
+        :in_ulbid,
+        :in_zoneid,
+        :in_Blockno,
+        :in_Connid,
+        :in_Connno,
+        :in_remark,
+        :in_ipaddress,
+        :in_source,
+        :in_flatno,
+        :out_errorcode,
+        :out_errormsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid,
+    in_ulbid: Number(in_ulbid),
+    in_zoneid: Number(in_zoneid),
+    in_Blockno: Number(in_Blockno),
+    in_Connid: Number(in_Connid),
+    in_Connno,
+    in_remark,
+    in_ipaddress,
+    in_source,
+    in_flatno: {
+      val:
+        in_flatno && String(in_flatno).trim() !== ""
+          ? String(in_flatno).trim()
+          : null,
+      type: oracledb.STRING,
+    },
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
   return result.outBinds;
 }
 
@@ -1136,5 +1197,6 @@ module.exports = {
   getConnZoneBlock,
   getBillDeleteDetails,
   getVasuliChallanTableDataRepo,
-  generateChallanNumberRepo
+  generateChallanNumberRepo,
+  billDeleteInsRepo,
 };

@@ -34,6 +34,7 @@ const {
   getBillDeleteDetailsController,
   getVasuliChallanTableDataController,
   generateChallanNumberController,
+  billDeleteInsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -42,6 +43,7 @@ const {
   receiptDeleteMstInsSchema,
   recDelAuthInsSchema,
   billDeleteDetailsSchema,
+  billDeleteInsSchema,
 } = require("./transaction.validation");
 
 const router = express.Router();
@@ -115,6 +117,11 @@ router.post(
   "/getBillDeleteDetails",
   validate(billDeleteDetailsSchema),
   getBillDeleteDetailsController,
+);
+router.post(
+  "/aowt_billdel_ins",
+  validate(billDeleteInsSchema),
+  billDeleteInsController,
 );
 
 // Vasuli challan
