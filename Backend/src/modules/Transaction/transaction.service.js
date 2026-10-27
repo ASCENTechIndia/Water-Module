@@ -36,6 +36,10 @@ const {
   getVasuliChallanTableDataRepo,
   generateChallanNumberRepo,
   billDeleteInsRepo,
+  getServiceDropdownRepo,
+  getChangeOwnerConnectionDtlsRepo,
+  getUsageSubUsageConnectionDtlsRepo,
+  getChargesTableDataRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -218,6 +222,24 @@ async function billDeleteInsService(payload) {
   return billDeleteInsRepo(payload);
 }
 
+// Change Ownership
+
+async function getServiceDropdownService(payload) {
+  return getServiceDropdownRepo(payload);
+}
+
+async function getChangeOwnerConnectionDtlsService(payload) {
+  return getChangeOwnerConnectionDtlsRepo(payload);
+}
+
+async function getUsageSubUsageConnectionDtlsService(payload) {
+  return getUsageSubUsageConnectionDtlsRepo(payload);
+}
+
+async function getChargesTableDataService(payload) {
+  return getChargesTableDataRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -254,4 +276,8 @@ module.exports = {
   getVasuliChallanTableDataService,
   generateChallanNumberService,
   billDeleteInsService,
+  getServiceDropdownService,
+  getChangeOwnerConnectionDtlsService,
+  getUsageSubUsageConnectionDtlsService,
+  getChargesTableDataService
 };

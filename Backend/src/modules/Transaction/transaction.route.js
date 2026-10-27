@@ -35,6 +35,10 @@ const {
   getVasuliChallanTableDataController,
   generateChallanNumberController,
   billDeleteInsController,
+  getServiceDropdownController,
+  getChangeOwnerConnectionDtlsController,
+  getUsageSubUsageConnectionDtlsController,
+  getChargesTableDtlsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -128,4 +132,12 @@ router.post(
 // Vasuli challan
 router.get("/getVasuliChallanTableData", getVasuliChallanTableDataController);
 router.post("/generate-challan-number", validate(vasulichallanGenerationSchema), generateChallanNumberController);
+
+// Change Ownership
+router.get("/getServiceMenu", getServiceDropdownController);
+router.get("/getChangeOwnerDetails", getChangeOwnerConnectionDtlsController);
+router.get("/getUsageSubUsage", getUsageSubUsageConnectionDtlsController);
+router.get("/getChargesTableData", getChargesTableDtlsController);
+
+
 module.exports = router;

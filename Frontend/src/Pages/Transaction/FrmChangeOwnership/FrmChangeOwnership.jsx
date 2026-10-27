@@ -48,6 +48,11 @@ const FrmChangeOwnership = () => {
         }
     });
 
+    const watchWard = watch("wardName");
+    const watchZone = watch("zoneName");
+    const watchConsumerNumber = watch("consumerNumber");
+    const watchService = watch("service");
+    const watchAmount = watch("applicableAmt");
 
     const [wardOptions, setWardOptions] = useState([]);
     const [zoneOptions, setZoneOptions] = useState([]);
@@ -55,6 +60,227 @@ const FrmChangeOwnership = () => {
     const [serviceOptions, setServiceOptions] = useState([]);
 
     const [searchedData, setSearchedData] = useState([]);
+    const [chargesTableHeader, setChargesTableHeader] = useState([
+        "शुल्क",
+        "मूल्य"
+    ])
+    const [chargesTableData, setChargesTableData] = useState([]);
+    const [feesData, setFeesData] = useState([]);
+
+    const fetchDropdowns = async (endpoint, valueKey, labelKey, setter) => {
+        try {
+            setLoading(true);
+
+            const response = await apiService.get(endpoint);
+
+            if (response.success && Array.isArray(response.data)) {
+                const formatted = response.data.map(item => ({
+                    label: item[labelKey],
+                    value: item[valueKey]
+                }));
+
+                setter(formatted);
+            } else {
+                setter([]);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleSearch = async () => {
+        try {
+
+            const ward = getValues("wardName");
+            const zone = getValues("zoneName");
+            const block = getValues("blockName");
+            const connNumber = getValues("consumerNumber");
+
+            if (!ward) {
+                alert("Select Ward");
+                return;
+            }
+            if (!zone) {
+                alert("Select Zone");
+                return;
+            }
+            if (!block) {
+                alert("Select Block");
+                return;
+            }
+            if (!connNumber) {
+                alert("Select Consumer Number");
+                return;
+            }
+
+            setLoading(true);
+
+            const url = `/transaction/getChangeOwnerDetails?ulbId=${ulbId}&wardId=${ward}&zoneid=${zone}&blockId=${block}&connectionNumber=${connNumber}`;
+
+            const response = await apiService.get(url);
+
+            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                setSearchedData(response.data);
+
+                setValue("applicationNumber", response.data[0].VAR_CONN_APPLINO ?? "");
+                setValue("oldOwnerName", response.data[0].VAR_CONN_OWNERNAME);
+                setValue("oldAddress", response.data[0].VAR_CONN_ADDRESS);
+            } else {
+                setSearchedData([]);
+                setValue("applicationNumber", "");
+                setValue("oldOwnerName", "");
+                setValue("oldAddress", "");
+                alert("Enter valid consumer number");
+                setValue("consumerNumber", "");
+            }
+
+        } catch (error) {
+            console.error(error);
+            setSearchedData([]);
+            setValue("applicationNumber", "");
+            setValue("oldOwnerName", "");
+            setValue("oldAddress", "");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const getChargesTableData = async () => {
+        try {
+            setLoading(true);
+
+            let usageTypeId = "0", usageSubTypeId = "0";
+
+            const usageSubUsageUrl = `/transaction/getUsageSubUsage?ulbId=${ulbId}&connNumber=${encodeURIComponent(watchConsumerNumber)}`
+
+            const usageSubUsageResponse = await apiService.get(usageSubUsageUrl);
+
+            if (usageSubUsageResponse.success && Array.isArray(usageSubUsageResponse.data) && usageSubUsageResponse.data.length > 0) {
+                usageTypeId = String(usageSubUsageResponse?.data[0].NUM_CONN_CONNUSAGEID ?? 0);
+                usageSubTypeId = String(usageSubUsageResponse?.data[0].NUM_CONN_CONNUSAGESUBID ?? 0);
+            }
+
+            const chargesUrl = `/transaction/getChargesTableData?ulbId=${ulbId}&serviceId=${encodeURIComponent(watchService)}&usageTypeId=${usageTypeId}&subUsageTypeId=${usageSubTypeId}`;
+
+            const chargesResponse = await apiService.get(chargesUrl);
+
+
+            if (chargesResponse.success && Array.isArray(chargesResponse.data) && chargesResponse.data.length > 0) {
+                const formatted = chargesResponse.data.map(item => ([
+                    item.CHARGNAME ?? "",
+                    item.CHARGVALUE ?? ""
+                ]));
+                setFeesData(chargesResponse.data);
+                setChargesTableData(formatted);
+
+            } else {
+                setChargesTableData([]);
+            }
+
+        } catch (error) {
+            console.error(error);
+            setChargesTableData([]);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        const loadDropdowns = async () => {
+            if (!ulbId) return;
+
+            await fetchDropdowns(
+                `/transaction/getWardMenu?ulbId=${ulbId}`,
+                "NUM_WARD_ID",
+                "VAR_WARD_NAME",
+                setWardOptions
+            );
+
+            await fetchDropdowns(
+                `/transaction/getServiceMenu?ulbId=${ulbId}`,
+                "NUM_SERVICE_ID",
+                "VAR_SERVICE_MNAME",
+                setServiceOptions
+            )
+        }
+
+        loadDropdowns().catch(error => console.error(error));
+    }, [ulbId]);
+
+    useEffect(() => {
+        const loadZones = async () => {
+            if (!watchWard) return;
+
+            await fetchDropdowns(
+                `/transaction/getZoneMenu?wardId=${encodeURIComponent(watchWard)}`,
+                "NUM_ZONE_ID",
+                "VAR_ZONE_NAME",
+                setZoneOptions
+            )
+        }
+
+        loadZones().catch(err => console.error(err));
+    }, [watchWard]);
+
+    useEffect(() => {
+        const loadBlocks = async () => {
+            if (!watchZone) return;
+
+            await fetchDropdowns(
+                `/transaction/getBlockMenu?zoneId=${encodeURIComponent(watchZone)}`,
+                "NUM_BLOCK_ID",
+                "VAR_BLOCK_NAME",
+                setBlockOptions
+            )
+        }
+
+        loadBlocks().catch(err => console.error(err));
+    }, [watchZone]);
+
+    useEffect(() => {
+        if (watchService && ulbId) {
+            getChargesTableData();
+        }
+    }, [watchService, ulbId]);
+
+    useEffect(() => {
+        if (watchAmount === "" || watchAmount === null || watchAmount === undefined) {
+            setChargesTableData(
+                feesData.map((item) => [
+                    item.CHARGNAME ?? "",
+                    item.CHARGVALUE ?? "",
+                ])
+            );
+            return;
+        }
+
+        const amount = Number(watchAmount);
+
+        if (!Number.isFinite(amount) || !Array.isArray(feesData)) {
+            return;
+        }
+
+        const updatedChargesTableData = feesData.map((item) => {
+            let chargeValue = item.CHARGVALUE;
+
+            // Calculate percentage-based charges
+            if (String(item.VALUETYPE).trim() === "P") {
+                chargeValue = (
+                    (amount * Number(item.CHARGVALUE)) / 100
+                ).toFixed(2);
+            }
+
+            return [
+                item.CHARGNAME ?? "",
+                chargeValue,
+            ];
+        });
+
+        setChargesTableData(updatedChargesTableData);
+
+    }, [watchAmount, feesData, setChargesTableData]);
 
     return (
         <Layout
@@ -161,7 +387,8 @@ const FrmChangeOwnership = () => {
                         <input
                             type="text"
                             {...register("applicationNumber")}
-                            className="form-input-box"
+                            className={`form-input-box ${searchedData.length > 0 ? "bg-slate-200 cursor-not-allowed" : ""}`}
+                            disabled={searchedData.length > 0}
                         />
                         {/* {errors.applicationNumber &&
                             <div className="mt-3 text-red-500">
@@ -187,12 +414,17 @@ const FrmChangeOwnership = () => {
                     </div>
                 </div>
                 <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
-                    <Button type="button">
+                    <Button
+                        type="button"
+                        onClick={() => {
+                            handleSearch();
+                        }}
+                    >
                         Search
                     </Button>
                 </div>
 
-                {true && (
+                {searchedData.length > 0 && (
                     <>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -222,7 +454,8 @@ const FrmChangeOwnership = () => {
                                 <input
                                     type="text"
                                     {...register("oldOwnerName")}
-                                    className="form-input-box"
+                                    className={`form-input-box ${searchedData.length > 0 ? "bg-slate-200 cursor-not-allowed" : ""}`}
+                                    disabled={searchedData.length > 0}
                                 />
                             </div>
                             <div>
@@ -250,7 +483,8 @@ const FrmChangeOwnership = () => {
                                 <input
                                     type="text"
                                     {...register("oldAddress")}
-                                    className="form-input-box"
+                                    className={`form-input-box ${searchedData.length > 0 ? "bg-slate-200 cursor-not-allowed" : ""}`}
+                                    disabled={searchedData.length > 0}
                                 />
                             </div>
                             <div>
@@ -346,18 +580,21 @@ const FrmChangeOwnership = () => {
                                 )}
                             </div>
                         </div>
-                        <div className="mt-3">
-                            <Table
-                                headers={[]}
-                                data={[]}
-                            />
-                        </div>
+                        {(watchService && chargesTableData.length > 0) &&
+                            <div className="mt-3">
+                                <Table
+                                    headers={chargesTableHeader}
+                                    data={chargesTableData}
+                                />
+                            </div>
+                        }
                         <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
                             <Button type="submit">
                                 Submit
                             </Button>
                             <Button
                                 type="button"
+                                variant="secondary"
                                 onClick={() => {
                                     reset();
                                 }}

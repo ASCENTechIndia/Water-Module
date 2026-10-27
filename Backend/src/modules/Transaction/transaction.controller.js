@@ -35,6 +35,10 @@ const {
   getVasuliChallanTableDataService,
   generateChallanNumberService,
   billDeleteInsService,
+  getServiceDropdownService,
+  getChangeOwnerConnectionDtlsService,
+  getUsageSubUsageConnectionDtlsService,
+  getChargesTableDataService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -882,6 +886,84 @@ async function billDeleteInsController(req, res, next) {
   }
 }
 
+// Change Ownership 
+
+async function getServiceDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getServiceDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Service dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Service dropdown fetch error");
+    return next(err);
+  }
+}
+
+async function getChangeOwnerConnectionDtlsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getChangeOwnerConnectionDtlsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Connection Details fetch error");
+    return next(err);
+  }
+}
+
+async function getUsageSubUsageConnectionDtlsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUsageSubUsageConnectionDtlsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Usage and Sub Usage Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Usage and Sub Usage Details fetch error");
+    return next(err);
+  }
+}
+
+async function getChargesTableDtlsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getChargesTableDataService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Charges Table Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Charges Table Details fetch error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -918,4 +1000,8 @@ module.exports = {
   getVasuliChallanTableDataController,
   generateChallanNumberController,
   billDeleteInsController,
+  getServiceDropdownController,
+  getChangeOwnerConnectionDtlsController,
+  getUsageSubUsageConnectionDtlsController,
+  getChargesTableDtlsController
 };
