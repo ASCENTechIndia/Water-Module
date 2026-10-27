@@ -468,6 +468,71 @@ const billDeleteDetailsSchema = z.object({
     .nullable(),
 });
 
+const vasulichallanGenerationSchema = z.object({
+  in_ulbid: z.number({
+    required_error: "ULB ID is required",
+    invalid_type_error: "ULB ID must be a number"
+  })
+    .int("ULB ID must be an integer"),
+
+  in_userid: z.string({
+    required_error: "User ID is required",
+    invalid_type_error: "User ID must be a string"
+  })
+    .trim()
+    .min(1, "User ID is required"),
+
+  in_zoneid: z.number({
+    required_error: "Zone ID is required",
+    invalid_type_error: "Zone ID must be a number"
+  })
+    .int("Zone ID must be an integer"),
+
+  in_paymodeid: z.number({
+    required_error: "Paymode ID is required",
+    invalid_type_error: "Paymode ID must be a number"
+  })
+    .int("Paymode ID must be an integer"),
+
+  in_challandate: z.string({
+    required_error: "Challan Date is required",
+    invalid_type_error: "Challan Date must be in the format DD-MMM-YYYY"
+  })
+    .trim()
+    .min(1, "Challan Date is required"),
+
+  in_rcptfromdt: z.string({
+    required_error: "From Date is required",
+    invalid_type_error: "From Date must be in the format DD-MMM-YYYY"
+  })
+    .trim()
+    .min(1, "From Date is required"),
+
+  in_rcpttodt: z.string({
+    required_error: "To Date is required",
+    invalid_type_error: "To Date must be in the format DD-MMM-YYYY"
+  })
+    .trim()
+    .min(1, "To Date is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+
+})
+
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
@@ -475,4 +540,5 @@ module.exports = {
   receiptDeleteMstInsSchema,
   recDelAuthInsSchema,
   billDeleteDetailsSchema,
+  vasulichallanGenerationSchema
 };

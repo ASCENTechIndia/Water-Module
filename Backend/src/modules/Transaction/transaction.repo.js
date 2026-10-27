@@ -1092,10 +1092,21 @@ async function generateChallanNumberRepo(payload) {
     in_rcptfromdt,
     in_rcpttodt,
     in_ipaddress,
-    in_source
+    in_source,
+    out_errorcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errormsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+    out_challanno: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    }
   };
 
-  const result = await executeProcedure({ sql, binds, useTx: false });
+  const result = await executeProcedure({ statement: sql, binds, useTx: false });
   return result.outBinds;
 }
 

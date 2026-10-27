@@ -42,6 +42,7 @@ const {
   receiptDeleteMstInsSchema,
   recDelAuthInsSchema,
   billDeleteDetailsSchema,
+  vasulichallanGenerationSchema,
 } = require("./transaction.validation");
 
 const router = express.Router();
@@ -119,5 +120,5 @@ router.post(
 
 // Vasuli challan
 router.get("/getVasuliChallanTableData", getVasuliChallanTableDataController);
-router.post("/generate-challan-number", generateChallanNumberController);
+router.post("/generate-challan-number", validate(vasulichallanGenerationSchema), generateChallanNumberController);
 module.exports = router;
