@@ -1365,6 +1365,7 @@ async function changeOwnershipDataSubmitRepo(payload) {
         :in_AppliName,
         :in_ServiceID,
         :in_wardID,
+        :in_zoneID,
         :in_blockID,
         :in_newownername,
         :in_oldownername,
@@ -1372,7 +1373,7 @@ async function changeOwnershipDataSubmitRepo(payload) {
         :in_oldaddress,
         :in_AppliAmount,
         :in_Docstring,
-        :in_Chargeslist
+        :in_Chargeslist,
         :in_ipaddress,
         :in_source,
         :Out_errorCode,
@@ -1453,6 +1454,40 @@ async function changeOwnershipDocumentSubmitRepo(payload) {
     documentId,
     rowsAffected: result.rowsAffected,
   };
+}
+
+async function getAcknowledgementDetailsRepo(payload) {
+  const { ulbId, applicationNo, connNo } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!applicationNo) {
+    throw new Error("Application Number is required");
+  }
+
+  if (!connNo) {
+    throw new Error("Connection Number is required");
+  }
+
+  let sql = `
+    select applino,applidt,application_time,applicantname,servicemname,desig_id,dept_name,due_date, due_time, helpline, corporation_name, printdate 
+    from vw_applacknowledge_rpt where 1=1 
+    and ublid=:ulbId
+    and upper(applino) = :applicationNo
+    and connno=:connNo
+  `;
+
+  const binds = {
+    ulbId,
+    applicationNo,
+    connNo,
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
 }
 
 async function getOwnershipDoc(payload) {
@@ -1679,4 +1714,5 @@ module.exports = {
   getOwnershipServiceDropdown,
   getOwnershipCharges,
   aowt_serviceapprovalauth_ins,
+  getAcknowledgementDetailsRepo,
 };

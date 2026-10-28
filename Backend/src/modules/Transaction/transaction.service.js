@@ -48,6 +48,7 @@ const {
   getOwnershipServiceDropdown,
   getOwnershipCharges,
   aowt_serviceapprovalauth_ins,
+  getAcknowledgementDetailsRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -310,6 +311,10 @@ async function serviceApprovalAuthInsService(payload) {
   return aowt_serviceapprovalauth_ins(payload);
 }
 
+async function getAcknowledgmentReportDetailsService(payload) {
+  return getAcknowledgementDetailsRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -358,4 +363,5 @@ module.exports = {
   getOwnershipServiceDropdownService,
   getOwnershipChargesService,
   serviceApprovalAuthInsService,
+  getAcknowledgmentReportDetailsService,
 };

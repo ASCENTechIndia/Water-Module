@@ -48,6 +48,7 @@ const {
   getOwnershipServiceDropdownController,
   getOwnershipChargesController,
   serviceApprovalAuthInsController,
+  getAcknowledgementDetailsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -183,6 +184,7 @@ router.get("/getServiceMenu", getServiceDropdownController);
 router.get("/getChangeOwnerDetails", getChangeOwnerConnectionDtlsController);
 router.get("/getUsageSubUsage", getUsageSubUsageConnectionDtlsController);
 router.get("/getChargesTableData", getChargesTableDtlsController);
+router.get("/getAcknowledgementDetails", getAcknowledgementDetailsController);
 router.post("/change-ownership", changeOwnershipDataSubmitController);
 router.post(
   "/update-ownership-document",
