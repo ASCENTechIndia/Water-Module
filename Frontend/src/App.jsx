@@ -102,6 +102,7 @@ import FrmReceiptDeleteAuthMst from "./Pages/Transaction/FrmReceiptDeleteAuthLis
 import FrmBillDelete from "./Pages/Transaction/BillDelete/FrmBillDelete.jsx";
 import FrmChangeOwnershipAuth from "./Pages/Transaction/ChangesOwnershipAuth/FrmChangeOwnershipAuth.jsx";
 import FrmViewDocument from "./Pages/Transaction/ChangesOwnershipAuth/FrmViewDocument.jsx";
+import FrmChangeOwnership from "./Pages/Transaction/FrmChangeOwnership/FrmChangeOwnership.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -119,119 +120,121 @@ function App() {
                   {/* Dashboard */}
                   <Route path="/dashboard" element={<Dashboard />} />
                   {/* Configuration */}
-                  <Route path="/Masters/FrmPremiseTypeConfig" element={<FrmPremiseTypeConfig />} />
-                  <Route 
+                  <Route
+                    path="/Masters/FrmPremiseTypeConfig"
+                    element={<FrmPremiseTypeConfig />}
+                  />
+                  <Route
                     path="/Masters/FrmUsageTypeConfig"
                     element={<FrmUsageTypeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmUsageSubTypeConfig"
                     element={<FrmUsageSubTypeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmBillingMethodConfig"
                     element={<FrmBillingMethodConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmConsumerTypeConfig"
                     element={<FrmConsumerTypeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmConnCodeConfig"
                     element={<FrmConnCodeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmMeterOwnerConfig"
                     element={<FrmMeterOwnerConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmBankConfig"
                     element={<FrmBankConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmBillingFrequencyConfig"
                     element={<FrmBillingFrequencyConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmConnSizeConfig"
                     element={<FrmConnSizeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmConnStatusConfig"
                     element={<FrmConnStatusConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmMeterGapCodeConfig"
                     element={<FrmMeterGapCodeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmTaxMasterConfig"
                     element={<FrmTaxMasterConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmConnTypeConfig"
                     element={<FrmConnTypeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmCollcenterConfig"
                     element={<FrmCollCenterConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmServiceConfig"
                     element={<FrmServiceConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmChargesTypeConfig"
                     element={<FrmChargesTypeConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Transaction/FrmUserCollectionConfig"
                     element={<FrmUserCollectionConfig />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmServiceRateConfigList"
                     element={<FrmServiceRateConfigList />}
                   />
-                  <Route 
+                  <Route
                     path="/Masters/FrmServiceRateConfigMst"
                     element={<FrmServiceRateConfigMst />}
                   />
 
-
                   {/* Water */}
-                  <Route 
+                  <Route
                     path="/Transaction/FrmConnSearch"
                     element={<FrmConnSearch />}
                   />
-                  <Route 
+                  <Route
                     path="/Transaction/FrmConnectionMst"
                     element={<FrmConnectionMst />}
                   />
 
                   {/* Search */}
-                  <Route 
+                  <Route
                     path="/Transaction/FrmSearchReciptList"
                     element={<FrmSearchReciptList />}
                   />
-                  <Route 
+                  <Route
                     path="/ReportsForm/FrmConnectionSearch"
                     element={<FrmConnectionSearch />}
                   />
 
                   {/* Transaction */}
-                  <Route 
+                  <Route
                     path="/Transaction/FrmMeterReadingEntry"
                     element={<FrmMeterReadingEntry />}
                   />
-                  <Route 
+                  <Route
                     path="/Transaction/FrmChequeBounce"
                     element={<FrmChequeBounce />}
                   />
-                  <Route 
+                  <Route
                     path="/Transaction/FrmReceiptDeleteList"
                     element={<FrmReceiptDeleteList />}
                   />
-                  <Route 
+                  <Route
                     path="/Transaction/FrmReceiptDeleteMst"
                     element={<FrmReceiptDeleteMst />}
                   />
@@ -241,110 +244,283 @@ function App() {
                     element={<FrmBillGeneration />}
                   />
 
-                  <Route 
+                  <Route
                     path="/Transaction/FrmReceiptDeleteAuthList"
                     element={<FrmReceiptDeleteAuthList />}
                   />
 
-                  <Route 
+                  <Route
                     path="/Transaction/FrmReceiptDeleteAuthMst"
                     element={<FrmReceiptDeleteAuthMst />}
                   />
 
-                  <Route 
+                  <Route
                     path="/Transaction/FrmVasuliChalanGenerationMBMC"
                     element={<FrmVasuliChalanGenerationMBMC />}
                   />
 
-                  <Route 
+                  <Route
                     path="/Transaction/FrmBillDelete"
                     element={<FrmBillDelete />}
                   />
 
-                  <Route 
+                  <Route
                     path="/Transaction/FrmChangeOwnershipAuth"
                     element={<FrmChangeOwnershipAuth />}
                   />
 
-                  <Route 
+                  <Route
                     path="/Transaction/FrmViewDocument"
                     element={<FrmViewDocument />}
+                  />
+                  <Route
+                    path="/Transaction/FrmChangeOwnership"
+                    element={<FrmChangeOwnership />}
                   />
 
                   {/* Master routes */}
                   {/* First three list + master pages are pending for now */}
-                  <Route path="/Masters/FrmMenuList" element={<FrmMenuList />} />
+                  <Route
+                    path="/Masters/FrmMenuList"
+                    element={<FrmMenuList />}
+                  />
                   <Route path="/Masters/FrmMenuMst" element={<FrmMenuMst />} />
-                  <Route path="/Masters/FrmUserAccessNewList" element={<FrmUserAccessNewList />} />
-                  <Route path="/Masters/FrmUserAccessNewMst" element={<FrmUserAccessNewMst />} />
-                  <Route path="/Masters/FrmUserList" element={<FrmUserList />} />
+                  <Route
+                    path="/Masters/FrmUserAccessNewList"
+                    element={<FrmUserAccessNewList />}
+                  />
+                  <Route
+                    path="/Masters/FrmUserAccessNewMst"
+                    element={<FrmUserAccessNewMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmUserList"
+                    element={<FrmUserList />}
+                  />
                   <Route path="/Masters/FrmUserMst" element={<FrmUserMst />} />
 
-                  <Route path="/Masters/FrmWardList" element={<FrmWardList />} />
+                  <Route
+                    path="/Masters/FrmWardList"
+                    element={<FrmWardList />}
+                  />
                   <Route path="/Masters/FrmWardMst" element={<FrmWardMst />} />
-                  <Route path="/Masters/FrmZoneList" element={<FrmZoneList />} />
+                  <Route
+                    path="/Masters/FrmZoneList"
+                    element={<FrmZoneList />}
+                  />
                   <Route path="/Masters/FrmZoneMst" element={<FrmZoneMst />} />
-                  <Route path="/Masters/FrmBlockList" element={<FrmBlockList />} />
-                  <Route path="/Masters/FrmBlockMst" element={<FrmBlockMst />} />
-                  <Route path="/Masters/FrmBankList" element={<FrmBankList />} />
+                  <Route
+                    path="/Masters/FrmBlockList"
+                    element={<FrmBlockList />}
+                  />
+                  <Route
+                    path="/Masters/FrmBlockMst"
+                    element={<FrmBlockMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmBankList"
+                    element={<FrmBankList />}
+                  />
                   <Route path="/Masters/FrmBankMst" element={<FrmBankMst />} />
-                  <Route path="/Masters/FrmRateList" element={<FrmRateList />} />
+                  <Route
+                    path="/Masters/FrmRateList"
+                    element={<FrmRateList />}
+                  />
                   <Route path="/Masters/FrmRateMst" element={<FrmRateMst />} />
-                  <Route path="/Masters/FrmUlbTipList" element={<FrmUlbTipList />} />
-                  <Route path="/Masters/FrmUlbTipMst" element={<FrmUlbTipMst />} />
-                  <Route path="/Masters/FrmUsageTypeList" element={<FrmUsageTypeList />} />
-                  <Route path="/Masters/FrmUsageTypeMst" element={<FrmUsageTypeMst />} />
-                  <Route path="/Masters/FrmConSumerTypeList" element={<FrmConSumerTypeList />} />
-                  <Route path="/Masters/FrmConSumerTypeMst" element={<FrmConSumerTypeMst />} />
-                  <Route path="/Masters/FrmBillFreqList" element={<FrmBillFreqList />} />
-                  <Route path="/Masters/FrmBillFreqMst" element={<FrmBillFreqMst />} />
-                  <Route path="/Masters/FrmUsageSubTypeList" element={<FrmUsageSubTypeList />} />
-                  <Route path="/Masters/FrmUsageSubTypeMst" element={<FrmUsageSubTypeMst />} />
-                  <Route path="/Masters/FrmGapCodeList" element={<FrmGapCodeList />} />
-                  <Route path="/Masters/FrmGapCodeMst" element={<FrmGapCodeMst />} />
-                  <Route path="/Masters/FrmPlumberList" element={<FrmPlumberList />} />
-                  <Route path="/Masters/FrmPlumberMst" element={<FrmPlumberMst />} />
-                  <Route path="/Masters/FrmConnStatusList" element={<FrmConnStatusList />} />
-                  <Route path="/Masters/FrmConnStatusMst" element={<FrmConnStatusMst />} />
-                  <Route path="/Masters/FrmTaxMasterList" element={<FrmTaxMasterList />} />
-                  <Route path="/Masters/FrmTaxMasterMst" element={<FrmTaxMasterMst />} />
-                  <Route path="/Masters/FrmMeterOwnerList" element={<FrmMeterOwnerList />} />
-                  <Route path="/Masters/FrmMeterOwnerMst" element={<FrmMeterOwnerMst />} />
-                  <Route path="/Masters/FrmConnTypeList" element={<FrmConnTypeList />} />
-                  <Route path="/Masters/FrmConnTypeMst" element={<FrmConnTypeMst />} />
-                  <Route path="/Masters/FrmConnCodeList" element={<FrmConnCodeList />} />
-                  <Route path="/Masters/FrmConnCodeMst" element={<FrmConnCodeMst />} />
-                  <Route path="/Masters/FrmConnSizeList" element={<FrmConnSizeList />} />
-                  <Route path="/Masters/FrmConnSizeMst" element={<FrmConnSizeMst />} />
-                  <Route path="/Masters/FrmBillingMethodList" element={<FrmBillingMethodList />} />
-                  <Route path="/Masters/FrmBillingMethodMst" element={<FrmBillingMethodMst />} />
-                  <Route path="/Masters/FrmPremiseTypeList" element={<FrmPremiseTypeList />} />
-                  <Route path="/Masters/FrmPremiseTypeMst" element={<FrmPremiseTypeMst />} />
-                  <Route path="/Masters/FrmCollcenterList" element={<FrmCollcenterList />} />
-                  <Route path="/Masters/FrmCollcenterMst" element={<FrmCollcenterMst />} />
-                  <Route path="/Masters/FrmServiceList" element={<FrmServiceList />} />
-                  <Route path="/Masters/FrmServiceMst" element={<FrmServiceMst />} />
-                  <Route path="/Masters/FrmChargesTypeList" element={<FrmChargesTypeList />} />
-                  <Route path="/Masters/FrmChargesTypeMst" element={<FrmChargesTypeMst />} />
-                  <Route path="/Masters/FrmAccTaxConfigList" element={<FrmAccTaxConfigList />} />
-                  <Route path="/Masters/FrmAccTaxConfigMst" element={<FrmAccTaxConfigMst />} />
-                  <Route path="/Masters/FrmMicrCodeList" element={<FrmMicrCodeList />} />
-                  <Route path="/Masters/FrmMicrCodeMst" element={<FrmMicrCodeMst />} />
-                  <Route path="/Masters/FrmBillSheduleList" element={<FrmBillSheduleList />} />
-                  <Route path="/Masters/FrmBillSheduleMst" element={<FrmBillSheduleMst />} />
-                  <Route path="/Masters/FrmConnectionNoList" element={<FrmConnectionNoList />} />
-                  <Route path="/Masters/FrmConnectionNoMst" element={<FrmConnectionNoMst />} />
-                  <Route path="/Masters/FrmProvChequeList" element={<FrmProvChequeList />} />
-                  <Route path="/Masters/FrmProvChequeMst" element={<FrmProvChequeMst />} />
-                  <Route path="/Masters/FrmuserallList" element={<FrmuserallList />} />
-                  <Route path="/Masters/FrmuserallMst" element={<FrmuserallMst />} />
-
-                  
+                  <Route
+                    path="/Masters/FrmUlbTipList"
+                    element={<FrmUlbTipList />}
+                  />
+                  <Route
+                    path="/Masters/FrmUlbTipMst"
+                    element={<FrmUlbTipMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmUsageTypeList"
+                    element={<FrmUsageTypeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmUsageTypeMst"
+                    element={<FrmUsageTypeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmConSumerTypeList"
+                    element={<FrmConSumerTypeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmConSumerTypeMst"
+                    element={<FrmConSumerTypeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmBillFreqList"
+                    element={<FrmBillFreqList />}
+                  />
+                  <Route
+                    path="/Masters/FrmBillFreqMst"
+                    element={<FrmBillFreqMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmUsageSubTypeList"
+                    element={<FrmUsageSubTypeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmUsageSubTypeMst"
+                    element={<FrmUsageSubTypeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmGapCodeList"
+                    element={<FrmGapCodeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmGapCodeMst"
+                    element={<FrmGapCodeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmPlumberList"
+                    element={<FrmPlumberList />}
+                  />
+                  <Route
+                    path="/Masters/FrmPlumberMst"
+                    element={<FrmPlumberMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnStatusList"
+                    element={<FrmConnStatusList />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnStatusMst"
+                    element={<FrmConnStatusMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmTaxMasterList"
+                    element={<FrmTaxMasterList />}
+                  />
+                  <Route
+                    path="/Masters/FrmTaxMasterMst"
+                    element={<FrmTaxMasterMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmMeterOwnerList"
+                    element={<FrmMeterOwnerList />}
+                  />
+                  <Route
+                    path="/Masters/FrmMeterOwnerMst"
+                    element={<FrmMeterOwnerMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnTypeList"
+                    element={<FrmConnTypeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnTypeMst"
+                    element={<FrmConnTypeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnCodeList"
+                    element={<FrmConnCodeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnCodeMst"
+                    element={<FrmConnCodeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnSizeList"
+                    element={<FrmConnSizeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnSizeMst"
+                    element={<FrmConnSizeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmBillingMethodList"
+                    element={<FrmBillingMethodList />}
+                  />
+                  <Route
+                    path="/Masters/FrmBillingMethodMst"
+                    element={<FrmBillingMethodMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmPremiseTypeList"
+                    element={<FrmPremiseTypeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmPremiseTypeMst"
+                    element={<FrmPremiseTypeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmCollcenterList"
+                    element={<FrmCollcenterList />}
+                  />
+                  <Route
+                    path="/Masters/FrmCollcenterMst"
+                    element={<FrmCollcenterMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmServiceList"
+                    element={<FrmServiceList />}
+                  />
+                  <Route
+                    path="/Masters/FrmServiceMst"
+                    element={<FrmServiceMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmChargesTypeList"
+                    element={<FrmChargesTypeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmChargesTypeMst"
+                    element={<FrmChargesTypeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmAccTaxConfigList"
+                    element={<FrmAccTaxConfigList />}
+                  />
+                  <Route
+                    path="/Masters/FrmAccTaxConfigMst"
+                    element={<FrmAccTaxConfigMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmMicrCodeList"
+                    element={<FrmMicrCodeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmMicrCodeMst"
+                    element={<FrmMicrCodeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmBillSheduleList"
+                    element={<FrmBillSheduleList />}
+                  />
+                  <Route
+                    path="/Masters/FrmBillSheduleMst"
+                    element={<FrmBillSheduleMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnectionNoList"
+                    element={<FrmConnectionNoList />}
+                  />
+                  <Route
+                    path="/Masters/FrmConnectionNoMst"
+                    element={<FrmConnectionNoMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmProvChequeList"
+                    element={<FrmProvChequeList />}
+                  />
+                  <Route
+                    path="/Masters/FrmProvChequeMst"
+                    element={<FrmProvChequeMst />}
+                  />
+                  <Route
+                    path="/Masters/FrmuserallList"
+                    element={<FrmuserallList />}
+                  />
+                  <Route
+                    path="/Masters/FrmuserallMst"
+                    element={<FrmuserallMst />}
+                  />
 
                   {/* Water */}
-
-                  
-
                 </Routes>
               </ProtectedRoute>
             }

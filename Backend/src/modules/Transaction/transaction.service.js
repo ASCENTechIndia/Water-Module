@@ -39,6 +39,10 @@ const {
   getOwnershipAuthList,
   getOwnershipDoc,
   fetchOwnershipDetailsRepo,
+  getServiceDropdownRepo,
+  getChangeOwnerConnectionDtlsRepo,
+  getUsageSubUsageConnectionDtlsRepo,
+  getChargesTableDataRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -233,6 +237,22 @@ async function fetchOwnershipDetailsService(payload) {
   return fetchOwnershipDetailsRepo(payload);
 }
 
+async function getServiceDropdownService(payload) {
+  return getServiceDropdownRepo(payload);
+}
+
+async function getChangeOwnerConnectionDtlsService(payload) {
+  return getChangeOwnerConnectionDtlsRepo(payload);
+}
+
+async function getUsageSubUsageConnectionDtlsService(payload) {
+  return getUsageSubUsageConnectionDtlsRepo(payload);
+}
+
+async function getChargesTableDataService(payload) {
+  return getChargesTableDataRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -272,4 +292,8 @@ module.exports = {
   getOwnershipAuthListService,
   getOwnershipDocService,
   fetchOwnershipDetailsService,
+  getServiceDropdownService,
+  getChangeOwnerConnectionDtlsService,
+  getUsageSubUsageConnectionDtlsService,
+  getChargesTableDataService,
 };

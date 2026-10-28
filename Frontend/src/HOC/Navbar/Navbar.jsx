@@ -351,6 +351,11 @@ const STATIC_MENU = [
         PAGEPATH: "/Transaction/FrmVasuliChalanGenerationMBMC",
       },
       {
+        MENUID: 509,
+        MENUTITLE: "Change Ownership",
+        PAGEPATH: "/Transaction/FrmChangeOwnership",
+      },
+      {
         MENUID: 507,
         MENUTITLE: "Change Ownership Auth",
         PAGEPATH: "/Transaction/FrmChangeOwnershipAuth",

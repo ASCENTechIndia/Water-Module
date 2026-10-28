@@ -1199,6 +1199,138 @@ async function getOwnershipAuthList(payload) {
   return result.rows || [];
 }
 
+async function getServiceDropdownRepo(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  let sql = `
+    select 
+      var_service_mname,num_service_id   
+    from aowt_Service_mas 
+    inner join aowt_serviceconfig_mas on num_service_id=num_serviceconfig_servid 
+    where num_serviceconfig_ulbid=:ulbId
+  `;
+
+  const binds = {
+    ulbId,
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function getChangeOwnerConnectionDtlsRepo(payload) {
+  const { ulbId, wardId, zoneid, blockId, connectionNumber } = payload;
+
+  let sql = `
+    select  var_conn_applino,var_conn_ownername,var_conn_address ,num_conn_connid
+    from aowt_conn_mas where 1=1
+    and num_conn_ulbid =: ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  if (wardId) {
+    sql += ` and num_conn_wardid =:wardId`;
+    binds.wardId = wardId;
+  }
+
+  if (zoneid) {
+    sql += ` and num_conn_zoneid =:zoneid`;
+    binds.zoneid = zoneid;
+  }
+
+  if (blockId) {
+    sql += ` and num_conn_blockid =:blockId`;
+    binds.blockId = blockId;
+  }
+
+  if (connectionNumber) {
+    sql += `  and var_conn_connno =:connectionNumber`;
+    binds.connectionNumber = connectionNumber;
+  }
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function getUsageSubUsageConnectionDtlsRepo(payload) {
+  const { ulbId, connNumber } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!connNumber) {
+    throw new Error("Consumer Number is required");
+  }
+
+  let sql = `
+    select 
+      num_conn_connid, 
+      var_conn_connno, 
+      num_conn_connusageid, 
+      num_conn_connusagesubid 
+    from aowt_conn_mas
+    where num_conn_ulbid=:ulbId and var_conn_connno = :connNumber
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    connNumber,
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getChargesTableDataRepo(payload) {
+  const { ulbId, serviceId, usageTypeId, subUsageTypeId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!serviceId) {
+    throw new Error("Service ID is required");
+  }
+
+  if (!usageTypeId) {
+    throw new Error("Usage Type ID is required");
+  }
+
+  if (!subUsageTypeId) {
+    throw new Error("Sub Usage Type ID is required");
+  }
+
+  let sql = `
+     select  valuetype_code valuetype,chargestype chargname,servicerateslab_from,servicerateslab_upto,servicerateslab_rate chargvalue,chargid 
+    from vw_servicerate_det 
+    where servicerate_ulbid=:ulbId 
+    and servicerate_serviceid=:serviceId
+    and servicerate_usagetype=:usageTypeId
+    and servicerate_subusagetype=:subUsageTypeId
+    AND TRUNC(servicerate_effectivefrom)<=(sysdate)
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    serviceId: Number(serviceId),
+    usageTypeId: Number(usageTypeId),
+    subUsageTypeId: Number(subUsageTypeId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
 async function getOwnershipDoc(payload) {
   const { ulbId, applicationId, applicationNo } = payload;
 
@@ -1313,4 +1445,8 @@ module.exports = {
   getOwnershipAuthList,
   getOwnershipDoc,
   fetchOwnershipDetailsRepo,
+  getServiceDropdownRepo,
+  getChangeOwnerConnectionDtlsRepo,
+  getUsageSubUsageConnectionDtlsRepo,
+  getChargesTableDataRepo,
 };

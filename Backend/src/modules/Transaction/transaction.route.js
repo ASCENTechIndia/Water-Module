@@ -38,6 +38,10 @@ const {
   getOwnershipAuthListController,
   getOwnershipDocController,
   fetchOwnershipDetailsController,
+  getServiceDropdownController,
+  getChangeOwnerConnectionDtlsController,
+  getUsageSubUsageConnectionDtlsController,
+  getChargesTableDtlsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -136,4 +140,12 @@ router.post("/generate-challan-number", validate(vasulichallanGenerationSchema),
 router.get("/getOwnershipAuthList", getOwnershipAuthListController);
 router.get("/getOwnershipDoc", getOwnershipDocController);
 router.get("/fetchOwnershipDetails", fetchOwnershipDetailsController);
+
+// Change Ownership
+router.get("/getServiceMenu", getServiceDropdownController);
+router.get("/getChangeOwnerDetails", getChangeOwnerConnectionDtlsController);
+router.get("/getUsageSubUsage", getUsageSubUsageConnectionDtlsController);
+router.get("/getChargesTableData", getChargesTableDtlsController);
+
+
 module.exports = router;
