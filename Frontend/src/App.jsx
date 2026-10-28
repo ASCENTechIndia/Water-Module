@@ -103,6 +103,7 @@ import FrmBillDelete from "./Pages/Transaction/BillDelete/FrmBillDelete.jsx";
 import FrmChangeOwnershipAuth from "./Pages/Transaction/ChangesOwnershipAuth/FrmChangeOwnershipAuth.jsx";
 import FrmViewDocument from "./Pages/Transaction/ChangesOwnershipAuth/FrmViewDocument.jsx";
 import FrmChangeOwnership from "./Pages/Transaction/FrmChangeOwnership/FrmChangeOwnership.jsx";
+import FrmChangeOwnershipAuthMst from "./Pages/Transaction/ChangesOwnershipAuth/FrmChangeOwnershipAuthMst.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -267,6 +268,11 @@ function App() {
                   <Route
                     path="/Transaction/FrmChangeOwnershipAuth"
                     element={<FrmChangeOwnershipAuth />}
+                  />
+
+                  <Route
+                    path="/Transaction/FrmChangeOwnershipAuthMst"
+                    element={<FrmChangeOwnershipAuthMst />}
                   />
 
                   <Route

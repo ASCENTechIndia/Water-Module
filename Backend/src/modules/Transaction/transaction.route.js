@@ -45,6 +45,9 @@ const {
   getChargesTableDtlsController,
   changeOwnershipDataSubmitController,
   changeOwnershipDocumentController,
+  getOwnershipServiceDropdownController,
+  getOwnershipChargesController,
+  serviceApprovalAuthInsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -55,8 +58,8 @@ const {
   billDeleteDetailsSchema,
   billDeleteInsSchema,
   vasulichallanGenerationSchema,
+  serviceApprovalAuthInsSchema,
 } = require("./transaction.validation");
-
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -64,10 +67,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10 MB
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = [
-      "image/jpeg",
-      "application/pdf",
-    ];
+    const allowedTypes = ["image/jpeg", "application/pdf"];
 
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
@@ -76,8 +76,6 @@ const upload = multer({
     }
   },
 });
-
-
 
 const router = express.Router();
 
@@ -159,12 +157,26 @@ router.post(
 
 // Vasuli challan
 router.get("/getVasuliChallanTableData", getVasuliChallanTableDataController);
-router.post("/generate-challan-number", validate(vasulichallanGenerationSchema), generateChallanNumberController);
+router.post(
+  "/generate-challan-number",
+  validate(vasulichallanGenerationSchema),
+  generateChallanNumberController,
+);
 
 // Change ownership auth
 router.get("/getOwnershipAuthList", getOwnershipAuthListController);
 router.get("/getOwnershipDoc", getOwnershipDocController);
 router.get("/fetchOwnershipDetails", fetchOwnershipDetailsController);
+router.get(
+  "/getOwnershipServiceDropdown",
+  getOwnershipServiceDropdownController,
+);
+router.get("/getOwnershipCharges", getOwnershipChargesController);
+router.post(
+  "/aowt_serviceapprovalauth_ins",
+  validate(serviceApprovalAuthInsSchema),
+  serviceApprovalAuthInsController,
+);
 
 // Change Ownership
 router.get("/getServiceMenu", getServiceDropdownController);
@@ -175,8 +187,7 @@ router.post("/change-ownership", changeOwnershipDataSubmitController);
 router.post(
   "/update-ownership-document",
   upload.single("file"),
-  changeOwnershipDocumentController
+  changeOwnershipDocumentController,
 );
-
 
 module.exports = router;

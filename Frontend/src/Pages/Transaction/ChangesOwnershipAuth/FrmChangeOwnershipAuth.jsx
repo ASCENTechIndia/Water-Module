@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "../../../Components/Layout";
 import Label from "../../../Components/Label";
 import Button from "../../../Components/Button.jsx";
@@ -52,16 +52,13 @@ const FrmChangeOwnershipAuth = () => {
     }
   };
 
-  // Update remark / status of a single row
   const updateRow = (id, field, value) => {
     setRows((prev) =>
       prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)),
     );
   };
 
-  // View document (you will implement this)
   const handleView = (row) => {
-    console.log("View doc for:", row);
     if (!row.id || !row.applicationNo) {
       alert(
         "Application No and application Id is not set, please search again",
@@ -75,13 +72,6 @@ const FrmChangeOwnershipAuth = () => {
     );
   };
 
-  // Details (you will implement this)
-  const handleDetails = (row) => {
-    // TODO: navigate to the master page with the row data
-    console.log("Details for:", row);
-  };
-
-  // Submit handler (API not wired yet)
   const handleSubmit = () => {
     const selected = rows.filter((r) => r.status);
 
@@ -96,13 +86,11 @@ const FrmChangeOwnershipAuth = () => {
       return;
     }
 
-    // Same string format the .NET page builds: id$applicationNo$status$remark#...
     const authString = selected
       .map((r) => `${r.id}$${r.applicationNo}$${r.status}$${r.remark.trim()}`)
       .join("#");
 
     console.log("Auth string:", authString);
-    // TODO: call the submit API when it is ready
   };
 
   return (
@@ -186,12 +174,16 @@ const FrmChangeOwnershipAuth = () => {
                           </Button>
                         </td>
                         <td className="border border-slate-200 px-3 py-2 text-center">
-                          <Button
-                            type="button"
-                            onClick={() => handleDetails(row)}
+                          <Link
+                            to="/Transaction/FrmChangeOwnershipAuthMst"
+                            state={{
+                              applicationNo: row.applicationNo,
+                              applicationId: row.id,
+                            }}
+                            className="text-blue-600 underline hover:text-blue-800 font-medium"
                           >
                             Detail
-                          </Button>
+                          </Link>
                         </td>
                         <td className="border border-slate-200 px-2 py-2">
                           <input
@@ -243,7 +235,7 @@ const FrmChangeOwnershipAuth = () => {
           </div>
         )}
 
-        {/* Submit + Close (only when there are results, like the .NET page) */}
+        {/* Submit + Close */}
         {rows.length > 0 && (
           <div className="flex justify-center gap-2">
             <Button type="button" onClick={handleSubmit}>

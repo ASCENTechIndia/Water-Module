@@ -1351,7 +1351,7 @@ async function changeOwnershipDataSubmitRepo(payload) {
     in_Docstring,
     in_Chargeslist,
     in_ipaddress,
-    in_source
+    in_source,
   } = payload;
 
   let statement = `
@@ -1413,7 +1413,7 @@ async function changeOwnershipDataSubmitRepo(payload) {
       dir: oracledb.BIND_OUT,
       type: oracledb.STRING,
       maxSize: 1000,
-    }
+    },
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
@@ -1422,12 +1422,7 @@ async function changeOwnershipDataSubmitRepo(payload) {
 }
 
 async function changeOwnershipDocumentSubmitRepo(payload) {
-  const {
-    applicationId,
-    documentRecordId,
-    documentId,
-    document,
-  } = payload;
+  const { applicationId, documentRecordId, documentId, document } = payload;
 
   const sql = `
     UPDATE aowt_ServAppliDoc_det
@@ -1448,7 +1443,7 @@ async function changeOwnershipDocumentSubmitRepo(payload) {
 
   if (result.rowsAffected === 0) {
     throw new Error(
-      `No document record updated for document ID ${documentId}.`
+      `No document record updated for document ID ${documentId}.`,
     );
   }
 
@@ -1532,6 +1527,107 @@ async function fetchOwnershipDetailsRepo(payload) {
   return result.rows;
 }
 
+async function getOwnershipServiceDropdown() {
+  const sql = `
+    select var_service_mname,
+           num_service_id
+      from aowt_service_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
+async function getOwnershipCharges(payload) {
+  const { ulbId, serviceId, consumerNo } = payload;
+
+  if (!ulbId || !serviceId || !consumerNo) {
+    throw new Error("ulbId, serviceId and consumer number are required");
+  }
+
+  // This query will return usage type id and usage sub type id for second query usage
+  const usageSql = `
+    select num_conn_connid,
+           var_conn_connno,
+           num_conn_connusageid,
+           num_conn_connusagesubid
+      from aowt_conn_mas
+     where num_conn_ulbid = :ulbId
+       and var_conn_connno = :consumerNo
+  `;
+
+  const usageResult = await executeQuery(usageSql, {
+    ulbId: Number(ulbId),
+    consumerNo: String(consumerNo).trim(),
+  });
+
+  const usageRow = usageResult.rows?.[0];
+
+  const usageTypeId = usageRow?.NUM_CONN_CONNUSAGEID ?? 0;
+  const usageSubTypeId = usageRow?.NUM_CONN_CONNUSAGESUBID ?? 0;
+
+  // Fetch charges query
+  const chargesSql = `
+    select valuetype_code valuetype,
+           chargestype chargname,
+           servicerateslab_from,
+           servicerateslab_upto,
+           servicerateslab_rate chargvalue,
+           chargid
+      from vw_servicerate_det
+     where servicerate_ulbid = :ulbId
+       and servicerate_serviceid = :serviceId
+       and servicerate_usagetype = :usageTypeId
+       and servicerate_subusagetype = :usageSubTypeId
+       and trunc(servicerate_effectivefrom) <= sysdate
+  `;
+
+  const chargesResult = await executeQuery(chargesSql, {
+    ulbId: Number(ulbId),
+    serviceId: Number(serviceId),
+    usageTypeId: Number(usageTypeId),
+    usageSubTypeId: Number(usageSubTypeId),
+  });
+
+  return chargesResult.rows || [];
+}
+
+async function aowt_serviceapprovalauth_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_serviceapprovalauth_ins(
+        :in_UserId,
+        :in_ULBID,
+        :in_str,
+        :in_mode,
+        :in_ipaddress,
+        :in_source,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_ULBID: Number(payload.in_ULBID),
+    in_str: payload.in_str,
+    in_mode: Number(payload.in_mode),
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -1579,5 +1675,8 @@ module.exports = {
   getUsageSubUsageConnectionDtlsRepo,
   getChargesTableDataRepo,
   changeOwnershipDataSubmitRepo,
-  changeOwnershipDocumentSubmitRepo
+  changeOwnershipDocumentSubmitRepo,
+  getOwnershipServiceDropdown,
+  getOwnershipCharges,
+  aowt_serviceapprovalauth_ins,
 };

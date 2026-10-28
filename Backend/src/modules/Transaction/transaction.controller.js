@@ -44,6 +44,9 @@ const {
   getChargesTableDataService,
   changeOwnershipSubmitService,
   changeOwnershipDocumentService,
+  getOwnershipServiceDropdownService,
+  getOwnershipChargesService,
+  serviceApprovalAuthInsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1010,7 +1013,12 @@ async function getUsageSubUsageConnectionDtlsController(req, res, next) {
 
     return res.ok(rows);
   } catch (err) {
-    logApiError(req, 500, err.message, "Usage and Sub Usage Details fetch error");
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Usage and Sub Usage Details fetch error",
+    );
     return next(err);
   }
 }
@@ -1049,7 +1057,12 @@ async function changeOwnershipDataSubmitController(req, res, next) {
         out.Out_ErrorMsg || "Change Ownership Details saved successfully",
       );
     } else {
-      logApiError(req, 400, out.Out_ErrorMsg, "Change Ownership Details saved failed");
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Change Ownership Details saved failed",
+      );
     }
 
     auditLog({
@@ -1063,7 +1076,7 @@ async function changeOwnershipDataSubmitController(req, res, next) {
         outErrorMsg: out.Out_ErrorMsg,
         ulbId: payload.in_ULBID,
         connectionNumber: payload.in_connno,
-        connectionId: payload.in_connid
+        connectionId: payload.in_connid,
       },
       requestMeta: {
         ip: req.ip,
@@ -1099,7 +1112,7 @@ async function changeOwnershipDocumentController(req, res, next) {
       req,
       200,
       { count: rows?.length || 0 },
-      "Document Submitted Successfully"
+      "Document Submitted Successfully",
     );
 
     return res.ok(rows);
@@ -1109,6 +1122,95 @@ async function changeOwnershipDocumentController(req, res, next) {
   }
 }
 
+async function getOwnershipServiceDropdownController(req, res, next) {
+  try {
+    const rows = await getOwnershipServiceDropdownService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Ownership service dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ownership service dropdown error");
+    return next(err);
+  }
+}
+
+async function getOwnershipChargesController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getOwnershipChargesService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      {
+        count: rows?.length || 0,
+        serviceId: payload.serviceId,
+        connNo: payload.connectionNo,
+      },
+      rows?.length > 0
+        ? `Ownership charges retrieved`
+        : `No charges found for this connection + service`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Ownership charges error");
+    return next(err);
+  }
+}
+
+async function serviceApprovalAuthInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await serviceApprovalAuthInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          ulbId: payload.in_ULBID,
+          rowCount: payload.in_str.split("#").length,
+        },
+        out.Out_ErrorMsg || "Ownership authorization processed",
+      );
+    } else {
+      logApiError(req, 400, out.Out_ErrorMsg, "Ownership authorization failed");
+    }
+
+    auditLog({
+      action: "OWNERSHIP_AUTH_PROCESS",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "ownershipauth",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        ulbId: payload.in_ULBID,
+        mode: payload.in_mode,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Ownership auth insert error");
+    return next(err);
+  }
+}
 
 module.exports = {
   getWardDropdownController,
@@ -1154,5 +1256,8 @@ module.exports = {
   getUsageSubUsageConnectionDtlsController,
   getChargesTableDtlsController,
   changeOwnershipDataSubmitController,
-  changeOwnershipDocumentController
+  changeOwnershipDocumentController,
+  getOwnershipServiceDropdownController,
+  getOwnershipChargesController,
+  serviceApprovalAuthInsController,
 };

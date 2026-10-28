@@ -617,6 +617,72 @@ const vasulichallanGenerationSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const serviceApprovalAuthInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ULBID: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_str: z
+    .string({
+      required_error: "Approval string is required",
+      invalid_type_error: "Approval string must be a string",
+    })
+    .trim()
+    .min(1, "Approval string is required")
+    .refine(
+      (val) => {
+        // Format: appId$appNo$status$remark   OR   row#row#row
+        const rows = val.split("#");
+        return rows.every((row) => {
+          const parts = row.split("$");
+          if (parts.length !== 4) return false;
+          const [appId, appNo, status, remark] = parts;
+          if (!appId.trim() || !appNo.trim() || !remark.trim()) return false;
+          if (status !== "A" && status !== "R") return false;
+          return true;
+        });
+      },
+      {
+        message:
+          "Each row must be in the format appId$appNo$status$remark (status A or R). Multiple rows separated by #",
+      },
+    ),
+
+  in_mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
@@ -626,4 +692,5 @@ module.exports = {
   billDeleteDetailsSchema,
   billDeleteInsSchema,
   vasulichallanGenerationSchema,
+  serviceApprovalAuthInsSchema,
 };

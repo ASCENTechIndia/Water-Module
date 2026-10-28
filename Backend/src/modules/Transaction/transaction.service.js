@@ -45,6 +45,9 @@ const {
   getChargesTableDataRepo,
   changeOwnershipDataSubmitRepo,
   changeOwnershipDocumentSubmitRepo,
+  getOwnershipServiceDropdown,
+  getOwnershipCharges,
+  aowt_serviceapprovalauth_ins,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -295,6 +298,18 @@ async function changeOwnershipDocumentService(payload) {
   return results;
 }
 
+async function getOwnershipServiceDropdownService() {
+  return getOwnershipServiceDropdown();
+}
+
+async function getOwnershipChargesService(payload) {
+  return getOwnershipCharges(payload);
+}
+
+async function serviceApprovalAuthInsService(payload) {
+  return aowt_serviceapprovalauth_ins(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -339,5 +354,8 @@ module.exports = {
   getUsageSubUsageConnectionDtlsService,
   getChargesTableDataService,
   changeOwnershipSubmitService,
-  changeOwnershipDocumentService
+  changeOwnershipDocumentService,
+  getOwnershipServiceDropdownService,
+  getOwnershipChargesService,
+  serviceApprovalAuthInsService,
 };
