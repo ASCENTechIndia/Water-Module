@@ -1,4 +1,5 @@
 const express = require("express");
+const multer = require("multer");
 const validate = require("../../middleware/validate.middleware");
 const {
   getWardDropdownController,
@@ -42,6 +43,8 @@ const {
   getChangeOwnerConnectionDtlsController,
   getUsageSubUsageConnectionDtlsController,
   getChargesTableDtlsController,
+  changeOwnershipDataSubmitController,
+  changeOwnershipDocumentController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -53,6 +56,28 @@ const {
   billDeleteInsSchema,
   vasulichallanGenerationSchema,
 } = require("./transaction.validation");
+
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "image/jpeg",
+      "application/pdf",
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only JPG, JPEG, and PDF files are allowed."));
+    }
+  },
+});
+
+
 
 const router = express.Router();
 
@@ -146,6 +171,12 @@ router.get("/getServiceMenu", getServiceDropdownController);
 router.get("/getChangeOwnerDetails", getChangeOwnerConnectionDtlsController);
 router.get("/getUsageSubUsage", getUsageSubUsageConnectionDtlsController);
 router.get("/getChargesTableData", getChargesTableDtlsController);
+router.post("/change-ownership", changeOwnershipDataSubmitController);
+router.post(
+  "/update-ownership-document",
+  upload.single("file"),
+  changeOwnershipDocumentController
+);
 
 
 module.exports = router;

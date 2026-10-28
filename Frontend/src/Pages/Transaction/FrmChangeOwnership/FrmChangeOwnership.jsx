@@ -147,6 +147,140 @@ const FrmChangeOwnership = () => {
         }
     }
 
+    const onSubmit = async (data) => {
+        try {
+            setLoading(true);
+
+            if (!data.applicantName) {
+                alert("Enter Applicant Name");
+                return;
+            }
+
+            if (!data.newOwnerName) {
+                alert("Enter New Owner Name");
+                return;
+            }
+
+            if (!data.newAddress) {
+                alert("Enter New Address");
+                return;
+            }
+
+            if (!data.service) {
+                alert("Select Service");
+                return;
+            }
+
+            if (!data.applicableAmt) {
+                alert("Enter Amount");
+                return;
+            }
+
+            const attachedDoc = data.attachedDoc?.[0];
+
+            if (!attachedDoc) {
+                alert("Document Not Available");
+                return;
+            }
+
+            // Build charges string
+            const chargesDtlsStr = chargesTableData
+                .map(([chargeName, chargeVal]) =>
+                    `${chargeName}$${chargeVal === "" ? "0" : chargeVal}#`
+                )
+                .join("");
+
+            if (!chargesDtlsStr.trim()) {
+                alert("Charges List can not be empty");
+                return;
+            }
+
+            // Build document string
+            const extension = attachedDoc.name.split(".").pop().toLowerCase();
+            const docStr = `1$${extension}`;
+
+            const ipAddress = await GetIPAddress();
+
+            const dtlsPayload = {
+                in_UserId: userId,
+                in_ULBID: Number(ulbId),
+                in_AppliNo: data.applicationNumber,
+                in_connid: Number(searchedData?.[0]?.NUM_CONN_CONNID),
+                in_connno: data.consumerNumber,
+                in_AppliName: data.applicantName,
+                in_ServiceID: Number(data.service),
+                in_wardID: Number(data.wardName),
+                in_zoneID: Number(data.zoneName),
+                in_blockID: Number(data.blockName),
+                in_newownername: data.newOwnerName,
+                in_oldownername: data.oldOwnerName,
+                in_newaddress: data.newAddress,
+                in_oldaddress: data.oldAddress,
+                in_AppliAmount: Number(data.applicableAmt),
+                in_Docstring: docStr,
+                in_Chargeslist: chargesDtlsStr,
+                in_ipaddress: ipAddress,
+                in_source: config.source,
+            };
+
+            // Step 1: Save ownership transfer details
+            const detailsResponse = await apiService.post(
+                "/transaction/change-ownership",
+                dtlsPayload
+            );
+
+            if (
+                !detailsResponse.success ||
+                Number(detailsResponse.data?.Out_errorCode) !== 9999
+            ) {
+                alert(
+                    `${detailsResponse.data?.Out_errorCode ?? ""}: ${detailsResponse.data?.Out_ErrorMsg ??
+                    detailsResponse.message ??
+                    "Failed to save ownership transfer details"
+                    }`
+                );
+                return;
+            }
+
+            // Step 2: Get document identifiers returned by the backend
+            const outDocStr = detailsResponse.data?.Out_DocStr;
+
+            if (!outDocStr?.trim()) {
+                alert("Failed to save Documents");
+                return;
+            }
+
+            // Step 3: Update the document BLOB through your backend
+            const formData = new FormData();
+
+            formData.append("file", attachedDoc);
+            formData.append("outDocStr", outDocStr.trim());
+
+            const documentResponse = await apiService.post(
+                "/transaction/update-ownership-document",
+                formData
+            );
+
+
+            if (!documentResponse.success) {
+                alert("Failed to save Documents");
+                return;
+            }
+
+            // Step 4: Generate report after successful document update
+            // Call your existing report-generation API here, if required.
+
+            // Step 5: Show success message
+            alert(detailsResponse.data?.Out_ErrorMsg || "Ownership transfer saved successfully");
+
+        } catch (error) {
+            console.error("Ownership transfer submission failed:", error);
+            alert("An error occurred while saving ownership transfer details.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const getChargesTableData = async () => {
         try {
             setLoading(true);
@@ -174,6 +308,7 @@ const FrmChangeOwnership = () => {
                 ]));
                 setFeesData(chargesResponse.data);
                 setChargesTableData(formatted);
+                setValue("fees", formatted);
 
             } else {
                 setChargesTableData([]);
@@ -279,8 +414,9 @@ const FrmChangeOwnership = () => {
         });
 
         setChargesTableData(updatedChargesTableData);
+        setValue("fees", updatedChargesTableData);
 
-    }, [watchAmount, feesData, setChargesTableData]);
+    }, [watchAmount, feesData, setChargesTableData, setValue]);
 
     return (
         <Layout
@@ -293,6 +429,7 @@ const FrmChangeOwnership = () => {
         >
             <form
                 className="w-full space-y-6"
+                onSubmit={handleSubmit(onSubmit)}
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
@@ -565,10 +702,27 @@ const FrmChangeOwnership = () => {
                                     <input
                                         id="attachedDoc"
                                         type="file"
-                                        accept="*"
+                                        accept=".jpg,.jpeg,.pdf"
                                         className="hidden"
                                         {...register("attachedDoc", {
                                             required: "Document is required",
+                                            validate: {
+                                                fileType: (files) => {
+                                                    const file = files?.[0];
+
+                                                    if (!file) return "Please attach a document.";
+
+                                                    const allowedTypes = [
+                                                        "image/jpeg",
+                                                        "application/pdf",
+                                                    ];
+
+                                                    return (
+                                                        allowedTypes.includes(file.type) ||
+                                                        "Only JPG, JPEG, and PDF files are allowed."
+                                                    );
+                                                },
+                                            }
                                         })}
                                     />
                                 </div>

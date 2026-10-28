@@ -1331,6 +1331,135 @@ async function getChargesTableDataRepo(payload) {
   return result.rows || [];
 }
 
+async function changeOwnershipDataSubmitRepo(payload) {
+  const {
+    in_UserId,
+    in_ULBID,
+    in_AppliNo,
+    in_connid,
+    in_connno,
+    in_AppliName,
+    in_ServiceID,
+    in_wardID,
+    in_zoneID,
+    in_blockID,
+    in_newownername,
+    in_oldownername,
+    in_newaddress,
+    in_oldaddress,
+    in_AppliAmount,
+    in_Docstring,
+    in_Chargeslist,
+    in_ipaddress,
+    in_source
+  } = payload;
+
+  let statement = `
+    BEGIN
+      aowt_changeownership_ins(
+        :in_UserId,
+        :in_ULBID,
+        :in_AppliNo,
+        :in_connid,
+        :in_connno,
+        :in_AppliName,
+        :in_ServiceID,
+        :in_wardID,
+        :in_blockID,
+        :in_newownername,
+        :in_oldownername,
+        :in_newaddress,
+        :in_oldaddress,
+        :in_AppliAmount,
+        :in_Docstring,
+        :in_Chargeslist
+        :in_ipaddress,
+        :in_source,
+        :Out_errorCode,
+        :Out_ErrorMsg,
+        :Out_DocStr
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId,
+    in_ULBID: Number(in_ULBID),
+    in_AppliNo,
+    in_connid: Number(in_connid),
+    in_connno,
+    in_AppliName,
+    in_ServiceID: Number(in_ServiceID),
+    in_wardID: Number(in_wardID),
+    in_zoneID: Number(in_zoneID),
+    in_blockID: Number(in_blockID),
+    in_newownername,
+    in_oldownername,
+    in_newaddress,
+    in_oldaddress,
+    in_AppliAmount: Number(in_AppliAmount),
+    in_Docstring,
+    in_Chargeslist,
+    in_ipaddress,
+    in_source,
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    },
+    Out_DocStr: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+
+  return result.outBinds;
+}
+
+async function changeOwnershipDocumentSubmitRepo(payload) {
+  const {
+    applicationId,
+    documentRecordId,
+    documentId,
+    document,
+  } = payload;
+
+  const sql = `
+    UPDATE aowt_ServAppliDoc_det
+    SET blo_servapplidoc_image = :document
+    WHERE num_servapplidoc_id = :documentRecordId
+      AND num_servapplidoc_servappliid = :applicationId
+      AND num_servapplidoc_docid = :documentId
+  `;
+
+  const binds = {
+    document,
+    documentRecordId: Number(documentRecordId),
+    applicationId: Number(applicationId),
+    documentId: Number(documentId),
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  if (result.rowsAffected === 0) {
+    throw new Error(
+      `No document record updated for document ID ${documentId}.`
+    );
+  }
+
+  return {
+    applicationId,
+    documentRecordId,
+    documentId,
+    rowsAffected: result.rowsAffected,
+  };
+}
+
 async function getOwnershipDoc(payload) {
   const { ulbId, applicationId, applicationNo } = payload;
 
@@ -1449,4 +1578,6 @@ module.exports = {
   getChangeOwnerConnectionDtlsRepo,
   getUsageSubUsageConnectionDtlsRepo,
   getChargesTableDataRepo,
+  changeOwnershipDataSubmitRepo,
+  changeOwnershipDocumentSubmitRepo
 };

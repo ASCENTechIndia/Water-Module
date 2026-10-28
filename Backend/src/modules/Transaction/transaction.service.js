@@ -43,6 +43,8 @@ const {
   getChangeOwnerConnectionDtlsRepo,
   getUsageSubUsageConnectionDtlsRepo,
   getChargesTableDataRepo,
+  changeOwnershipDataSubmitRepo,
+  changeOwnershipDocumentSubmitRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -253,6 +255,46 @@ async function getChargesTableDataService(payload) {
   return getChargesTableDataRepo(payload);
 }
 
+async function changeOwnershipSubmitService(payload) {
+  return changeOwnershipDataSubmitRepo(payload);
+}
+
+async function changeOwnershipDocumentService(payload) {
+  const { outDocStr, file } = payload;
+
+  if (!outDocStr || !file?.buffer) {
+    throw new Error("Document string or uploaded file is missing.");
+  }
+
+  const docRows = outDocStr
+    .split("$")
+    .map((row) => row.trim())
+    .filter(Boolean);
+
+  const results = [];
+
+  for (const row of docRows) {
+    const docValues = row.split("#");
+
+    if (docValues.length !== 3) {
+      throw new Error(`Invalid document row: ${row}`);
+    }
+
+    const [applicationId, documentRecordId, documentId] = docValues;
+
+    const result = await changeOwnershipDocumentSubmitRepo({
+      applicationId,
+      documentRecordId,
+      documentId,
+      document: file.buffer,
+    });
+
+    results.push(result);
+  }
+
+  return results;
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -296,4 +338,6 @@ module.exports = {
   getChangeOwnerConnectionDtlsService,
   getUsageSubUsageConnectionDtlsService,
   getChargesTableDataService,
+  changeOwnershipSubmitService,
+  changeOwnershipDocumentService
 };
