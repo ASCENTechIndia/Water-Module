@@ -45,6 +45,7 @@ const {
   getChargesTableDataRepo,
   changeOwnershipDataSubmitRepo,
   changeOwnershipDocumentSubmitRepo,
+  getAcknowledgementDetailsRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -295,6 +296,10 @@ async function changeOwnershipDocumentService(payload) {
   return results;
 }
 
+async function getAcknowledgmentReportDetailsService(payload) {
+  return getAcknowledgementDetailsRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -339,5 +344,6 @@ module.exports = {
   getUsageSubUsageConnectionDtlsService,
   getChargesTableDataService,
   changeOwnershipSubmitService,
-  changeOwnershipDocumentService
+  changeOwnershipDocumentService,
+  getAcknowledgmentReportDetailsService
 };

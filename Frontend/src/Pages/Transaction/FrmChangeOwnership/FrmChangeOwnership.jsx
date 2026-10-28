@@ -10,6 +10,10 @@ import Table from "../../../Components/Table";
 import GetIPAddress from "../../../utils/ipHelper";
 import config from "../../../utils/config";
 import Button from "../../../Components/Button";
+import { pdf } from "@react-pdf/renderer";
+import ChangeOwnershipAckRptPDF from "../../../Components/WaterPDF/ChangeOwnershipAckRptPDF";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const FrmChangeOwnership = () => {
     const { user } = useAuth();
@@ -53,6 +57,10 @@ const FrmChangeOwnership = () => {
     const watchConsumerNumber = watch("consumerNumber");
     const watchService = watch("service");
     const watchAmount = watch("applicableAmt");
+
+    const [corpName, setCorpName] = useState("");
+    const [corpEName, setCorpEName] = useState("");
+    const [logo, setLogo] = useState(null);
 
     const [wardOptions, setWardOptions] = useState([]);
     const [zoneOptions, setZoneOptions] = useState([]);
@@ -148,6 +156,9 @@ const FrmChangeOwnership = () => {
     }
 
     const onSubmit = async (data) => {
+        let pdfWindow = null;
+        let keepPdfWindowOpen = false;
+
         try {
             setLoading(true);
 
@@ -183,7 +194,6 @@ const FrmChangeOwnership = () => {
                 return;
             }
 
-            // Build charges string
             const chargesDtlsStr = chargesTableData
                 .map(([chargeName, chargeVal]) =>
                     `${chargeName}$${chargeVal === "" ? "0" : chargeVal}#`
@@ -194,6 +204,17 @@ const FrmChangeOwnership = () => {
                 alert("Charges List can not be empty");
                 return;
             }
+
+            // Open a blank tab before asynchronous API calls
+            // to reduce the chance of popup blocking.
+            pdfWindow = window.open("about:blank", "_blank");
+
+            if (pdfWindow) {
+                pdfWindow.document.title = "Generating Acknowledgement";
+                pdfWindow.document.body.innerHTML =
+                    "<p style='font-family:Arial;padding:20px'>Generating acknowledgement PDF...</p>";
+            }
+
 
             // Build document string
             const extension = attachedDoc.name.split(".").pop().toLowerCase();
@@ -228,7 +249,7 @@ const FrmChangeOwnership = () => {
                 "/transaction/change-ownership",
                 dtlsPayload
             );
-
+            console.log("Details Response: ", detailsResponse);
             if (
                 !detailsResponse.success ||
                 Number(detailsResponse.data?.Out_errorCode) !== 9999
@@ -261,26 +282,93 @@ const FrmChangeOwnership = () => {
                 formData
             );
 
-
+            console.log("Document Response: ", documentResponse);
             if (!documentResponse.success) {
                 alert("Failed to save Documents");
                 return;
             }
 
-            // Step 4: Generate report after successful document update
-            // Call your existing report-generation API here, if required.
+            // Step 4: Fetch acknowledgement details
+            const reportUrl =
+                `/transaction/getAcknowledgementDetails?ulbId=${ulbId}` +
+                `&applicationNo=${data.applicationNumber}` +
+                `&connNo=${data.consumerNumber}`;
+
+            const reportDtlsResponse = await apiService.get(reportUrl);
+
+            console.log("Report Dtls Response: ", reportDtlsResponse);
+            if (
+                reportDtlsResponse.success &&
+                Array.isArray(reportDtlsResponse.data) &&
+                reportDtlsResponse.data.length > 0
+            ) {
+                const reportData = reportDtlsResponse.data[0];
+
+                // Map your API response to the PDF component's props.
+                const pdfData = {
+                    ...reportData
+                };
+
+                if (!pdfWindow || pdfWindow.closed) {
+                    alert(
+                        "Please allow popups to view the acknowledgement PDF."
+                    );
+                } else {
+                    // Generate the PDF Blob from your existing component.
+                    const pdfBlob = await pdf(
+                        <ChangeOwnershipAckRptPDF
+                            data={pdfData}
+                            logo={logo}
+                            municipalText={corpName}
+                        />
+                    ).toBlob();
+
+                    // Create a URL that the browser can display.
+                    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+                    // Display the PDF in the new tab.
+                    pdfWindow.location.href = pdfUrl;
+
+                    // Keep the tab open when finally executes.
+                    keepPdfWindowOpen = true;
+                }
+            } else {
+                if (pdfWindow && !pdfWindow.closed) {
+                    pdfWindow.close();
+                }
+
+                alert("Unable to fetch acknowledgement details.");
+            }
 
             // Step 5: Show success message
-            alert(detailsResponse.data?.Out_ErrorMsg || "Ownership transfer saved successfully");
+            alert(
+                detailsResponse.data?.Out_ErrorMsg ||
+                "Ownership transfer saved successfully"
+            );
 
         } catch (error) {
-            console.error("Ownership transfer submission failed:", error);
-            alert("An error occurred while saving ownership transfer details.");
+            console.error(
+                "Ownership transfer submission failed:",
+                error
+            );
+
+            alert(
+                "An error occurred while saving ownership transfer details."
+            );
         } finally {
+            // Close the blank tab if PDF generation or submission failed.
+            if (
+                pdfWindow &&
+                !pdfWindow.closed &&
+                !keepPdfWindowOpen
+            ) {
+                pdfWindow.close();
+            }
+
             setLoading(false);
         }
     };
-
+    console.log(searchedData);
     const getChargesTableData = async () => {
         try {
             setLoading(true);
@@ -299,7 +387,6 @@ const FrmChangeOwnership = () => {
             const chargesUrl = `/transaction/getChargesTableData?ulbId=${ulbId}&serviceId=${encodeURIComponent(watchService)}&usageTypeId=${usageTypeId}&subUsageTypeId=${usageSubTypeId}`;
 
             const chargesResponse = await apiService.get(chargesUrl);
-
 
             if (chargesResponse.success && Array.isArray(chargesResponse.data) && chargesResponse.data.length > 0) {
                 const formatted = chargesResponse.data.map(item => ([
@@ -417,6 +504,30 @@ const FrmChangeOwnership = () => {
         setValue("fees", updatedChargesTableData);
 
     }, [watchAmount, feesData, setChargesTableData, setValue]);
+
+    useEffect(() => {
+        const fetchCorpDetails = async () => {
+            if (!ulbId) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/textLogo`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ulbid: ulbId }),
+                });
+                const json = await res.json();
+
+                if (json?.success && json?.data?.success) {
+                    const d = json.data.data;
+                    setCorpName(d.ABC_MUNICIPAL_TEXT || "");
+                    setCorpEName(d.ABC_MUNICIPAL_ETEXT || "");
+                    setLogo(d.ULBLOGO || null);
+                }
+            } catch (err) {
+                console.error("Error fetching corporation details:", err);
+            }
+        };
+        fetchCorpDetails();
+    }, [ulbId]);
 
     return (
         <Layout
@@ -734,13 +845,31 @@ const FrmChangeOwnership = () => {
                                 )}
                             </div>
                         </div>
-                        {(watchService && chargesTableData.length > 0) &&
+                        {(watchService && chargesTableData.length > 0) ?
                             <div className="mt-3">
-                                <Table
-                                    headers={chargesTableHeader}
-                                    data={chargesTableData}
-                                />
+                                <p className="font-semibold">
+                                    Fees
+                                </p>
+                                <div className="mt-3">
+                                    <Table
+                                        headers={chargesTableHeader}
+                                        data={chargesTableData}
+                                    />
+                                </div>
                             </div>
+                            :
+                            <div className="mt-3">
+                                <p className="font-semibold">
+                                    Fees
+                                </p>
+                                <div className="mt-3">
+                                    <Table
+                                        headers={chargesTableHeader}
+                                        data={chargesTableData}
+                                    />
+                                </div>
+                            </div>
+
                         }
                         <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
                             <Button type="submit">

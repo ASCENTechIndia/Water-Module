@@ -44,6 +44,7 @@ const {
   getChargesTableDataService,
   changeOwnershipSubmitService,
   changeOwnershipDocumentService,
+  getAcknowledgmentReportDetailsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1109,6 +1110,24 @@ async function changeOwnershipDocumentController(req, res, next) {
   }
 }
 
+async function getAcknowledgementDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getAcknowledgmentReportDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Acknowledgement Report Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Acknowledgement Report Details fetch error");
+    return next(err);
+  }
+}
 
 module.exports = {
   getWardDropdownController,
@@ -1154,5 +1173,6 @@ module.exports = {
   getUsageSubUsageConnectionDtlsController,
   getChargesTableDtlsController,
   changeOwnershipDataSubmitController,
-  changeOwnershipDocumentController
+  changeOwnershipDocumentController,
+  getAcknowledgementDetailsController
 };
