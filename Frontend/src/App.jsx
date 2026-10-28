@@ -104,6 +104,7 @@ import FrmChangeOwnershipAuth from "./Pages/Transaction/ChangesOwnershipAuth/Frm
 import FrmViewDocument from "./Pages/Transaction/ChangesOwnershipAuth/FrmViewDocument.jsx";
 import FrmChangeOwnership from "./Pages/Transaction/FrmChangeOwnership/FrmChangeOwnership.jsx";
 import FrmChangeOwnershipAuthMst from "./Pages/Transaction/ChangesOwnershipAuth/FrmChangeOwnershipAuthMst.jsx";
+import FrmConnGenericModify from "./Pages/Transaction/FrmConnGenericModify/FrmConnGenericModify.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -283,6 +284,12 @@ function App() {
                     path="/Transaction/FrmChangeOwnership"
                     element={<FrmChangeOwnership />}
                   />
+                  <Route 
+                    path="/Transaction/FrmConnGenericModify"
+                    element={<FrmConnGenericModify />}
+                  />
+
+
 
                   {/* Master routes */}
                   {/* First three list + master pages are pending for now */}

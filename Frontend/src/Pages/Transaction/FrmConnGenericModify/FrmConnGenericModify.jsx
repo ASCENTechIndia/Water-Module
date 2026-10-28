@@ -43,6 +43,8 @@ const FrmConnGenericModify = () => {
         }
     });
 
+    const [searchedData, setSearchedData] = useState(null);
+
     const handleSearch = async () => {
         const connectionNo = getValues("connectionNumber");
 
@@ -75,11 +77,11 @@ const FrmConnGenericModify = () => {
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
-                        <Label 
+                        <Label
                             text={"Connection Number"}
                             required
                         />
-                        <input 
+                        <input
                             type="text"
                             {...register("connectionNumber", {
                                 required: "Connection Number is required"
@@ -103,7 +105,116 @@ const FrmConnGenericModify = () => {
                         </Button>
                     </div>
                 </div>
+                <div className="mt-3">
+                    <div className="rounded-xl border border-slate-200 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[1000px] table-fixed border-collapse">
+                                <thead className="bg-slate-100/95">
+                                    <tr className="border-b border-slate-200">
+                                        <th className="px-3 py-3 text-left text-[12px] font-bold uppercase tracking-wider text-slate-600">
+
+                                        </th>
+                                        <th className="px-3 py-3 text-center text-[12px] font-bold uppercase tracking-wider text-slate-600">
+                                            जुने मूल्य
+                                        </th>
+                                        <th className="px-3 py-3 text-center text-[12px] font-bold uppercase tracking-wider text-slate-600">
+                                            नविन मूल्य
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    <tr
+                                        className="hover:bg-slate-50/60 transition-colors"
+                                    >
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            नांव
+                                        </td>
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            Deepesh
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            <input
+                                                type="text"
+                                                className="form-input-box"
+                                            // {...register("tableData")}
+                                            />
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        className="hover:bg-slate-50/60 transition-colors"
+                                    >
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            पत्ता
+                                        </td>
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            Vasai west
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            <input
+                                                type="text"
+                                                className="form-input-box"
+                                            // {...register("tableData")}
+                                            />
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        className="hover:bg-slate-50/60 transition-colors"
+                                    >
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            मोबाईल क्र.
+                                        </td>
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            0
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            <input
+                                                type="text"
+                                                className="form-input-box"
+                                            // {...register("tableData")}
+                                            />
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        className="hover:bg-slate-50/60 transition-colors"
+                                    >
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            Connection Type
+                                        </td>
+                                        <td className="px-3 py-2 text-center text-sm text-slate-500">
+                                            Meter
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            <select
+                                                className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
+                                                // {...register("reason")}
+                                            >
+                                                <option value="">--SELECT--</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex justify-center gap-2 px-5 py-3 border-t border-slate-200 bg-white flex-shrink-0">
+                    <Button type="submit">
+                        Submit
+                    </Button>
+
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                            navigate("/dashboard")
+                        }}
+                    >
+                        Back
+                    </Button>
+                </div>
             </form>
         </Layout>
     )
 }
+
+export default FrmConnGenericModify;
