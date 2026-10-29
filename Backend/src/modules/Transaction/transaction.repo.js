@@ -1795,21 +1795,21 @@ async function connGenericModifyDataSubmitRepo(payload) {
     in_source,
   } = payload;
 
-  let statement = `
-    BEGIN
-      aowt_Connectiongeneric_ins(
-        :in_UserId,
-        :in_ULBID,
-        :in_connid,
-        :in_conntypeid,
-        :in_conndetailsstr,
-        :in_ipaddress,
-        :in_source,
-        :Out_errorCode,
-        :Out_ErrorMsg,
-      );
-    END;
-  `;
+  const statement = `
+        BEGIN
+            aowt_Connectiongeneric_ins(
+                :in_UserId,
+                :in_ULBID,
+                :in_connid,
+                :in_conntypeid,
+                :in_conndetailsstr,
+                :in_ipaddress,
+                :in_source,
+                :Out_errorCode,
+                :Out_ErrorMsg
+            );
+        END;
+    `;
 
   const binds = {
     in_UserId,
@@ -1820,7 +1820,10 @@ async function connGenericModifyDataSubmitRepo(payload) {
     in_ipaddress,
     in_source,
 
-    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_errorCode: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.NUMBER,
+    },
     Out_ErrorMsg: {
       dir: oracledb.BIND_OUT,
       type: oracledb.STRING,
@@ -1828,7 +1831,11 @@ async function connGenericModifyDataSubmitRepo(payload) {
     },
   };
 
-  const result = await executeProcedure({ statement, binds, useTx: false });
+  const result = await executeProcedure({
+    statement,
+    binds,
+    useTx: false,
+  });
 
   return result.outBinds;
 }

@@ -214,7 +214,7 @@ router.get("/getConnAuthStatus", getConnAuthStatusController);
 router.get("/getGenericModifyListDtls", getGenericModifyListDtlsController);
 router.get("/getConnectionSize", getConnectionSizeController);
 router.get("/getConnectionType", getConnectionTypeController);
-router.get(
+router.post(
   "/conn-generic-modify",
   validate(connGenericModifySchema),
   connGenericModifyDataSubmitController,
