@@ -683,6 +683,68 @@ const serviceApprovalAuthInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const connGenAuthInsSchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ULBID: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  in_Conndetailsstr: z
+    .string({
+      required_error: "Connection details string is required",
+      invalid_type_error: "Connection details string must be a string",
+    })
+    .trim()
+    .min(1, "Connection details string is required")
+    .refine(
+      (val) => {
+        // Format: ulbId#connId#connGenModId#authStatus#remark$
+        // Multiple rows separated by $
+        const rows = val.split("$");
+        return rows.every((row) => {
+          const parts = row.split("#");
+          if (parts.length !== 5) return false;
+          const [ulbId, connId, connGenModId, authStatus, remark] = parts;
+          if (!ulbId.trim() || !connId.trim() || !connGenModId.trim())
+            return false;
+          if (authStatus !== "A" && authStatus !== "R") return false;
+          if (!remark.trim()) return false;
+          return true;
+        });
+      },
+      {
+        message:
+          "Each row must be in the format ulbId#connId#connGenModId#authStatus#remark (authStatus A or R). Multiple rows separated by $",
+      },
+    ),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
@@ -693,4 +755,5 @@ module.exports = {
   billDeleteInsSchema,
   vasulichallanGenerationSchema,
   serviceApprovalAuthInsSchema,
+  connGenAuthInsSchema,
 };

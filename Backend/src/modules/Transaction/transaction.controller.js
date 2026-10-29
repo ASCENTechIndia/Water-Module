@@ -48,6 +48,9 @@ const {
   getOwnershipChargesService,
   serviceApprovalAuthInsService,
   getAcknowledgmentReportDetailsService,
+  getGenModAuthListService,
+  fetchGenAuthDetailsService,
+  connGenAuthInsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1237,6 +1240,100 @@ async function serviceApprovalAuthInsController(req, res, next) {
   }
 }
 
+async function getGenModAuthListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getGenModAuthListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, ulbId: payload.ulbId },
+      rows?.length > 0
+        ? `Connection generic modify auth list retrieved`
+        : `No pending generic modify auth records found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Generic modify auth list error");
+    return next(err);
+  }
+}
+
+async function fetchGenAuthDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await fetchGenAuthDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      {
+        count: rows?.length || 0,
+        connId: payload.connId,
+        connGenModId: payload.connGenModId,
+      },
+      rows?.length > 0
+        ? `Generic modify auth details retrieved`
+        : `No generic modify auth details found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Generic modify auth details error");
+    return next(err);
+  }
+}
+
+async function connGenAuthInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await connGenAuthInsService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { ulbId: payload.in_ULBID },
+        out.Out_ErrorMsg || "Generic modify authorization processed",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Generic modify authorization failed",
+      );
+    }
+
+    auditLog({
+      action: "CONNGENMOD_AUTH_PROCESS",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "conngenmodauth",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        ulbId: payload.in_ULBID,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Generic modify auth insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -1286,4 +1383,7 @@ module.exports = {
   getOwnershipChargesController,
   serviceApprovalAuthInsController,
   getAcknowledgementDetailsController,
+  getGenModAuthListController,
+  fetchGenAuthDetailsController,
+  connGenAuthInsController,
 };

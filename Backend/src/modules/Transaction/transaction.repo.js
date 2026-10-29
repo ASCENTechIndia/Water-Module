@@ -1663,6 +1663,92 @@ async function aowt_serviceapprovalauth_ins(payload) {
   return result.outBinds;
 }
 
+async function getGenModAuthList(payload) {
+  const { ulbId } = payload;
+
+  if (!ulbId) {
+    throw new Error("ulbId is required");
+  }
+
+  const sql = `
+    select ulbid, connno, connid, zoneid, zonename, wardname, blockid, blockname, ownrname, address, conngenmodid, username
+    from vw_conngenauthlist where ulbid = :ulbId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function fetchGenAuthDetails(payload) {
+  const { ulbId, connId, connGenModId } = payload;
+
+  if (!ulbId || !connId || !connGenModId) {
+    throw new Error("ulbId, connId and connGenModId are required");
+  }
+
+  const sql = `
+    select conngenmodid,
+           ulbid,
+           connno,
+           connid,
+           name1,
+           modtypeid,
+           oldvalue,
+           newvalue
+      from vw_conngenupdate
+     where ulbid = :ulbId
+       and connid = :connId
+       and conngenmodid = :connGenModId
+  `;
+
+  const binds = {
+    ulbId: Number(ulbId),
+    connId: Number(connId),
+    connGenModId: Number(connGenModId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_connectiongenericauth_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_Connectiongenericauth_ins(
+        :in_UserId,
+        :in_ULBID,
+        :in_Conndetailsstr,
+        :in_ipaddress,
+        :in_source,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId: payload.in_UserId,
+    in_ULBID: Number(payload.in_ULBID),
+    in_Conndetailsstr: payload.in_Conndetailsstr,
+    in_ipaddress: payload.in_ipaddress,
+    in_source: payload.in_source,
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 5000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -1715,4 +1801,7 @@ module.exports = {
   getOwnershipCharges,
   aowt_serviceapprovalauth_ins,
   getAcknowledgementDetailsRepo,
+  getGenModAuthList,
+  fetchGenAuthDetails,
+  aowt_connectiongenericauth_ins,
 };

@@ -49,6 +49,9 @@ const {
   getOwnershipChargesController,
   serviceApprovalAuthInsController,
   getAcknowledgementDetailsController,
+  getGenModAuthListController,
+  fetchGenAuthDetailsController,
+  connGenAuthInsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -60,6 +63,7 @@ const {
   billDeleteInsSchema,
   vasulichallanGenerationSchema,
   serviceApprovalAuthInsSchema,
+  connGenAuthInsSchema,
 } = require("./transaction.validation");
 
 const upload = multer({
@@ -190,6 +194,15 @@ router.post(
   "/update-ownership-document",
   upload.single("file"),
   changeOwnershipDocumentController,
+);
+
+// Connection generic modify auth
+router.get("/getGenModAuthList", getGenModAuthListController);
+router.get("/fetchGenAuthDetails", fetchGenAuthDetailsController);
+router.post(
+  "/aowt_Connectiongenericauth_ins",
+  validate(connGenAuthInsSchema),
+  connGenAuthInsController,
 );
 
 module.exports = router;

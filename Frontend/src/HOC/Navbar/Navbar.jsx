@@ -361,10 +361,15 @@ const STATIC_MENU = [
         PAGEPATH: "/Transaction/FrmChangeOwnershipAuth",
       },
       {
-        MENUID: 512,
+        MENUID: 522,
         MENUTITLE: "Connection Generic Modify",
-        PAGEPATH: "/Transaction/FrmConnGenericModify"
-      }
+        PAGEPATH: "/Transaction/FrmConnGenericModify",
+      },
+      {
+        MENUID: 513,
+        MENUTITLE: "Connection Generic Modify Auth",
+        PAGEPATH: "/Transaction/FrmConnGenericModifyAuthList",
+      },
     ],
   },
 ];

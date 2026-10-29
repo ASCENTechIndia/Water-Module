@@ -49,6 +49,9 @@ const {
   getOwnershipCharges,
   aowt_serviceapprovalauth_ins,
   getAcknowledgementDetailsRepo,
+  getGenModAuthList,
+  fetchGenAuthDetails,
+  aowt_connectiongenericauth_ins,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -315,6 +318,18 @@ async function getAcknowledgmentReportDetailsService(payload) {
   return getAcknowledgementDetailsRepo(payload);
 }
 
+async function getGenModAuthListService(payload) {
+  return getGenModAuthList(payload);
+}
+
+async function fetchGenAuthDetailsService(payload) {
+  return fetchGenAuthDetails(payload);
+}
+
+async function connGenAuthInsService(payload) {
+  return aowt_connectiongenericauth_ins(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -364,4 +379,7 @@ module.exports = {
   getOwnershipChargesService,
   serviceApprovalAuthInsService,
   getAcknowledgmentReportDetailsService,
+  getGenModAuthListService,
+  fetchGenAuthDetailsService,
+  connGenAuthInsService,
 };
