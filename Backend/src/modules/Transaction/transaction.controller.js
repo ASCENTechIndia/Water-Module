@@ -48,6 +48,11 @@ const {
   getOwnershipChargesService,
   serviceApprovalAuthInsService,
   getAcknowledgmentReportDetailsService,
+  getConnAuthStatusService,
+  getGenericModifyListDtlsService,
+  getConnectionSizeService,
+  getConnectionTypeService,
+  connGenericModifyDataSubmitService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1237,6 +1242,152 @@ async function serviceApprovalAuthInsController(req, res, next) {
   }
 }
 
+// Conn Generic Modify
+
+async function getConnAuthStatusController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getConnAuthStatusService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Conn Auth Status retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Conn Auth Status fetch error",
+    );
+    return next(err);
+  }
+}
+
+async function getGenericModifyListDtlsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getGenericModifyListDtlsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Generic Modify List Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Generic Modify List Details fetch error",
+    );
+    return next(err);
+  }
+}
+
+async function getConnectionSizeController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getConnectionSizeService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection Size Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Connection Size Details fetch error",
+    );
+    return next(err);
+  }
+}
+
+async function getConnectionTypeController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getConnectionTypeService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Connection Type Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Connection Type Details fetch error",
+    );
+    return next(err);
+  }
+}
+
+async function connGenericModifyDataSubmitController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await connGenericModifyDataSubmitService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { ulbId: payload.in_ULBID },
+        out.Out_ErrorMsg || "Connection Generic Modify Details saved successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Connection Generic Modify Details saved failed",
+      );
+    }
+
+    auditLog({
+      action: "CONN_GENERIC_MODIFY_INSERT",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "connGenericModify",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        ulbId: payload.in_ULBID
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Meter reading insert error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -1286,4 +1437,9 @@ module.exports = {
   getOwnershipChargesController,
   serviceApprovalAuthInsController,
   getAcknowledgementDetailsController,
+  getConnAuthStatusController,
+  getGenericModifyListDtlsController,
+  getConnectionSizeController,
+  getConnectionTypeController,
+  connGenericModifyDataSubmitController
 };

@@ -1663,6 +1663,190 @@ async function aowt_serviceapprovalauth_ins(payload) {
   return result.outBinds;
 }
 
+// Conn Generic Modify
+
+async function getConnAuthStatusRepo(payload) {
+  const {
+    ulbId,
+    connectionNumber
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!connectionNumber) {
+    throw new Error("Connection Number is required");
+  }
+
+  let sql = `
+    SELECT 
+      var_conngenmod_authstatus AuthStatus 
+    FROM aowt_conngenmod_mst
+    inner join aowt_conn_mas on num_conn_connid=var_conngenmod_connid and num_conn_ulbid=num_conngenmod_ulbid
+    WHERE num_conngenmod_ulbid=:ulbId
+    AND var_conn_connno=:connectionNumber AND var_conngenmod_authstatus='P' 
+  `
+
+  const binds = {
+    ulbId,
+    connectionNumber
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function getGenericModifyListDtlsRepo(payload) {
+  const {
+    ulbId,
+    connectionNumber
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!connectionNumber) {
+    throw new Error("Connection Number is required");
+  }
+
+  let sql;
+
+  if (Number(ulbId) === 870 || Number(ulbId) === 1690) {
+    sql = `
+      Select ulbid,connno,connid,nameid,conntypeid, NAME1, EXISTING_VALUE 
+      from vw_ConngenmodifySMC 
+      where ulbid = :ulbId
+      and connno = :connectionNumber
+    `;
+  } else if (Number(ulbId) === 990) {
+    sql = `
+      Select ulbid,connno,connid,nameid,connsizeid, NAME1, EXISTING_VALUE 
+      from vw_Conngenmodify_khmc 
+      where ulbid = :ulbId
+      and connno =: connectionNumber
+    `;
+  } else {
+    sql = `
+      Select ulbid,connno,connid,nameid,conntypeid, NAME1, EXISTING_VALUE 
+      from vw_Conngenmodify 
+      where ulbid = :ulbId
+      and connno =:connectionNumber
+    `;
+  }
+
+  const binds = {
+    ulbId,
+    connectionNumber
+  }
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getConnectionSizeRepo(payload) {
+  const {
+    ulbId,
+    connectionNumber
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  let sql = `
+    select connsizename name,connsizeid   
+    from  vw_connsizeconfigmas 
+    WHERE ulbid = :ulbId
+  `
+
+  const binds = {
+    ulbId
+  }
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function getConnectionTypeRepo(payload) {
+  const {
+    ulbId,
+    connectionNumber
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  let sql = `
+    select 
+      conntype name,
+      conntypeid conntype_id 
+    from  vw_conntypeconfig 
+    WHERE ulbid = :ulbId
+  `
+
+  const binds = {
+    ulbId
+  }
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function connGenericModifyDataSubmitRepo(payload) {
+  const {
+    in_UserId,
+    in_ULBID,
+    in_connid,
+    in_conntypeid,
+    in_conndetailsstr,
+    in_ipaddress,
+    in_source,
+  } = payload;
+
+  let statement = `
+    BEGIN
+      aowt_Connectiongeneric_ins(
+        :in_UserId,
+        :in_ULBID,
+        :in_connid,
+        :in_conntypeid,
+        :in_conndetailsstr,
+        :in_ipaddress,
+        :in_source,
+        :Out_errorCode,
+        :Out_ErrorMsg,
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId,
+    in_ULBID: Number(in_ULBID),
+    in_connid: Number(in_connid),
+    in_conntypeid: Number(in_conntypeid),
+    in_conndetailsstr,
+    in_ipaddress,
+    in_source,
+
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -1715,4 +1899,9 @@ module.exports = {
   getOwnershipCharges,
   aowt_serviceapprovalauth_ins,
   getAcknowledgementDetailsRepo,
+  getConnAuthStatusRepo,
+  getGenericModifyListDtlsRepo,
+  getConnectionSizeRepo,
+  getConnectionTypeRepo,
+  connGenericModifyDataSubmitRepo
 };

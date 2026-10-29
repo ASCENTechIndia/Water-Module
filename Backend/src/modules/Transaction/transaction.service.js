@@ -49,6 +49,11 @@ const {
   getOwnershipCharges,
   aowt_serviceapprovalauth_ins,
   getAcknowledgementDetailsRepo,
+  getConnAuthStatusRepo,
+  getGenericModifyListDtlsRepo,
+  getConnectionSizeRepo,
+  getConnectionTypeRepo,
+  connGenericModifyDataSubmitRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -315,6 +320,28 @@ async function getAcknowledgmentReportDetailsService(payload) {
   return getAcknowledgementDetailsRepo(payload);
 }
 
+// Conn Generic Modify
+
+async function getConnAuthStatusService(payload) {
+  return getConnAuthStatusRepo(payload);
+}
+
+async function getGenericModifyListDtlsService(payload) {
+  return getGenericModifyListDtlsRepo(payload);
+}
+
+async function getConnectionSizeService(payload) {
+  return getConnectionSizeRepo(payload);
+}
+
+async function getConnectionTypeService(payload) {
+  return getConnectionTypeRepo(payload);
+}
+
+async function connGenericModifyDataSubmitService(payload) {
+  return connGenericModifyDataSubmitRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -364,4 +391,9 @@ module.exports = {
   getOwnershipChargesService,
   serviceApprovalAuthInsService,
   getAcknowledgmentReportDetailsService,
+  getConnAuthStatusService,
+  getGenericModifyListDtlsService,
+  getConnectionSizeService,
+  getConnectionTypeService,
+  connGenericModifyDataSubmitService
 };
