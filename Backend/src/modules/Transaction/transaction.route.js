@@ -57,6 +57,11 @@ const {
   getConnectionSizeController,
   getConnectionTypeController,
   connGenericModifyDataSubmitController,
+  getProvCheqRecApprDetailsController,
+  provRecApprController,
+  provRecRejectController,
+  getMeterReadingUpdateListController,
+  getMeterReadingGapCodeController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -70,6 +75,8 @@ const {
   serviceApprovalAuthInsSchema,
   connGenAuthInsSchema,
   connGenericModifySchema,
+  provRecApprSchema,
+  provRecRejectSchema,
 } = require("./transaction.validation");
 
 const upload = multer({
@@ -222,4 +229,20 @@ router.post(
   connGenAuthInsController,
 );
 
+// Provisinal cheque receipt approval
+router.get("/getProvCheqRecApprDetails", getProvCheqRecApprDetailsController);
+router.post(
+  "/aowt_provrecapprMultiple_ins",
+  validate(provRecApprSchema),
+  provRecApprController,
+);
+router.post(
+  "/aowt_provrecreject_ins",
+  validate(provRecRejectSchema),
+  provRecRejectController,
+);
+
+// Meter reading update
+router.get("/getMeterReadingUpdateList", getMeterReadingUpdateListController);
+router.get("/getMeterReadingGapCode", getMeterReadingGapCodeController);
 module.exports = router;

@@ -1919,6 +1919,209 @@ async function aowt_connectiongenericauth_ins(payload) {
   return result.outBinds;
 }
 
+async function getProvCheqRecApprDetails(payload) {
+  const { receiptNo } = payload;
+
+  if (!receiptNo) {
+    throw new Error("receiptNo is required");
+  }
+
+  const sql = `
+    select num_conn_connid connid,
+           var_conn_connno connno,
+           num_conn_wardid wardid,
+           var_ward_name ward_name,
+           num_conn_zoneid zoneid,
+           var_zone_name zone_name,
+           num_conn_blockid blockid,
+           var_block_name block_name,
+           var_conn_ownername ownername,
+           var_conn_address address,
+           var_rec_bookno bookno,
+           var_rec_refno refno,
+           var_conn_oldconnno oldconnno,
+           var_rec_provrecno provrecno,
+           dat_rec_receiptdt receiptdt,
+           num_rec_amttype amttype,
+           var_rec_instruno instruno,
+           dat_rec_instrudt instrudt,
+           num_rec_micrcode micrcode,
+           var_rec_banknm banknm,
+           num_rec_instrutype instrutype,
+           nvl(num_bill_tottax, 0) + nvl(num_conn_arrearsamt, 0) totalamt,
+           nvl(curr_dpc + arrers_dpc, 0) dpc,
+           0 rebate,
+           num_conn_mobno mobno,
+           var_rec_paidbynm paidbynm,
+           num_rec_amount amount,
+           num_rec_totdiscamt totdiscamt,
+           recmodname,
+           var_rec_flatno flatno
+      from aowt_provrec_mas
+      inner join aowt_conn_mas
+        on num_conn_connid = num_rec_connid
+       and num_conn_ulbid = num_rec_ulbid
+      inner join aowt_bill_mas
+        on num_bill_connid = num_conn_connid
+       and num_bill_ulbid = num_conn_ulbid
+       and num_bill_ulbid = num_rec_ulbid
+      left join vw_wtbilldpc
+        on bill_ulbid = num_conn_ulbid
+       and bill_connid = num_conn_connid
+      left join vw_wtconndpc
+        on conn_ulbid = bill_ulbid
+       and conn_connid = bill_connid
+      inner join aowt_ward_mas
+        on num_ward_id = num_conn_wardid
+      inner join aowt_zone_mas
+        on num_zone_id = num_conn_zoneid
+      inner join aowt_block_mas
+        on num_block_id = num_conn_blockid
+      inner join prop.vw_recmodeconfig
+        on ulbid = num_rec_ulbid
+       and recmodeid = num_rec_amttype
+     where var_rec_provrecno = :receiptNo
+       and var_rec_status = 'P'
+  `;
+
+  const binds = {
+    receiptNo: String(receiptNo).trim(),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function aowt_provrecapprMultiple_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_provrecapprMultiple_ins(
+        :In_ULBID,
+        :IN_str,
+        :In_UserId,
+        :in_ProvRecNo,
+        :in_ipaddress,
+        :in_projectsource,
+        :in_Remark,
+        :Out_ErrorCode,
+        :Out_ErrorMsg,
+        :Out_ReceiptNo
+      );
+    END;
+  `;
+
+  const binds = {
+    In_ULBID: Number(payload.In_ULBID),
+    IN_str: payload.IN_str,
+    In_UserId: payload.In_UserId,
+    in_ProvRecNo: payload.in_ProvRecNo,
+    in_ipaddress: payload.in_ipaddress,
+    in_projectsource: payload.in_projectsource,
+    in_Remark: payload.in_Remark,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 5000,
+    },
+    Out_ReceiptNo: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 5000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function aowt_provrecreject_ins(payload) {
+  const statement = `
+    BEGIN
+      aowt_provrecreject_ins(
+        :In_UserId,
+        :In_ULBID,
+        :In_connID,
+        :In_Remark,
+        :In_CheqNo,
+        :In_ProvRecNo,
+        :in_mode,
+        :in_strprovrej,
+        :in_ipaddress,
+        :in_projectsource,
+        :Out_ErrorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    In_UserId: payload.In_UserId,
+    In_ULBID: String(payload.In_ULBID),
+    In_connID: Number(payload.In_connID),
+    In_Remark: normalizeNullable(payload.In_Remark),
+    In_CheqNo: payload.In_CheqNo,
+    In_ProvRecNo: payload.In_ProvRecNo,
+    in_mode: Number(payload.in_mode),
+    in_strprovrej: payload.in_strprovrej,
+    in_ipaddress: payload.in_ipaddress,
+    in_projectsource: payload.in_projectsource,
+
+    Out_ErrorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 5000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+  return result.outBinds;
+}
+
+async function getMeterReadingUpdateList(payload) {
+  const { connectionNo, ulbId } = payload;
+
+  if (!connectionNo || !ulbId) {
+    throw new Error("connectionNo and ulbId are required");
+  }
+
+  const sql = `
+    select var_conn_connno connection_number,
+           num_mtrreading_prevreading prevreading,
+           num_mtrreading_currreading currreading,
+           num_mtrreading_totalquty totalquty,
+           num_mtrreading_gapcodeid gapcodeid,
+           var_conn_ownername ownername
+      from aowt_mtrreading_mas
+      inner join aowt_conn_mas
+        on num_conn_connid = num_mtrreading_connid
+       and num_conn_ulbid = num_mtrreading_ulbid
+     where var_conn_connno = :connectionNo
+       and num_conn_ulbid = :ulbId
+  `;
+
+  const binds = {
+    connectionNo: String(connectionNo).trim(),
+    ulbId: Number(ulbId),
+  };
+
+  const result = await executeQuery(sql, binds);
+  return result.rows || [];
+}
+
+async function getMeterReadingGapCode() {
+  const sql = `
+    select var_gapcode_name,
+           num_gapcode_id
+      from aowt_gapcode_mas
+  `;
+
+  const result = await executeQuery(sql);
+  return result.rows || [];
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -1979,4 +2182,9 @@ module.exports = {
   getConnectionSizeRepo,
   getConnectionTypeRepo,
   connGenericModifyDataSubmitRepo,
+  getProvCheqRecApprDetails,
+  aowt_provrecapprMultiple_ins,
+  aowt_provrecreject_ins,
+  getMeterReadingUpdateList,
+  getMeterReadingGapCode,
 };

@@ -800,6 +800,172 @@ const connGenAuthInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const provRecApprSchema = z.object({
+  In_ULBID: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  IN_str: z
+    .string({
+      required_error: "Connection details string is required",
+      invalid_type_error: "Connection details string must be a string",
+    })
+    .trim()
+    .min(1, "Connection details string is required")
+    .refine(
+      (val) => {
+        // Format: wardId^zoneId^blockId^connId#wardId^zoneId^blockId^connId#...
+        const rows = val.split("#");
+        return rows.every((row) => {
+          const parts = row.split("^");
+          if (parts.length !== 4) return false;
+          return parts.every((p) => p.trim() !== "");
+        });
+      },
+      {
+        message:
+          "Each row must be in the format wardId^zoneId^blockId^connId. Multiple rows separated by #",
+      },
+    ),
+
+  In_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  in_ProvRecNo: z
+    .string({
+      required_error: "Provisional Receipt No is required",
+      invalid_type_error: "Provisional Receipt No must be a string",
+    })
+    .trim()
+    .min(1, "Provisional Receipt No is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_projectsource: z
+    .string({
+      required_error: "Project source is required",
+      invalid_type_error: "Project source must be a string",
+    })
+    .trim()
+    .min(1, "Project source is required"),
+
+  in_Remark: z
+    .string({
+      required_error: "Remark is required",
+      invalid_type_error: "Remark must be a string",
+    })
+    .trim()
+    .min(1, "Remark is required"),
+});
+
+const provRecRejectSchema = z.object({
+  In_UserId: z
+    .string({
+      required_error: "UserId is required",
+      invalid_type_error: "UserId must be a string",
+    })
+    .trim()
+    .min(1, "UserId is required"),
+
+  In_ULBID: z
+    .number({
+      required_error: "Ulb Id is required",
+      invalid_type_error: "Ulb Id must be a number",
+    })
+    .int("Ulb Id must be an integer"),
+
+  In_connID: z
+    .number({
+      required_error: "Connection Id is required",
+      invalid_type_error: "Connection Id must be a number",
+    })
+    .int("Connection Id must be an integer"),
+
+  In_Remark: z
+    .string({
+      invalid_type_error: "Remark must be a string",
+    })
+    .trim()
+    .optional()
+    .nullable(),
+
+  In_CheqNo: z
+    .string({
+      required_error: "Cheque No is required",
+      invalid_type_error: "Cheque No must be a string",
+    })
+    .trim()
+    .min(1, "Cheque No is required"),
+
+  In_ProvRecNo: z
+    .string({
+      required_error: "Provisional Receipt No is required",
+      invalid_type_error: "Provisional Receipt No must be a string",
+    })
+    .trim()
+    .min(1, "Provisional Receipt No is required"),
+
+  in_mode: z
+    .number({
+      required_error: "Mode is required",
+      invalid_type_error: "Mode must be a number",
+    })
+    .int("Mode must be an integer"),
+
+  in_strprovrej: z
+    .string({
+      required_error: "Rejection string is required",
+      invalid_type_error: "Rejection string must be a string",
+    })
+    .trim()
+    .min(1, "Rejection string is required")
+    .refine(
+      (val) => {
+        // Format: connId^cheqNo#connId^cheqNo#...
+        const rows = val.split("#");
+        return rows.every((row) => {
+          const parts = row.split("^");
+          if (parts.length !== 2) return false;
+          return parts.every((p) => p.trim() !== "");
+        });
+      },
+      {
+        message:
+          "Each row must be in the format connId^cheqNo. Multiple rows separated by #",
+      },
+    ),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP address is required",
+      invalid_type_error: "IP address must be a string",
+    })
+    .trim()
+    .min(1, "IP address is required"),
+
+  in_projectsource: z
+    .string({
+      required_error: "Project source is required",
+      invalid_type_error: "Project source must be a string",
+    })
+    .trim()
+    .min(1, "Project source is required"),
+});
+
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
@@ -812,4 +978,6 @@ module.exports = {
   serviceApprovalAuthInsSchema,
   connGenAuthInsSchema,
   connGenericModifySchema,
+  provRecApprSchema,
+  provRecRejectSchema,
 };

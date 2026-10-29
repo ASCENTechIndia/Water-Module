@@ -57,6 +57,11 @@ const {
   getConnectionSizeRepo,
   getConnectionTypeRepo,
   connGenericModifyDataSubmitRepo,
+  getProvCheqRecApprDetails,
+  aowt_provrecapprMultiple_ins,
+  aowt_provrecreject_ins,
+  getMeterReadingUpdateList,
+  getMeterReadingGapCode,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -356,6 +361,26 @@ async function connGenericModifyDataSubmitService(payload) {
   return connGenericModifyDataSubmitRepo(payload);
 }
 
+async function getProvCheqRecApprDetailsService(payload) {
+  return getProvCheqRecApprDetails(payload);
+}
+
+async function provRecApprService(payload) {
+  return aowt_provrecapprMultiple_ins(payload);
+}
+
+async function provRecRejectService(payload) {
+  return aowt_provrecreject_ins(payload);
+}
+
+async function getMeterReadingUpdateListService(payload) {
+  return getMeterReadingUpdateList(payload);
+}
+
+async function getMeterReadingGapCodeService() {
+  return getMeterReadingGapCode();
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -413,4 +438,9 @@ module.exports = {
   getConnectionSizeService,
   getConnectionTypeService,
   connGenericModifyDataSubmitService,
+  getProvCheqRecApprDetailsService,
+  provRecApprService,
+  provRecRejectService,
+  getMeterReadingUpdateListService,
+  getMeterReadingGapCodeService,
 };

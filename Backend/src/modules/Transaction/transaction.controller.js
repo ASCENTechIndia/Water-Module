@@ -56,6 +56,11 @@ const {
   getConnectionSizeService,
   getConnectionTypeService,
   connGenericModifyDataSubmitService,
+  getProvCheqRecApprDetailsService,
+  provRecApprService,
+  provRecRejectService,
+  getMeterReadingUpdateListService,
+  getMeterReadingGapCodeService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1469,6 +1474,180 @@ async function connGenAuthInsController(req, res, next) {
   }
 }
 
+async function getProvCheqRecApprDetailsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getProvCheqRecApprDetailsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0, receiptNo: payload.receiptNo },
+      rows?.length > 0
+        ? `Provisional cheque receipt approval details retrieved`
+        : `No provisional cheque receipt found`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(
+      req,
+      400,
+      err.message,
+      "Provisional cheque receipt approval details error",
+    );
+    return next(err);
+  }
+}
+
+async function provRecApprController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await provRecApprService(payload);
+
+    const isSuccess = Number(out.Out_ErrorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          ulbId: payload.In_ULBID,
+          provRecNo: payload.in_ProvRecNo,
+        },
+        out.Out_ErrorMsg || "Provisional receipts approved",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Provisional receipt approval failed",
+      );
+    }
+
+    auditLog({
+      action: "PROVREC_APPROVE",
+      actor: req.user?.userId || payload.In_UserId || "system",
+      module: "provrecapproval",
+      entityId: payload.in_ProvRecNo,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        outReceiptNo: out.Out_ReceiptNo,
+        ulbId: payload.In_ULBID,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Provisional receipt approval error");
+    return next(err);
+  }
+}
+
+async function provRecRejectController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await provRecRejectService(payload);
+
+    // Here reject procedure returning -100 for success or reject status code
+    const isSuccess = Number(out.Out_ErrorCode) === -100;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          ulbId: payload.In_ULBID,
+          provRecNo: payload.In_ProvRecNo,
+        },
+        out.Out_ErrorMsg || "Provisional receipt rejected",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Provisional receipt rejection failed",
+      );
+    }
+
+    auditLog({
+      action: "PROVREC_REJECT",
+      actor: req.user?.userId || payload.In_UserId || "system",
+      module: "provrecrejection",
+      entityId: payload.In_ProvRecNo,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_ErrorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        ulbId: payload.In_ULBID,
+        provRecNo: payload.In_ProvRecNo,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Provisional receipt rejection error");
+    return next(err);
+  }
+}
+
+async function getMeterReadingUpdateListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getMeterReadingUpdateListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      {
+        count: rows?.length || 0,
+        connectionNo: payload.connectionNo,
+        ulbId: payload.ulbId,
+      },
+      rows?.length > 0
+        ? `Meter reading update list retrieved`
+        : `No meter reading found for this connection`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 400, err.message, "Meter reading update list error");
+    return next(err);
+  }
+}
+
+async function getMeterReadingGapCodeController(req, res, next) {
+  try {
+    const rows = await getMeterReadingGapCodeService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Meter reading gap code dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Meter reading gap code dropdown error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -1526,4 +1705,9 @@ module.exports = {
   getConnectionSizeController,
   getConnectionTypeController,
   connGenericModifyDataSubmitController,
+  getProvCheqRecApprDetailsController,
+  provRecApprController,
+  provRecRejectController,
+  getMeterReadingUpdateListController,
+  getMeterReadingGapCodeController,
 };

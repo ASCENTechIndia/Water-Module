@@ -370,6 +370,16 @@ const STATIC_MENU = [
         MENUTITLE: "Connection Generic Modify Auth",
         PAGEPATH: "/Transaction/FrmConnGenericModifyAuthList",
       },
+      {
+        MENUID: 514,
+        MENUTITLE: "Provisional Cheque Receipt Approval",
+        PAGEPATH: "/Transaction/FrmProvChequeReceiptApprMBMC",
+      },
+      {
+        MENUID: 515,
+        MENUTITLE: "Meter Reading Update",
+        PAGEPATH: "/Transaction/FrmMtrReadingUpdate",
+      },
     ],
   },
 ];
