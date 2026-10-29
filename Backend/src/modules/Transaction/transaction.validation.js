@@ -683,6 +683,61 @@ const serviceApprovalAuthInsSchema = z.object({
     .min(1, "Source is required"),
 });
 
+const connGenericModifySchema = z.object({
+  in_UserId: z
+    .string({
+      required_error: "User ID is required",
+      invalid_type_error: "User ID must be a string",
+    })
+    .trim()
+    .min(1, "User ID is required"),
+
+  in_ULBID: z
+    .number({
+      required_error: "ULB ID is required",
+      invalid_type_error: "ULB ID must be a number",
+    })
+    .int("ULB ID must be an integer"),
+
+  in_connid: z
+    .number({
+      required_error: "Connection ID is required",
+      invalid_type_error: "Connection ID must be a number",
+    })
+    .int("Connection ID must be an integer"),
+
+  in_conntypeid: z
+    .number({
+      required_error: "Connection Type ID is required",
+      invalid_type_error: "Connection Type ID must be a number",
+    })
+    .int("Connection Type ID must be an integer"),
+
+  in_conndetailsstr: z
+    .string({
+      required_error: "Connection Details is required",
+      invalid_type_error: "Connection Details must be a string",
+    })
+    .trim()
+    .min(1, "Connection Details is required"),
+
+  in_ipaddress: z
+    .string({
+      required_error: "IP Address is required",
+      invalid_type_error: "IP Address must be a string",
+    })
+    .trim()
+    .min(1, "IP Address is required"),
+
+  in_source: z
+    .string({
+      required_error: "Source is required",
+      invalid_type_error: "Source must be a string",
+    })
+    .trim()
+    .min(1, "Source is required"),
+});
+
 const connGenAuthInsSchema = z.object({
   in_UserId: z
     .string({
@@ -756,4 +811,5 @@ module.exports = {
   vasulichallanGenerationSchema,
   serviceApprovalAuthInsSchema,
   connGenAuthInsSchema,
+  connGenericModifySchema,
 };

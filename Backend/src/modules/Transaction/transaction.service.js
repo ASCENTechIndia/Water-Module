@@ -52,6 +52,11 @@ const {
   getGenModAuthList,
   fetchGenAuthDetails,
   aowt_connectiongenericauth_ins,
+  getConnAuthStatusRepo,
+  getGenericModifyListDtlsRepo,
+  getConnectionSizeRepo,
+  getConnectionTypeRepo,
+  connGenericModifyDataSubmitRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -330,6 +335,27 @@ async function connGenAuthInsService(payload) {
   return aowt_connectiongenericauth_ins(payload);
 }
 
+// Conn Generic Modify
+async function getConnAuthStatusService(payload) {
+  return getConnAuthStatusRepo(payload);
+}
+
+async function getGenericModifyListDtlsService(payload) {
+  return getGenericModifyListDtlsRepo(payload);
+}
+
+async function getConnectionSizeService(payload) {
+  return getConnectionSizeRepo(payload);
+}
+
+async function getConnectionTypeService(payload) {
+  return getConnectionTypeRepo(payload);
+}
+
+async function connGenericModifyDataSubmitService(payload) {
+  return connGenericModifyDataSubmitRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -382,4 +408,9 @@ module.exports = {
   getGenModAuthListService,
   fetchGenAuthDetailsService,
   connGenAuthInsService,
+  getConnAuthStatusService,
+  getGenericModifyListDtlsService,
+  getConnectionSizeService,
+  getConnectionTypeService,
+  connGenericModifyDataSubmitService,
 };

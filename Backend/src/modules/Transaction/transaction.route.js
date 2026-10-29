@@ -52,6 +52,11 @@ const {
   getGenModAuthListController,
   fetchGenAuthDetailsController,
   connGenAuthInsController,
+  getConnAuthStatusController,
+  getGenericModifyListDtlsController,
+  getConnectionSizeController,
+  getConnectionTypeController,
+  connGenericModifyDataSubmitController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -64,6 +69,7 @@ const {
   vasulichallanGenerationSchema,
   serviceApprovalAuthInsSchema,
   connGenAuthInsSchema,
+  connGenericModifySchema,
 } = require("./transaction.validation");
 
 const upload = multer({
@@ -194,6 +200,17 @@ router.post(
   "/update-ownership-document",
   upload.single("file"),
   changeOwnershipDocumentController,
+);
+
+// Conn Generic Modify
+router.get("/getConnAuthStatus", getConnAuthStatusController);
+router.get("/getGenericModifyListDtls", getGenericModifyListDtlsController);
+router.get("/getConnectionSize", getConnectionSizeController);
+router.get("/getConnectionType", getConnectionTypeController);
+router.get(
+  "/conn-generic-modify",
+  validate(connGenericModifySchema),
+  connGenericModifyDataSubmitController,
 );
 
 // Connection generic modify auth
