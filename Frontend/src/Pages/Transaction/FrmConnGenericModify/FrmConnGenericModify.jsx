@@ -108,7 +108,7 @@ const FrmConnGenericModify = () => {
                 <div className="mt-3">
                     <div className="rounded-xl border border-slate-200 overflow-hidden">
                         <div className="overflow-x-auto">
-                            <table className="w-full min-w-[1000px] table-fixed border-collapse">
+                            <table className="w-full min-w-[800px] table-fixed border-collapse">
                                 <thead className="bg-slate-100/95">
                                     <tr className="border-b border-slate-200">
                                         <th className="px-3 py-3 text-left text-[12px] font-bold uppercase tracking-wider text-slate-600">
