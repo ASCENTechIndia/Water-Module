@@ -5,6 +5,8 @@ import Layout from "../../../Components/Layout";
 import Label from "../../../Components/Label";
 import Button from "../../../Components/Button.jsx";
 import apiService from "../../../../apiService";
+import GetIPAddress from "../../../utils/ipHelper.jsx";
+import config from "../../../utils/config.jsx";
 import { useAuth } from "../../../Context/AuthContext";
 import { useLoader } from "../../../Context/LoaderContext";
 
@@ -14,6 +16,7 @@ const SPECIAL_GAP_CODES = ["Faulty", "AVG"];
 const FrmMtrReadingUpdate = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const userId = user?.userId;
   const ulbid = user?.ulbId;
   const { setLoading } = useLoader();
 
@@ -81,11 +84,6 @@ const FrmMtrReadingUpdate = () => {
     return String((Number(currReading) || 0) - (Number(prevReading) || 0));
   };
 
-  // Search handler
-  const handleSearch = async () => {
-    const connNo = getValues("remark") ? "" : ""; // placeholder
-  };
-
   // Actual search function
   const performSearch = async (connNo) => {
     try {
@@ -100,7 +98,7 @@ const FrmMtrReadingUpdate = () => {
 
         const special = isSpecialGapCode(row.GAPCODEID);
 
-        // Old section 
+        // Old section
         setValue("oldPrevReading", String(row.PREVREADING ?? 0));
         setValue("oldCurrReading", String(row.CURRREADING ?? 0));
         setValue(
@@ -164,7 +162,7 @@ const FrmMtrReadingUpdate = () => {
     setValue("newEstimate", String((Number(curr) || 0) - (Number(prev) || 0)));
   };
 
-  // Gap code change handler (MBMC-specific behavior)
+  // Gap code change handler
   useEffect(() => {
     if (!searched || !originalDetail) return;
 
@@ -210,6 +208,81 @@ const FrmMtrReadingUpdate = () => {
     });
     const el = document.getElementById("txtConnNo");
     if (el) el.value = "";
+  };
+
+  // Submit handler
+  const onSubmit = async () => {
+    const connNo = document.getElementById("txtConnNo")?.value?.trim();
+
+    if (!userId || !ulbid) {
+      alert("User Id or Ulb Id is not set");
+      return;
+    }
+    if (!connNo) {
+      alert("Please Enter Connection Number");
+      return;
+    }
+
+    const values = getValues();
+
+    // Validations matching .NET btnSubmit_Click
+    if (!values.newPrevReading?.trim()) {
+      alert("Please Enter New Previous Reading");
+      return;
+    }
+    if (!values.newCurrReading?.trim()) {
+      alert("Please Enter New Current Reading");
+      return;
+    }
+    if (!values.newGapCode) {
+      alert("Please Select New Gap Code");
+      return;
+    }
+    if (!values.remark?.trim()) {
+      alert("Please Enter Remark");
+      return;
+    }
+    if (!values.newEstimate?.trim()) {
+      alert("Please Enter Estimate Reading");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const ip = await GetIPAddress();
+
+      const payload = {
+        in_userid: userId,
+        in_ulbid: Number(ulbid),
+        in_connno: connNo,
+        in_newpr: values.newPrevReading.trim(),
+        in_newcr: values.newCurrReading.trim(),
+        in_newgapcode: values.newGapCode,
+        in_remark: values.remark.trim(),
+        in_Qntity: values.newEstimate.trim(),
+      };
+
+      const res = await apiService.post(
+        "/transaction/aowt_mtrreadingupd_ins_new",
+        payload,
+      );
+
+      if (res?.success && res?.data?.out_errcode === 9999) {
+        alert(res.data.out_errmsg || "Meter reading updated successfully");
+        handleReset();
+      } else {
+        alert(
+          res?.data?.out_errmsg ||
+            res?.message ||
+            "Failed to update meter reading",
+        );
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const disabledInput = "form-input-box w-full bg-slate-100 cursor-not-allowed";
@@ -374,10 +447,7 @@ const FrmMtrReadingUpdate = () => {
 
             {/* Buttons */}
             <div className="flex justify-center gap-2">
-              <Button
-                type="button"
-                onClick={() => alert("Submit not implemented yet")}
-              >
+              <Button type="button" onClick={onSubmit}>
                 Submit
               </Button>
               <Button type="button" onClick={handleReset}>

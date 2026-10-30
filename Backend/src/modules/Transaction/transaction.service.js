@@ -67,6 +67,7 @@ const {
   meterNumberUpdateDataSubmitRepo,
   getPendingArrearsUpdateAuthListRepo,
   arrearsUpdateAuthListSubmitRepo,
+  aowt_mtrreadingupd_ins_new,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -412,6 +413,10 @@ async function arrearsUpdateAuthListSubmitService(payload) {
   return arrearsUpdateAuthListSubmitRepo(payload);
 }
 
+async function mtrReadingUpdateInsService(payload) {
+  return aowt_mtrreadingupd_ins_new(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -478,5 +483,6 @@ module.exports = {
   getMeterNumberUpdateConnectionDtlsService,
   meterNumberUpdateDataSubmitService,
   getPendingArrearsUpdateListService,
-  arrearsUpdateAuthListSubmitService
+  arrearsUpdateAuthListSubmitService,
+  mtrReadingUpdateInsService,
 };

@@ -66,6 +66,7 @@ const {
   meterNumberUpdateDataSubmitService,
   getPendingArrearsUpdateListService,
   arrearsUpdateAuthListSubmitService,
+  mtrReadingUpdateInsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1349,7 +1350,7 @@ async function connGenericModifyDataSubmitController(req, res, next) {
         200,
         { ulbId: payload.in_ULBID },
         out.Out_ErrorMsg ||
-        "Connection Generic Modify Details saved successfully",
+          "Connection Generic Modify Details saved successfully",
       );
     } else {
       logApiError(
@@ -1667,16 +1668,10 @@ async function fineGenerationDataSubmitController(req, res, next) {
         req,
         200,
         { ulbId: payload.in_ulbid },
-        out.Out_ErrorMsg ||
-        "Fine Generated Successfully",
+        out.Out_ErrorMsg || "Fine Generated Successfully",
       );
     } else {
-      logApiError(
-        req,
-        400,
-        out.Out_ErrorMsg,
-        "Fine Generation failed",
-      );
+      logApiError(req, 400, out.Out_ErrorMsg, "Fine Generation failed");
     }
 
     auditLog({
@@ -1720,7 +1715,12 @@ async function getMeterNumberUpdateConnectionDtlsController(req, res, next) {
 
     return res.ok(rows);
   } catch (err) {
-    logApiError(req, 500, err.message, "Meter Number Connection Details fetch error");
+    logApiError(
+      req,
+      500,
+      err.message,
+      "Meter Number Connection Details fetch error",
+    );
     return next(err);
   }
 }
@@ -1737,16 +1737,10 @@ async function meterNumberUpdateDataSubmitController(req, res, next) {
         req,
         200,
         { ulbId: payload.in_ulbid },
-        out.out_errmsg ||
-        "Meter Number Updated Successfully",
+        out.out_errmsg || "Meter Number Updated Successfully",
       );
     } else {
-      logApiError(
-        req,
-        400,
-        out.out_errmsg,
-        "Meter Number Updation failed",
-      );
+      logApiError(req, 400, out.out_errmsg, "Meter Number Updation failed");
     }
 
     auditLog({
@@ -1807,8 +1801,7 @@ async function arrearsUpdateAuthListDataSubmitController(req, res, next) {
         req,
         200,
         { ulbId: payload.in_ulbid },
-        out.out_errmsg ||
-        "Arrears Update Authorized Successfully",
+        out.out_errmsg || "Arrears Update Authorized Successfully",
       );
     } else {
       logApiError(
@@ -1840,6 +1833,59 @@ async function arrearsUpdateAuthListDataSubmitController(req, res, next) {
     return res.ok(out);
   } catch (err) {
     logApiError(req, 500, err.message, "Arrears Update Auth error");
+    return next(err);
+  }
+}
+
+async function mtrReadingUpdateInsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await mtrReadingUpdateInsService(payload);
+
+    const isSuccess = Number(out.out_errcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        {
+          connNo: payload.in_connno,
+          ulbId: payload.in_ulbid,
+          gapCode: payload.in_newgapcode,
+        },
+        out.out_errmsg || "Meter reading updated successfully",
+      );
+    } else {
+      logApiError(req, 400, out.out_errmsg, "Meter reading update failed");
+    }
+
+    auditLog({
+      action: "MTRREADING_UPDATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "mtrreadingupdate",
+      entityId: payload.in_connno,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errcode,
+        outErrorMsg: out.out_errmsg,
+        ulbId: payload.in_ulbid,
+        connNo: payload.in_connno,
+        newPr: payload.in_newpr,
+        newCr: payload.in_newcr,
+        newGapCode: payload.in_newgapcode,
+        quantity: payload.in_Qntity,
+        remark: payload.in_remark,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Meter reading update error");
     return next(err);
   }
 }
@@ -1910,5 +1956,6 @@ module.exports = {
   getMeterNumberUpdateConnectionDtlsController,
   meterNumberUpdateDataSubmitController,
   getPendingArrearsUpdateAuthListController,
-  arrearsUpdateAuthListDataSubmitController
+  arrearsUpdateAuthListDataSubmitController,
+  mtrReadingUpdateInsController,
 };

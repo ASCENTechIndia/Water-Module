@@ -2132,11 +2132,7 @@ async function getMeterReadingGapCode() {
 // Fine Generation
 
 async function fineGenerationDataSubmitRepo(payload) {
-  const {
-    in_UserId,
-    in_ulbid,
-    in_ConnNo,
-  } = payload;
+  const { in_UserId, in_ulbid, in_ConnNo } = payload;
 
   let statement = `
     BEGIN
@@ -2159,7 +2155,7 @@ async function fineGenerationDataSubmitRepo(payload) {
       dir: oracledb.BIND_OUT,
       type: oracledb.STRING,
       maxSize: 1000,
-    }
+    },
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
@@ -2168,10 +2164,7 @@ async function fineGenerationDataSubmitRepo(payload) {
 }
 
 async function getMeterNumberUpdateConnectionDtlsRepo(payload) {
-  const {
-    ulbId,
-    connectionNumber
-  } = payload;
+  const { ulbId, connectionNumber } = payload;
 
   if (!ulbId) {
     throw new Error("ULB ID is required");
@@ -2193,7 +2186,7 @@ async function getMeterNumberUpdateConnectionDtlsRepo(payload) {
 
   const binds = {
     ulbId,
-    connectionNumber
+    connectionNumber,
   };
 
   const result = await executeQuery(sql, binds);
@@ -2208,7 +2201,7 @@ async function meterNumberUpdateDataSubmitRepo(payload) {
     in_connno,
     in_OldMtrNo,
     in_NewMtrNo,
-    in_remark
+    in_remark,
   } = payload;
 
   let statement = `
@@ -2238,7 +2231,7 @@ async function meterNumberUpdateDataSubmitRepo(payload) {
       dir: oracledb.BIND_OUT,
       type: oracledb.STRING,
       maxSize: 1000,
-    }
+    },
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
@@ -2247,9 +2240,7 @@ async function meterNumberUpdateDataSubmitRepo(payload) {
 }
 
 async function getPendingArrearsUpdateAuthListRepo(payload) {
-  const {
-    ulbId
-  } = payload;
+  const { ulbId } = payload;
 
   if (!ulbId) {
     throw new Error("ULB ID is required");
@@ -2274,7 +2265,7 @@ async function getPendingArrearsUpdateAuthListRepo(payload) {
   `;
 
   const binds = {
-    ulbId
+    ulbId,
   };
 
   const result = await executeQuery(sql, binds);
@@ -2295,7 +2286,7 @@ async function arrearsUpdateAuthListSubmitRepo(payload) {
     in_authstatus,
     in_authremark,
     in_ipaddress,
-    in_source
+    in_source,
   } = payload;
 
   let statement = `
@@ -2339,11 +2330,51 @@ async function arrearsUpdateAuthListSubmitRepo(payload) {
       dir: oracledb.BIND_OUT,
       type: oracledb.STRING,
       maxSize: 1000,
-    }
+    },
   };
 
   const result = await executeProcedure({ statement, binds, useTx: false });
 
+  return result.outBinds;
+}
+
+async function aowt_mtrreadingupd_ins_new(payload) {
+  const statement = `
+    BEGIN
+      Aowt_MtrReadingUpd_ins_new(
+        :in_userid,
+        :in_ulbid,
+        :in_connno,
+        :in_newpr,
+        :in_newcr,
+        :in_newgapcode,
+        :in_remark,
+        :in_Qntity,
+        :out_errcode,
+        :out_errmsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid: payload.in_userid,
+    in_ulbid: Number(payload.in_ulbid),
+    in_connno: payload.in_connno,
+    in_newpr: payload.in_newpr,
+    in_newcr: payload.in_newcr,
+    in_newgapcode: payload.in_newgapcode,
+    in_remark: payload.in_remark,
+    in_Qntity: payload.in_Qntity,
+
+    out_errcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errmsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 2000,
+    },
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
   return result.outBinds;
 }
 
@@ -2416,5 +2447,6 @@ module.exports = {
   getMeterNumberUpdateConnectionDtlsRepo,
   meterNumberUpdateDataSubmitRepo,
   getPendingArrearsUpdateAuthListRepo,
-  arrearsUpdateAuthListSubmitRepo
+  arrearsUpdateAuthListSubmitRepo,
+  aowt_mtrreadingupd_ins_new,
 };
