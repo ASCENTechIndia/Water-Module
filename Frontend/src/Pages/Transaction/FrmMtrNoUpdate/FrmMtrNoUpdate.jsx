@@ -42,6 +42,7 @@ const FrmMtrNoUpdate = () => {
     const watchConnectionNumber = watch("connectionNumber");
 
     const [hasSearched, setHasSearched] = useState(false);
+    const [ownerName, setOwnerName] = useState("");
 
     const handleSearch = async () => {
         try {
@@ -51,7 +52,24 @@ const FrmMtrNoUpdate = () => {
                 alert("Please enter Connection Number");
                 return;
             }
-            setHasSearched(true);
+
+            const url = `/transaction/getMeterUpdateConnDetails?ulbId=${ulbId}&connectionNumber=${encodeURIComponent(watchConnectionNumber)}`;
+
+            const response = await apiService.get(url);
+
+            if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+                const data = response.data[0];
+                setValue("oldMeterNo", data.VAR_CONN_METERNO);
+                setOwnerName(data.VAR_CONN_OWNERNAME);
+                setHasSearched(true);
+            } else {
+                alert("No Data Found");
+                setValue("oldMeterNo", "");
+                setValue("newMeterNo", "");
+                setValue("remark", "");
+                setOwnerName("");
+                setHasSearched(false);
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -62,7 +80,24 @@ const FrmMtrNoUpdate = () => {
     const handleUpdate = async (data) => {
         try {
             setLoading(true);
-            console.log(data);
+
+            const payload = {
+                in_userid: userId,
+                in_ulbid: Number(ulbId),
+                in_connno: data.connectionNumber,
+                in_OldMtrNo: data.oldMeterNo,
+                in_NewMtrNo: data.newMeterNo,
+                in_remark: data.remark
+            };
+
+            const response = await apiService.post("/transaction/meter-number-update", payload);
+            if (response?.success && Number(response?.data?.out_errcode) === 9999) {
+                alert(response.data.out_errmsg);
+                reset();
+                setHasSearched(false);
+            } else {
+                alert(response.data.out_errmsg || "Something went wrong");
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -128,6 +163,7 @@ const FrmMtrNoUpdate = () => {
                             variant="secondary"
                             onClick={() => {
                                 reset();
+                                setHasSearched(false);
                             }}
                         >
                             Reset
@@ -140,7 +176,7 @@ const FrmMtrNoUpdate = () => {
                     <>
 
                         <p className="mt-3 font-semibold">
-                            Owner Name: Test 4
+                            Owner Name: {ownerName}
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3">
@@ -154,7 +190,8 @@ const FrmMtrNoUpdate = () => {
                                     {...register("oldMeterNo", {
                                         required: "Old Meter Number is required"
                                     })}
-                                    className={`form-input-box ${errors.oldMeterNo ? "is-invalid" : ""}`}
+                                    className={`form-input-box bg-slate-200 cursor-not-allowed ${errors.oldMeterNo ? "is-invalid" : ""}`}
+                                    disabled
                                 />
                                 {errors.oldMeterNo &&
                                     <div className="mt-3 text-red-400">
