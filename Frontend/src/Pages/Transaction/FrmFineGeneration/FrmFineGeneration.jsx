@@ -38,12 +38,43 @@ const FrmFineGeneration = () => {
     const onSubmit = async (data) => {
         try {
             setLoading(true);
+
+            const connectionString = data.connnectionNumberNotInclude.trim();
+
+            const pattern = /^'[^']+'(,'[^']+')*$/;
+
+            if (connectionString.endsWith(",")) {
+                alert("Please remove the comma at the end of the connection string");
+                return;
+            }
+
+            if (!pattern.test(connectionString)) {
+                alert(
+                    "Please Enter Connection No in valid format. Use format like 'A123','B456'."
+                );
+                return;
+            }
+
+            const payload = {
+                in_UserId: userId,
+                in_ulbid: Number(ulbId),
+                in_ConnNo: connectionString
+            };
+
+            const response = await apiService.post("/transaction/fine-generation", payload);
+            if (response.success && Number(response.data.Out_errorCode) === 9999) {
+                alert(response.data.Out_ErrorMsg);
+                reset();
+            } else {
+                alert(response.data.Out_ErrorMsg);
+            }
+
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     return (
         <Layout

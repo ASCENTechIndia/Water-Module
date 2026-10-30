@@ -2129,6 +2129,44 @@ async function getMeterReadingGapCode() {
   return result.rows || [];
 }
 
+// Fine Generation
+
+async function fineGenerationDataSubmitRepo(payload) {
+  const {
+    in_UserId,
+    in_ulbid,
+    in_ConnNo,
+  } = payload;
+
+  let statement = `
+    BEGIN
+      aowt_APPLYFINE_ins(
+        :in_UserId,
+        :in_ulbid,
+        :in_ConnNo,
+        :Out_errorCode,
+        :Out_ErrorMsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_UserId,
+    in_ulbid: Number(in_ulbid),
+    in_ConnNo,
+    Out_errorCode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    Out_ErrorMsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -2194,4 +2232,5 @@ module.exports = {
   aowt_provrecreject_ins,
   getMeterReadingUpdateList,
   getMeterReadingGapCode,
+  fineGenerationDataSubmitRepo
 };

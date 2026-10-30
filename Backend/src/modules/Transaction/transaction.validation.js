@@ -966,6 +966,28 @@ const provRecRejectSchema = z.object({
     .min(1, "Project source is required"),
 });
 
+const fineGenerationSchema = z.object({
+  in_UserId: z.string({
+    invalid_type_error: "User ID must be a string",
+    required_error: "User ID is required"
+  })
+  .trim()
+  .min(1, "User ID is required"),
+
+  in_ulbid: z.number({
+    required_error: "ULB ID is required",
+    invalid_type_error: "ULB ID must be a number"
+  })
+  .int("ULB ID must be an integer"),
+
+  in_ConnNo: z.string({
+    required_error: "Connection Number is required",
+    invalid_type_error: "Connection Number must be a string"
+  })
+  .trim()
+  .min(1, "Connection Number is required")
+})
+
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
@@ -980,4 +1002,5 @@ module.exports = {
   connGenericModifySchema,
   provRecApprSchema,
   provRecRejectSchema,
+  fineGenerationSchema
 };

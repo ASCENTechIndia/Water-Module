@@ -62,6 +62,7 @@ const {
   aowt_provrecreject_ins,
   getMeterReadingUpdateList,
   getMeterReadingGapCode,
+  fineGenerationDataSubmitRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -381,6 +382,12 @@ async function getMeterReadingGapCodeService() {
   return getMeterReadingGapCode();
 }
 
+// Fine Generation
+
+async function fineGenerationDataSubmitService(payload) {
+  return fineGenerationDataSubmitRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -443,4 +450,5 @@ module.exports = {
   provRecRejectService,
   getMeterReadingUpdateListService,
   getMeterReadingGapCodeService,
+  fineGenerationDataSubmitService
 };

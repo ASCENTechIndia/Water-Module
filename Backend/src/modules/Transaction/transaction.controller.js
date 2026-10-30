@@ -61,6 +61,7 @@ const {
   provRecRejectService,
   getMeterReadingUpdateListService,
   getMeterReadingGapCodeService,
+  fineGenerationDataSubmitService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1375,7 +1376,7 @@ async function connGenericModifyDataSubmitController(req, res, next) {
 
     return res.ok(out);
   } catch (err) {
-    logApiError(req, 500, err.message, "Meter reading insert error");
+    logApiError(req, 500, err.message, "Conn Generic Modify insert error");
     return next(err);
   }
 }
@@ -1648,6 +1649,57 @@ async function getMeterReadingGapCodeController(req, res, next) {
   }
 }
 
+// Fine Generation
+
+async function fineGenerationDataSubmitController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await fineGenerationDataSubmitService(payload);
+
+    const isSuccess = Number(out.Out_errorCode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { ulbId: payload.in_ulbid },
+        out.Out_ErrorMsg ||
+          "Fine Generated Successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.Out_ErrorMsg,
+        "Fine Generation failed",
+      );
+    }
+
+    auditLog({
+      action: "FINE_GENERATION_INSERT",
+      actor: req.user?.userId || payload.in_UserId || "system",
+      module: "fineGenerationIns",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.Out_errorCode,
+        outErrorMsg: out.Out_ErrorMsg,
+        ulbId: payload.in_ulbid,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Fine Generation error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -1710,4 +1762,5 @@ module.exports = {
   provRecRejectController,
   getMeterReadingUpdateListController,
   getMeterReadingGapCodeController,
+  fineGenerationDataSubmitController
 };
