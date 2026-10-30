@@ -389,6 +389,11 @@ const STATIC_MENU = [
         MENUID: 517,
         MENUTITLE: "Meter No Update",
         PAGEPATH: "/Transaction/FrmMtrNoUpdate"
+      },
+      {
+        MENUID: 518,
+        MENUTITLE: "Arrears Update Auth List",
+        PAGEPATH: "/Transaction/FrmWaterArreasUpdtAuthList"
       }
     ],
   },

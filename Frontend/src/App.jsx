@@ -111,6 +111,7 @@ import FrmProvChequeReceiptApprMBMC from "./Pages/Transaction/ProvisionalChequeR
 import FrmMtrReadingUpdate from "./Pages/Transaction/MeterReadingUpdate/FrmMtrReadingUpdate.jsx";
 import FrmFineGeneration from "./Pages/Transaction/FrmFineGeneration/FrmFineGeneration.jsx";
 import FrmMtrNoUpdate from "./Pages/Transaction/FrmMtrNoUpdate/FrmMtrNoUpdate.jsx";
+import FrmWaterArreasUpdtAuthList from "./Pages/Transaction/FrmWaterArreasUpdtAuthList/FrmWaterArreasUpdtAuthList.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -319,6 +320,11 @@ function App() {
                   <Route 
                     path="/Transaction/FrmMtrNoUpdate"
                     element={<FrmMtrNoUpdate />}
+                  />
+
+                  <Route 
+                    path="/Transaction/FrmWaterArreasUpdtAuthList"
+                    element={<FrmWaterArreasUpdtAuthList />}
                   />
 
                   {/* Master routes */}
