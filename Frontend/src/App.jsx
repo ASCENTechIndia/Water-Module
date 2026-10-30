@@ -109,6 +109,7 @@ import FrmConnGenericModifyAuthList from "./Pages/Transaction/ConnGenericModifyA
 import FrmConnGenericModifyAuthMst from "./Pages/Transaction/ConnGenericModifyAuth/FrmConnGenericModifyAuthMst.jsx";
 import FrmProvChequeReceiptApprMBMC from "./Pages/Transaction/ProvisionalChequeReceiptMBMC/FrmProvChequeReceiptApprMBMC.jsx";
 import FrmMtrReadingUpdate from "./Pages/Transaction/MeterReadingUpdate/FrmMtrReadingUpdate.jsx";
+import FrmFineGeneration from "./Pages/Transaction/FrmFineGeneration/FrmFineGeneration.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -307,6 +308,11 @@ function App() {
                   <Route
                     path="/Transaction/FrmMtrReadingUpdate"
                     element={<FrmMtrReadingUpdate />}
+                  />
+
+                  <Route 
+                    path="/Transaction/FrmFineGeneration"
+                    element={<FrmFineGeneration />}
                   />
 
                   {/* Master routes */}

@@ -380,6 +380,11 @@ const STATIC_MENU = [
         MENUTITLE: "Meter Reading Update",
         PAGEPATH: "/Transaction/FrmMtrReadingUpdate",
       },
+      {
+        MENUID: 516,
+        MENUTITLE: "Fine Generation",
+        PAGEPATH: "/Transaction/FrmFineGeneration"
+      }
     ],
   },
 ];
