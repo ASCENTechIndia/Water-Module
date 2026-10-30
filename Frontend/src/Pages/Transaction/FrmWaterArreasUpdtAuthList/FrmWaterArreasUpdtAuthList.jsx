@@ -116,12 +116,64 @@ const FrmWaterArreasUpdtAuthList = () => {
     const onSubmit = async (data) => {
         try {
             setLoading(true);
+
+            const invalidRow = pendingAuthListData.find((item) => {
+                const rowKey = item.CONNNO;
+                return !rowActions[rowKey]?.status;
+            });
+
+            if (invalidRow) {
+                alert(`Please select Approve or Reject for ${invalidRow.CONNNO}`);
+                return;
+            }
+
+            const connStr = pendingAuthListData
+                .map((item) => {
+                    const rowKey = item.CONNNO;
+
+                    const status = rowActions[rowKey]?.status ?? "";
+                    const remark = rowActions[rowKey]?.remark?.trim() ?? "";
+
+                    return `${item.CONNAUTHID}#${status}#${remark}$`;
+                })
+                .join("");
+
+            const ipAddress = await GetIPAddress();
+
+            const payload = {
+                in_userid: userId,
+                in_ulbid: Number(ulbId),
+                in_zoneid: 0,
+                in_connno: "-",
+                in_blockno: 0,
+                in_connid: 0,
+                in_updtstr: connStr,
+                in_mode: 2,
+                in_authstatus: "-",
+                in_authremark: data.authorizationRemark,
+                in_ipaddress: ipAddress,
+                in_source: config.source,
+                in_flatno: null
+            };
+
+            console.log("Connection String:", connStr);
+            console.log("Payload:", payload);
+
+            return; 
+
+            const response = await apiService.post(
+                "/transaction/arrears-update-auth-list",
+                payload
+            );
+
+            console.log(response);
+
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         if (ulbId) {
@@ -292,11 +344,11 @@ const FrmWaterArreasUpdtAuthList = () => {
                         </div>
                         <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div>
-                                <Label 
+                                <Label
                                     text={"Authorization Remark: "}
                                     required
                                 />
-                                <input 
+                                <input
                                     type="text"
                                     {...register("authorizationRemark", {
                                         required: "Authorization Remark is required"
@@ -305,7 +357,7 @@ const FrmWaterArreasUpdtAuthList = () => {
                                 />
                             </div>
                             <div>
-                                <Label 
+                                <Label
                                     text={"वरील माहिती बिनचूक आहे ?: "}
                                     required
                                 />
@@ -313,14 +365,14 @@ const FrmWaterArreasUpdtAuthList = () => {
                                     <Button
                                         type="submit"
                                     >
-                                        होय    
+                                        होय
                                     </Button>
                                     <Button
                                         type="button"
                                         variant="secondary"
                                     >
                                         बाहेर
-                                    </Button> 
+                                    </Button>
                                 </div>
                             </div>
                         </div>
