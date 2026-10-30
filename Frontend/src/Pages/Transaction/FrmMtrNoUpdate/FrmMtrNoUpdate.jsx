@@ -123,7 +123,7 @@ const FrmMtrNoUpdate = () => {
                         />
                         <input
                             type="text"
-                            className={`form-input-box ${errors.connectionNumber ? "is-invalid" : ""}`}
+                            className={`form-input-box ${errors.connectionNumber ? "is-invalid" : ""} ${hasSearched ? "bg-slate-200 cursor-not-allowed" : ""}`}
                             {...register("connectionNumber", {
                                 required: "Connection Number is required"
                             })}
