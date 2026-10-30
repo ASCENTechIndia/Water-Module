@@ -64,6 +64,8 @@ const {
   fineGenerationDataSubmitService,
   getMeterNumberUpdateConnectionDtlsService,
   meterNumberUpdateDataSubmitService,
+  getPendingArrearsUpdateListService,
+  arrearsUpdateAuthListSubmitService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1772,6 +1774,76 @@ async function meterNumberUpdateDataSubmitController(req, res, next) {
   }
 }
 
+// Arrears Update Auth List
+
+async function getPendingArrearsUpdateAuthListController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getPendingArrearsUpdateListService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Arrears Update Auth List retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Arrears Update Auth List fetch error");
+    return next(err);
+  }
+}
+
+async function arrearsUpdateAuthListDataSubmitController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await arrearsUpdateAuthListSubmitService(payload);
+
+    const isSuccess = Number(out.out_errcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { ulbId: payload.in_ulbid },
+        out.out_errmsg ||
+        "Arrears Update Authorized Successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.out_errmsg,
+        "Arrears Update Authorization failed",
+      );
+    }
+
+    auditLog({
+      action: "ARREARS_UPDATE_AUTH_INS",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "arrearsUpdateAuth",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errcode,
+        outErrorMsg: out.out_errmsg,
+        ulbId: payload.in_ulbid,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Arrears Update Auth error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -1836,5 +1908,7 @@ module.exports = {
   getMeterReadingGapCodeController,
   fineGenerationDataSubmitController,
   getMeterNumberUpdateConnectionDtlsController,
-  meterNumberUpdateDataSubmitController
+  meterNumberUpdateDataSubmitController,
+  getPendingArrearsUpdateAuthListController,
+  arrearsUpdateAuthListDataSubmitController
 };

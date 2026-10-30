@@ -65,6 +65,8 @@ const {
   fineGenerationDataSubmitController,
   getMeterNumberUpdateConnectionDtlsController,
   meterNumberUpdateDataSubmitController,
+  getPendingArrearsUpdateAuthListController,
+  arrearsUpdateAuthListDataSubmitController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -257,5 +259,9 @@ router.post("/fine-generation", validate(fineGenerationSchema), fineGenerationDa
 // Meter No Update
 router.get("/getMeterUpdateConnDetails", getMeterNumberUpdateConnectionDtlsController);
 router.post("/meter-number-update", validate(meterNumberUpdateSchema), meterNumberUpdateDataSubmitController);
+
+// Arrears Update AUth List
+router.get("/getPendingArrearsUpdateAuthList", getPendingArrearsUpdateAuthListController);
+router.get("/arrears-update-auth-list", arrearsUpdateAuthListDataSubmitController);
 
 module.exports = router;

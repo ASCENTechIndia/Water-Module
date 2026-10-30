@@ -2246,6 +2246,107 @@ async function meterNumberUpdateDataSubmitRepo(payload) {
   return result.outBinds;
 }
 
+async function getPendingArrearsUpdateAuthListRepo(payload) {
+  const {
+    ulbId
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  let sql = `
+    SELECT 
+      num_conn_connauthid connauthid, 
+      num_conn_connid connid, 
+      var_conn_connno connno, 
+      num_conn_zoneid zoneid,
+      num_conn_blockno blockno,
+      var_conn_ownersname owner_name, 
+      dat_conn_insdt insdate, 
+      var_user_username insby, 
+      num_conn_ulbid ulbid, 
+      var_conn_flatno
+    FROM aowt_conn_mas_arrlog
+    INNER JOIN admins.aoma_user_def ON num_user_userid = var_conn_insby
+    WHERE num_conn_ulbid =:ulbId
+    AND var_conn_authstatus = 'P' 
+  `;
+
+  const binds = {
+    ulbId
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function arrearsUpdateAuthListSubmitRepo(payload) {
+  const {
+    in_userid,
+    in_ulbid,
+    in_zoneid,
+    in_blockno,
+    in_connno,
+    in_connid,
+    in_updtstr,
+    in_mode,
+    in_authstatus,
+    in_authremark,
+    in_ipaddress,
+    in_source
+  } = payload;
+
+  let statement = `
+    BEGIN
+      aowt_arreasupdate_ins(
+        :in_userid,
+        :in_ulbid,
+        :in_zoneid,
+        :in_blockno,
+        :in_connno,
+        :in_connid,
+        :in_updtstr,
+        :in_mode,
+        :in_authstatus,
+        :in_authremark,
+        :in_ipaddress,
+        :in_source,
+        :in_flatno,
+        :out_errcode,
+        :out_errmsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid,
+    in_ulbid: Number(in_ulbid),
+    in_zoneid: Number(in_zoneid),
+    in_blockno: Number(in_blockno),
+    in_connno,
+    in_connid: Number(in_connid),
+    in_updtstr,
+    in_mode: Number(in_mode),
+    in_authstatus,
+    in_authremark,
+    in_ipaddress,
+    in_source,
+    in_flatno,
+    out_errcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errmsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -2313,5 +2414,7 @@ module.exports = {
   getMeterReadingGapCode,
   fineGenerationDataSubmitRepo,
   getMeterNumberUpdateConnectionDtlsRepo,
-  meterNumberUpdateDataSubmitRepo
+  meterNumberUpdateDataSubmitRepo,
+  getPendingArrearsUpdateAuthListRepo,
+  arrearsUpdateAuthListSubmitRepo
 };

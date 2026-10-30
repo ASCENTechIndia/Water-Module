@@ -65,6 +65,8 @@ const {
   fineGenerationDataSubmitRepo,
   getMeterNumberUpdateConnectionDtlsRepo,
   meterNumberUpdateDataSubmitRepo,
+  getPendingArrearsUpdateAuthListRepo,
+  arrearsUpdateAuthListSubmitRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -400,6 +402,16 @@ async function meterNumberUpdateDataSubmitService(payload) {
   return meterNumberUpdateDataSubmitRepo(payload);
 }
 
+// Arrears Update Auth List
+
+async function getPendingArrearsUpdateListService(payload) {
+  return getPendingArrearsUpdateAuthListRepo(payload);
+}
+
+async function arrearsUpdateAuthListSubmitService(payload) {
+  return arrearsUpdateAuthListSubmitRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -464,5 +476,7 @@ module.exports = {
   getMeterReadingGapCodeService,
   fineGenerationDataSubmitService,
   getMeterNumberUpdateConnectionDtlsService,
-  meterNumberUpdateDataSubmitService
+  meterNumberUpdateDataSubmitService,
+  getPendingArrearsUpdateListService,
+  arrearsUpdateAuthListSubmitService
 };
