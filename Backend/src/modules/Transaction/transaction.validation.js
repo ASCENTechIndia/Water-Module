@@ -971,21 +971,21 @@ const fineGenerationSchema = z.object({
     invalid_type_error: "User ID must be a string",
     required_error: "User ID is required"
   })
-  .trim()
-  .min(1, "User ID is required"),
+    .trim()
+    .min(1, "User ID is required"),
 
   in_ulbid: z.number({
     required_error: "ULB ID is required",
     invalid_type_error: "ULB ID must be a number"
   })
-  .int("ULB ID must be an integer"),
+    .int("ULB ID must be an integer"),
 
   in_ConnNo: z.string({
     required_error: "Connection Number is required",
     invalid_type_error: "Connection Number must be a string"
   })
-  .trim()
-  .min(1, "Connection Number is required")
+    .trim()
+    .min(1, "Connection Number is required")
 })
 
 const meterNumberUpdateSchema = z.object({
@@ -993,42 +993,130 @@ const meterNumberUpdateSchema = z.object({
     invalid_type_error: "User ID must be a string",
     required_error: "User ID is required"
   })
-  .trim()
-  .min(1, "User ID is required"),
+    .trim()
+    .min(1, "User ID is required"),
 
   in_ulbid: z.number({
     invalid_type_error: "ULB ID must be a number",
     required_error: "ULB ID is required"
   })
-  .int("ULB ID must be an integer"),
+    .int("ULB ID must be an integer"),
+
+  in_connno: z.string({
+    invalid_type_error: "Connection Number must be a string",
+    required_error: "Connection Number is required"
+  })
+    .trim()
+    .min(1, "Connection Number is required"),
+
+  in_OldMtrNo: z.string({
+    invalid_type_error: "Old Meter Number must be a string",
+    required_error: "Old Meter Number is required"
+  })
+    .trim()
+    .min(1, "Old Meter Number is required"),
+
+  in_NewMtrNo: z.string({
+    invalid_type_error: "New Meter Number must be a string",
+    required_error: "New Meter Number is required"
+  })
+    .trim()
+    .min(1, "New Meter Number is required"),
+
+  in_remark: z.string({
+    invalid_type_error: "Remark must be a string",
+    required_error: "Remark is required"
+  })
+    .trim()
+    .min(1, "Remark is required")
+})
+
+const arrearsUpdateAuthListSchema = z.object({
+  in_userid: z.string({
+    invalid_type_error: "User ID must be a string",
+    required_error: "User ID is required"
+  })
+    .trim()
+    .min(1, "User ID is required"),
+
+  in_ulbid: z.number({
+    invalid_type_error: "ULB ID must be a number",
+    required_error: "ULB ID is required"
+  })
+    .int("ULB ID must be an integer"),
+
+  in_zoneid: z.number({
+    invalid_type_error: "Zone ID must be a number",
+    required_error: "Zone ID is required"
+  })
+  .int("Zone ID must be an integer"), 
+
+  in_blockno: z.number({
+    invalid_type_error: "Block ID must be a number",
+    required_error: "Block ID is required"
+  })
+  .int("Block ID must be an integer"),
 
   in_connno: z.string({
     invalid_type_error: "Connection Number must be a string",
     required_error: "Connection Number is required"
   })
   .trim()
-  .min(1, "Connection Number is required"), 
+  .min(1, "Connection Number is required"),
 
-  in_OldMtrNo: z.string({
-    invalid_type_error: "Old Meter Number must be a string",
-    required_error: "Old Meter Number is required"
+  in_connid: z.number({
+    invalid_type_error: "Connection ID must be a number",
+    required_error: "Connection ID is required"
+  })
+  .int("Connection ID must be an integer"),
+
+  in_updtstr: z.string({
+    invalid_type_error: "Update Str must be a string",
+    required_error: "Update Str is required"
   })
   .trim()
-  .min(1, "Old Meter Number is required"),
+  .min(1, "Update Str is required"),
 
-  in_NewMtrNo: z.string({
-    invalid_type_error: "New Meter Number must be a string",
-    required_error: "New Meter Number is required"
+  in_mode: z.number({
+    invalid_type_error: "Mode must be a number",
+    required_error: "Mode is required"
+  })
+  .int("Mode must be an integer"),
+
+  in_authstatus: z.string({
+    invalid_type_error: "Auth Status must be a string",
+    required_error: "Auth Status is required"
   })
   .trim()
-  .min(1, "New Meter Number is required"),
+  .min(1, "Auth Status is required"),
 
-  in_remark: z.string({
-    invalid_type_error: "Remark must be a string",
-    required_error: "Remark is required"
+  in_authremark: z.string({
+    invalid_type_error: "Auth Remark must be a string",
+    required_error: "Auth Remark is required"
   })
   .trim()
-  .min(1, "Remark is required")
+  .min(1, "Auth Remark is required"),
+
+  in_ipaddress: z.string({
+    invalid_type_error: "IP Address must be a string",
+    required_error: "IP Address is required"
+  })
+  .trim()
+  .min(1, "IP Address is required"),
+
+  in_source: z.string({
+    invalid_type_error: "Source must be a string",
+    required_error: "Source is required"
+  })
+  .trim()
+  .min(1, "Source is required"),
+
+  in_flatno: z.string({
+    invalid_type_error: "Flat Number must be a string",
+    required_error: "Flat Number is required"
+  })
+  .trim()
+  .min(1, "Flat Number is required"),
 })
 
 module.exports = {
@@ -1046,5 +1134,6 @@ module.exports = {
   provRecApprSchema,
   provRecRejectSchema,
   fineGenerationSchema,
-  meterNumberUpdateSchema
+  meterNumberUpdateSchema,
+  arrearsUpdateAuthListSchema
 };

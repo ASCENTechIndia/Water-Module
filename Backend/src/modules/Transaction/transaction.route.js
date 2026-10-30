@@ -84,6 +84,7 @@ const {
   provRecRejectSchema,
   fineGenerationSchema,
   meterNumberUpdateSchema,
+  arrearsUpdateAuthListSchema,
 } = require("./transaction.validation");
 
 const upload = multer({
@@ -262,6 +263,6 @@ router.post("/meter-number-update", validate(meterNumberUpdateSchema), meterNumb
 
 // Arrears Update AUth List
 router.get("/getPendingArrearsUpdateAuthList", getPendingArrearsUpdateAuthListController);
-router.get("/arrears-update-auth-list", arrearsUpdateAuthListDataSubmitController);
+router.get("/arrears-update-auth-list", validate(arrearsUpdateAuthListSchema), arrearsUpdateAuthListDataSubmitController);
 
 module.exports = router;
