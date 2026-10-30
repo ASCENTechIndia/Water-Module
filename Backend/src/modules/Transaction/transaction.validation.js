@@ -988,6 +988,49 @@ const fineGenerationSchema = z.object({
   .min(1, "Connection Number is required")
 })
 
+const meterNumberUpdateSchema = z.object({
+  in_userid: z.string({
+    invalid_type_error: "User ID must be a string",
+    required_error: "User ID is required"
+  })
+  .trim()
+  .min(1, "User ID is required"),
+
+  in_ulbid: z.number({
+    invalid_type_error: "ULB ID must be a number",
+    required_error: "ULB ID is required"
+  })
+  .int("ULB ID must be an integer"),
+
+  in_connno: z.string({
+    invalid_type_error: "Connection Number must be a string",
+    required_error: "Connection Number is required"
+  })
+  .trim()
+  .min(1, "Connection Number is required"), 
+
+  in_OldMtrNo: z.string({
+    invalid_type_error: "Old Meter Number must be a string",
+    required_error: "Old Meter Number is required"
+  })
+  .trim()
+  .min(1, "Old Meter Number is required"),
+
+  in_NewMtrNo: z.string({
+    invalid_type_error: "New Meter Number must be a string",
+    required_error: "New Meter Number is required"
+  })
+  .trim()
+  .min(1, "New Meter Number is required"),
+
+  in_remark: z.string({
+    invalid_type_error: "Remark must be a string",
+    required_error: "Remark is required"
+  })
+  .trim()
+  .min(1, "Remark is required")
+})
+
 module.exports = {
   meterReadingInsSchema,
   billGenInsSchema,
@@ -1002,5 +1045,6 @@ module.exports = {
   connGenericModifySchema,
   provRecApprSchema,
   provRecRejectSchema,
-  fineGenerationSchema
+  fineGenerationSchema,
+  meterNumberUpdateSchema
 };

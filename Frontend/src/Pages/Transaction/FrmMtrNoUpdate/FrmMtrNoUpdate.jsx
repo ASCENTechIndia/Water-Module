@@ -46,6 +46,11 @@ const FrmMtrNoUpdate = () => {
     const handleSearch = async () => {
         try {
             setLoading(true);
+            
+            if (!watchConnectionNumber.trim()) {
+                alert("Please enter Connection Number");
+                return;
+            }
             setHasSearched(true);
         } catch (error) {
             console.error(error);

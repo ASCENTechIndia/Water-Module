@@ -62,6 +62,8 @@ const {
   getMeterReadingUpdateListService,
   getMeterReadingGapCodeService,
   fineGenerationDataSubmitService,
+  getMeterNumberUpdateConnectionDtlsService,
+  meterNumberUpdateDataSubmitService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1345,7 +1347,7 @@ async function connGenericModifyDataSubmitController(req, res, next) {
         200,
         { ulbId: payload.in_ULBID },
         out.Out_ErrorMsg ||
-          "Connection Generic Modify Details saved successfully",
+        "Connection Generic Modify Details saved successfully",
       );
     } else {
       logApiError(
@@ -1664,7 +1666,7 @@ async function fineGenerationDataSubmitController(req, res, next) {
         200,
         { ulbId: payload.in_ulbid },
         out.Out_ErrorMsg ||
-          "Fine Generated Successfully",
+        "Fine Generated Successfully",
       );
     } else {
       logApiError(
@@ -1696,6 +1698,76 @@ async function fineGenerationDataSubmitController(req, res, next) {
     return res.ok(out);
   } catch (err) {
     logApiError(req, 500, err.message, "Fine Generation error");
+    return next(err);
+  }
+}
+
+// Meter No Update
+
+async function getMeterNumberUpdateConnectionDtlsController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getMeterNumberUpdateConnectionDtlsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Meter Number Connection Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Meter Number Connection Details fetch error");
+    return next(err);
+  }
+}
+
+async function meterNumberUpdateDataSubmitController(req, res, next) {
+  try {
+    const payload = req.body;
+    const out = await meterNumberUpdateDataSubmitService(payload);
+
+    const isSuccess = Number(out.out_errcode) === 9999;
+
+    if (isSuccess) {
+      logApiSuccess(
+        req,
+        200,
+        { ulbId: payload.in_ulbid },
+        out.out_errmsg ||
+        "Meter Number Updated Successfully",
+      );
+    } else {
+      logApiError(
+        req,
+        400,
+        out.out_errmsg,
+        "Meter Number Updation failed",
+      );
+    }
+
+    auditLog({
+      action: "METER_NUMBER_UPDATE",
+      actor: req.user?.userId || payload.in_userid || "system",
+      module: "meterNumberUpdate",
+      entityId: null,
+      status: isSuccess ? "SUCCESS" : "FAILED",
+      details: {
+        outErrorCode: out.out_errcode,
+        outErrorMsg: out.out_errmsg,
+        ulbId: payload.in_ulbid,
+      },
+      requestMeta: {
+        ip: req.ip,
+        method: req.method,
+        path: req.originalUrl,
+      },
+    });
+
+    return res.ok(out);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Meter Number Update error");
     return next(err);
   }
 }
@@ -1762,5 +1834,7 @@ module.exports = {
   provRecRejectController,
   getMeterReadingUpdateListController,
   getMeterReadingGapCodeController,
-  fineGenerationDataSubmitController
+  fineGenerationDataSubmitController,
+  getMeterNumberUpdateConnectionDtlsController,
+  meterNumberUpdateDataSubmitController
 };

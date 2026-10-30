@@ -63,6 +63,8 @@ const {
   getMeterReadingUpdateList,
   getMeterReadingGapCode,
   fineGenerationDataSubmitRepo,
+  getMeterNumberUpdateConnectionDtlsRepo,
+  meterNumberUpdateDataSubmitRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -388,6 +390,16 @@ async function fineGenerationDataSubmitService(payload) {
   return fineGenerationDataSubmitRepo(payload);
 }
 
+// Meter No Update
+
+async function getMeterNumberUpdateConnectionDtlsService(payload) {
+  return getMeterNumberUpdateConnectionDtlsRepo(payload);
+}
+
+async function meterNumberUpdateDataSubmitService(payload) {
+  return meterNumberUpdateDataSubmitRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -450,5 +462,7 @@ module.exports = {
   provRecRejectService,
   getMeterReadingUpdateListService,
   getMeterReadingGapCodeService,
-  fineGenerationDataSubmitService
+  fineGenerationDataSubmitService,
+  getMeterNumberUpdateConnectionDtlsService,
+  meterNumberUpdateDataSubmitService
 };

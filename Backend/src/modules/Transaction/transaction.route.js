@@ -63,6 +63,8 @@ const {
   getMeterReadingUpdateListController,
   getMeterReadingGapCodeController,
   fineGenerationDataSubmitController,
+  getMeterNumberUpdateConnectionDtlsController,
+  meterNumberUpdateDataSubmitController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -79,6 +81,7 @@ const {
   provRecApprSchema,
   provRecRejectSchema,
   fineGenerationSchema,
+  meterNumberUpdateSchema,
 } = require("./transaction.validation");
 
 const upload = multer({
@@ -249,7 +252,10 @@ router.get("/getMeterReadingUpdateList", getMeterReadingUpdateListController);
 router.get("/getMeterReadingGapCode", getMeterReadingGapCodeController);
 
 // Fine Generation
-router.post("/fine-generation", validate(fineGenerationSchema), fineGenerationDataSubmitController); 
+router.post("/fine-generation", validate(fineGenerationSchema), fineGenerationDataSubmitController);
 
+// Meter No Update
+router.get("/getMeterUpdateConnDetails", getMeterNumberUpdateConnectionDtlsController);
+router.post("/meter-number-update", validate(meterNumberUpdateSchema), meterNumberUpdateDataSubmitController);
 
 module.exports = router;

@@ -2167,6 +2167,85 @@ async function fineGenerationDataSubmitRepo(payload) {
   return result.outBinds;
 }
 
+async function getMeterNumberUpdateConnectionDtlsRepo(payload) {
+  const {
+    ulbId,
+    connectionNumber
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!connectionNumber) {
+    throw new Error("Connection Number is required");
+  }
+
+  let sql = `
+    Select 
+      var_conn_ownername,
+      var_conn_meterno,
+      var_conn_connno 
+    from aowt_conn_mas 
+    where var_conn_connno =:connectionNumber
+    and num_conn_ulbid=:ulbId    
+  `;
+
+  const binds = {
+    ulbId,
+    connectionNumber
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function meterNumberUpdateDataSubmitRepo(payload) {
+  const {
+    in_userid,
+    in_ulbid,
+    in_connno,
+    in_OldMtrNo,
+    in_NewMtrNo,
+    in_remark
+  } = payload;
+
+  let statement = `
+    BEGIN
+      Aowt_MtrNoupdate_ins(
+        :in_userid,
+        :in_ulbid,
+        :in_connno,
+        :in_OldMtrNo,
+        :in_NewMtrNo,
+        :in_remark,
+        :out_errcode,
+        :out_errmsg
+      );
+    END;
+  `;
+
+  const binds = {
+    in_userid,
+    in_ulbid: Number(in_ulbid),
+    in_connno,
+    in_OldMtrNo,
+    in_NewMtrNo,
+    in_remark,
+    out_errcode: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    out_errmsg: {
+      dir: oracledb.BIND_OUT,
+      type: oracledb.STRING,
+      maxSize: 1000,
+    }
+  };
+
+  const result = await executeProcedure({ statement, binds, useTx: false });
+
+  return result.outBinds;
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -2232,5 +2311,7 @@ module.exports = {
   aowt_provrecreject_ins,
   getMeterReadingUpdateList,
   getMeterReadingGapCode,
-  fineGenerationDataSubmitRepo
+  fineGenerationDataSubmitRepo,
+  getMeterNumberUpdateConnectionDtlsRepo,
+  meterNumberUpdateDataSubmitRepo
 };
