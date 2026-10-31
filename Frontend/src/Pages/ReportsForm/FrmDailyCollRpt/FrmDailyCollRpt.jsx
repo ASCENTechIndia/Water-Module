@@ -28,6 +28,7 @@ const FrmDailyCollRpt = () => {
         reset,
         getValues,
         control,
+        setValue,
         formState: { errors }
     } = useForm({
         defaultValues: {
@@ -171,6 +172,7 @@ const FrmDailyCollRpt = () => {
                         { label: "Daily Collection Summary", value: "dailysumm" },
                         { label: "Collection Summary", value: "collsumm" }
                     ]);
+                    setValue("reportType", "dailycoll");
                     break;
 
                 case "SMKMC":
@@ -180,6 +182,7 @@ const FrmDailyCollRpt = () => {
                         { label: "Tax Wise Collection", value: "taxwiscoll" },
                         { label: "Tax Wise Collection Manually", value: "taxwismanual" }
                     ]);
+                    setValue("reportType", "dailycoll");
                     break;
 
                 case "UIMC":
@@ -188,10 +191,12 @@ const FrmDailyCollRpt = () => {
                         { label: "Daily Collection", value: "dailycoll" },
                         { label: "Tax Wise Collection", value: "taxwiscoll" }
                     ]);
+                    setValue("reportType", "dailycoll");
                     break;
 
                 default:
                     setReportTypes([]);
+                    setValue("reportType", "");
 
             }
         }
