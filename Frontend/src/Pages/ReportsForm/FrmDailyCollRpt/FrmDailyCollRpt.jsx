@@ -42,13 +42,15 @@ const FrmDailyCollRpt = () => {
         }
     });
 
-    const [ulbCode, setULBCode] = useState(""); 
+    const [ulbCode, setULBCode] = useState("");
 
     const [reportTypes, setReportTypes] = useState([]);
     const [collectionCenterOptions, setCollectionCenterOptions] = useState([]);
     const [userNameOptions, setUserNameOptions] = useState([]);
     const [paymodeOptions, setPaymodeOptions] = useState([]);
     const [financialYearOptions, setFinancialYearOptions] = useState([]);
+
+    const watchCollectionCenter = watch("collectionCenter");
 
     const fetchULBCode = async () => {
         try {
@@ -108,17 +110,70 @@ const FrmDailyCollRpt = () => {
     }, [ulbId]);
 
     useEffect(() => {
+        const loadDropdowns = async () => {
+            if (!ulbId) return;
+
+            await fetchDropdowns(
+                `/transaction/getPayTypeDropdown?ulbId=${ulbId}`,
+                "RECMODEID",
+                "RECMODNAME",
+                setPaymodeOptions
+            );
+
+            await fetchDropdowns(
+                "/transaction/getFinancialYear",
+                "NUM_YEAR_SEQNO",
+                "VAR_YEAR_YEARNAME",
+                setFinancialYearOptions
+            );
+
+            await fetchDropdowns(
+                `/config/getCollectionCenterDropdown?ulbId=${ulbId}`,
+                "COLLCENTRE_ID",
+                "COLLCENTRE_NAME",
+                setCollectionCenterOptions
+            );
+        }
+
+        loadDropdowns().catch(err => console.error(err));
+    }, [ulbId]);
+
+    useEffect(() => {
+        const loadUsers = async () => {
+            if (!ulbCode || !ulbId || !watchCollectionCenter) return;
+
+            if (ulbCode === "MBMC") {
+                await fetchDropdowns(
+                    `/transaction/getUserDropdownMBMC?ulbId=${ulbId}&collectionCenterId=${encodeURIComponent(watchCollectionCenter)}`,
+                    "USERID",
+                    "USERNAME",
+                    setUserNameOptions
+                );
+            }
+
+            await fetchDropdowns(
+                `/transaction/getUserDropdown?ulbId=${ulbId}&collectionCenterId=${encodeURIComponent(watchCollectionCenter)}`,
+                "USERID",
+                "USERNAME",
+                setUserNameOptions
+            );
+        }
+
+        loadUsers().catch(console.error);
+    }, [ulbId, ulbCode, watchCollectionCenter]);
+
+    useEffect(() => {
         if (ulbCode) {
             switch (ulbCode) {
                 case "MBMC":
                     setReportTypes([
-                        { label: "Daily Collection", value:"dailycoll" },
+                        { label: "Daily Collection", value: "dailycoll" },
                         { label: "Daily Collection Summary", value: "dailysumm" },
                         { label: "Collection Summary", value: "collsumm" }
                     ]);
                     break;
-                
-                case "SMKMC": 
+
+                case "SMKMC":
                 case "SMKC":
                     setReportTypes([
                         { label: "Daily Collection", value: "dailycoll" },
@@ -126,16 +181,16 @@ const FrmDailyCollRpt = () => {
                         { label: "Tax Wise Collection Manually", value: "taxwismanual" }
                     ]);
                     break;
-                
+
                 case "UIMC":
-                case "IMC": 
+                case "IMC":
                     setReportTypes([
                         { label: "Daily Collection", value: "dailycoll" },
                         { label: "Tax Wise Collection", value: "taxwiscoll" }
                     ]);
                     break;
 
-                default: 
+                default:
                     setReportTypes([]);
 
             }
