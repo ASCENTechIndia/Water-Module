@@ -68,6 +68,11 @@ const {
   getPendingArrearsUpdateAuthListController,
   arrearsUpdateAuthListDataSubmitController,
   mtrReadingUpdateInsController,
+  getFinancialYearDropdownController,
+  getUserConfigController,
+  getUserDropdownMBMCController,
+  getUserDropdownController,
+  getDailyCollectionReportDtlsController,
 } = require("./transaction.controller");
 const {
   meterReadingInsSchema,
@@ -271,5 +276,14 @@ router.post("/meter-number-update", validate(meterNumberUpdateSchema), meterNumb
 // Arrears Update AUth List
 router.get("/getPendingArrearsUpdateAuthList", getPendingArrearsUpdateAuthListController);
 router.get("/arrears-update-auth-list", validate(arrearsUpdateAuthListSchema), arrearsUpdateAuthListDataSubmitController);
+
+// DAILY REPORTS
+
+// Daily Collection Report
+router.get("/getFinancialYear", getFinancialYearDropdownController);
+router.get("/getUserConfig", getUserConfigController);
+router.get("/getUserDropdownMBMC", getUserDropdownMBMCController);
+router.get("/getUserDropdown", getUserDropdownController);
+router.post("/getDailyCollectionRptDtls", getDailyCollectionReportDtlsController);
 
 module.exports = router;

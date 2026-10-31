@@ -112,6 +112,7 @@ import FrmMtrReadingUpdate from "./Pages/Transaction/MeterReadingUpdate/FrmMtrRe
 import FrmFineGeneration from "./Pages/Transaction/FrmFineGeneration/FrmFineGeneration.jsx";
 import FrmMtrNoUpdate from "./Pages/Transaction/FrmMtrNoUpdate/FrmMtrNoUpdate.jsx";
 import FrmWaterArreasUpdtAuthList from "./Pages/Transaction/FrmWaterArreasUpdtAuthList/FrmWaterArreasUpdtAuthList.jsx";
+import FrmDailyCollRpt from "./Pages/ReportsForm/FrmDailyCollRpt/FrmDailyCollRpt.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -569,7 +570,11 @@ function App() {
                     element={<FrmuserallMst />}
                   />
 
-                  {/* Water */}
+                  {/* Daily Reports */}
+                  <Route 
+                    path="/ReportsForm/FrmDailyCollRpt"
+                    element={<FrmDailyCollRpt />}
+                  />
                 </Routes>
               </ProtectedRoute>
             }

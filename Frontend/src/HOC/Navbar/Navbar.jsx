@@ -397,6 +397,17 @@ const STATIC_MENU = [
       }
     ],
   },
+  {
+    MENUID: 6,
+    MENUTITLE: "Daily Reports",
+    children: [
+      {
+        MENUID: 601,
+        MENUTITLE: "Daily Collection Report",
+        PAGEPATH: "/ReportsForm/FrmDailyCollRpt"
+      }
+    ]
+  }
 ];
 
 const Navbar = ({ title = "Water", isOpen, onClose }) => {

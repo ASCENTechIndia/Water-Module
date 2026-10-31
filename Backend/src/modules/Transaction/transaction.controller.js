@@ -67,6 +67,11 @@ const {
   getPendingArrearsUpdateListService,
   arrearsUpdateAuthListSubmitService,
   mtrReadingUpdateInsService,
+  getFinancialYearDropdownService,
+  getUserConfigService,
+  getUserDropdownMBMCService,
+  getUserDropdownService,
+  getDailyCollectionReportDtlsService,
 } = require("./transaction.service");
 
 function requestMeta(req) {
@@ -1350,7 +1355,7 @@ async function connGenericModifyDataSubmitController(req, res, next) {
         200,
         { ulbId: payload.in_ULBID },
         out.Out_ErrorMsg ||
-          "Connection Generic Modify Details saved successfully",
+        "Connection Generic Modify Details saved successfully",
       );
     } else {
       logApiError(
@@ -1890,6 +1895,100 @@ async function mtrReadingUpdateInsController(req, res, next) {
   }
 }
 
+async function getFinancialYearDropdownController(req, res, next) {
+  try {
+    const rows = await getFinancialYearDropdownService();
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Financial Year dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Financial Year dropdown error");
+    return next(err);
+  }
+}
+
+async function getUserConfigController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUserConfigService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Payment dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Payment dropdown error");
+    return next(err);
+  }
+}
+
+async function getUserDropdownMBMCController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUserDropdownMBMCService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `User dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "User dropdown fetch error");
+    return next(err);
+  }
+}
+
+async function getUserDropdownController(req, res, next) {
+  try {
+    const payload = req.query;
+    const rows = await getUserDropdownService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `User dropdown retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "User dropdown fetch error");
+    return next(err);
+  }
+}
+
+async function getDailyCollectionReportDtlsController(req, res, next) {
+  try {
+    const payload = req.body;
+    const rows = await getDailyCollectionReportDtlsService(payload);
+
+    logApiSuccess(
+      req,
+      200,
+      { count: rows?.length || 0 },
+      `Daily Collection Report Details retrieved`,
+    );
+
+    return res.ok(rows);
+  } catch (err) {
+    logApiError(req, 500, err.message, "Daily Collection Report Details fetch error");
+    return next(err);
+  }
+}
+
 module.exports = {
   getWardDropdownController,
   getZoneDropdownController,
@@ -1958,4 +2057,9 @@ module.exports = {
   getPendingArrearsUpdateAuthListController,
   arrearsUpdateAuthListDataSubmitController,
   mtrReadingUpdateInsController,
+  getFinancialYearDropdownController,
+  getUserConfigController,
+  getUserDropdownMBMCController,
+  getUserDropdownController,
+  getDailyCollectionReportDtlsController
 };

@@ -825,6 +825,7 @@ async function getPayTypeDropdown(payload) {
            recmodeid
       from prop.vw_recmodeconfig
      where ulbid = :ulbId
+     order by recmodeid
   `;
 
   const binds = {
@@ -2378,6 +2379,280 @@ async function aowt_mtrreadingupd_ins_new(payload) {
   return result.outBinds;
 }
 
+async function getFinancialYearDropdownRepo(payload) {
+  let sql = `
+    select 
+      var_year_yearname,
+      num_year_seqno 
+      from prop.aoms_year_mas 
+      order by num_year_seqno desc
+  `;
+
+  const result = await executeQuery(sql);
+
+  return result.rows || [];
+}
+
+async function getUserConfigRepo(payload) {
+  const {
+    userId,
+    ulbId
+  } = payload;
+
+  let sql = `
+    select 
+      var_userallconfig_flag 
+    From aowt_userallconfig_mas
+    where num_userallconfig_userid =:userId
+    and num_userallconfig_ulbid =:ulbId 
+  `;
+
+  const binds = {
+    ulbId,
+    userId
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function getUserDropdownMBMCRepo(payload) {
+  const {
+    ulbId,
+    collectionCenterId
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!collectionCenterId) {
+    throw new Error("Collection Center ID is required");
+  }
+
+  let sql = `
+    Select 
+      username,
+      userid 
+    from vw_Recwiseuser 
+    where collcenterid=:collectionCenterId
+    and ulbid=:ulbId
+    order by username
+  `;
+
+  const binds = {
+    ulbId,
+    collectionCenterId
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+async function getUserDropdownRepo(payload) {
+  const {
+    ulbId,
+    collectionCenterId
+  } = payload;
+
+  if (!ulbId) {
+    throw new Error("ULB ID is required");
+  }
+
+  if (!collectionCenterId) {
+    throw new Error("Collection Center ID is required");
+  }
+
+  let sql = `
+    select 
+      var_user_username username, 
+      num_user_userid userid 
+    from admins.aoma_user_def 
+    where num_user_collcenterid=:collectionCenterId
+    and num_user_ulbid=:ulbId
+    order by var_user_username
+  `;
+
+  const binds = {
+    ulbId,
+    collectionCenterId
+  };
+
+  const result = await executeQuery(sql, binds);
+
+  return result.rows || [];
+}
+
+
+async function getDailyCollectionReportDtlsRepo(payload) {
+  const { reportType, binds, userChecked, ulbCode } = payload;
+  let sql;
+  if (ulbCode === "SMKC" || ulbCode === "SMKMC") {
+    if (reportType === "dailycoll") {
+      sql = `
+         select 
+          wardid,wardname,zonename,connno,colcenname,cmscode,cmsaccno,recamount,
+          amttypename,instrudate,ownername,bankname,recdate,recno, description,transfer,
+          useradjustment,demanddraft,payorder,bankamt,termdepositrec,totalcashamt,
+          chequeamt,windowname,windowno,totintersetamt,recmode_paycode,collcenterid,Mudrank ,insby 
+          from vw_conndailycollectionSmc
+         where  trunc(recdate) between :fromDate and :toDate
+      `;
+
+      if (binds.user) {
+        sql += `and insby=:user`;
+      }
+
+      if (binds.payType) {
+        sql += `and AMTTYPEID=:payType`;
+      }
+
+      if (userChecked) {
+        sql += `and collcenterid =: collectionCenterId`;
+      }
+
+      sql += `and uldbid=:ulbId`;
+
+    } else {
+      sql = `
+        Select CONNID, ULBID, REC_ID, RECEIPTNO, RECEIPDATE, RECEIVDFROM, ADDRESS, OLDCONNNO,
+        CONNNO, RECMODE, BLOCK, ZONE, WARD,BOOKNO, AMOUNT, CHEQUENO, CHEQUEDATE, BANKNAME,
+        Sum(ARREARSAMT) ARREARSAMT , Sum(METERRENTARR) METERRENTARR, Sum(DPCARR) DPCARR,
+        Sum(CURRENTAMT) CURRENTAMT, Sum(METERRENTCUR) METERRENTCUR, Sum(DPCCUR) DPCCUR,
+        ADVANCEAMT, TOTDISCAMT,  COLLCENTRE_ID, AMTTYPE, INSBY
+        from vw_taxwisecoll
+        where 1 = 1 and ULBID =:ulbId and trunc(RECEIPDATE) between :fromDate and :toDate
+      `;
+
+      if (userChecked && binds.user != "") {
+        sql += `and insby=:user`;
+      } else {
+        throw new Error("User is required");
+      }
+
+      if (binds.payType != -1) {
+        sql += `and amttype=:payType`;
+      }
+
+      if (userChecked) {
+        sql += `and collcentre_id =:collectionCenterId`;
+      }
+
+      sql += `
+        group by CONNID, ULBID, REC_ID, RECEIPTNO, RECEIPDATE, RECEIVDFROM, ADDRESS, OLDCONNNO,
+        CONNNO, RECMODE, BLOCK, ZONE, WARD,BOOKNO, AMOUNT, CHEQUENO, CHEQUEDATE, BANKNAME,
+        ADVANCEAMT,TOTDISCAMT, COLLCENTRE_ID, AMTTYPE, INSBY
+      `
+    }
+  } else if ((ulbCode === "IMC" || ulbCode === "UIMC") && reportType === "taxwisecoll") {
+    if (reportType === "taxwisecoll") {
+      sql += `
+        Select * from Vw_taxwisecolluimc
+        where ulbid=:ulbId and trunc(RECEIPTDT) between :fromDate and :toDate
+      `;
+
+      if (userChecked && binds.user != "") {
+        sql += `and insby=:user`;
+      } else {
+        throw new Error("User is required");
+      }
+
+      if (binds.payType) {
+        sql += `and amttype=:payType`;
+      }
+
+      if (binds.collectionCenterId) {
+        sql += `and collcenterid =:collectionCenterId`;
+      }
+    }
+  } else {
+    if (reportType === "dailycoll") {
+      if (ulbCode === "MBMC") {
+        sql += `
+          select wardid,wardname,zonename,connno,colcenname,cmscode,cmsaccno,recamount,amttypename,
+          instruno,instrudate,ownername,bankname,recdate,recno,description,transfer,useradjustment,demanddraft,payorder,bankamt,
+          termdepositrec,totalcashamt,chequeamt,windowname,windowno,totintersetamt,recmode_paycode,advanceamt,wtr_tax,wcess,dpcc,chq_bounce,totamt ,
+           collcenterid,OLDCONNNO,insby from vw_conndailycollectionmbmcrpt 
+           where  trunc(recdate) between :fromDate and :toDate
+        `;
+
+        if (userChecked && binds.user !== "") {
+          sql += ` and insby=:user`;
+        } else {
+          throw new Error("User is required");
+        }
+
+        if (binds.payType) {
+          sql += `and AMTTYPEID=:payType`;
+        }
+
+        if (binds.collectionCenterId) {
+          sql += `and collcenterid=:collectionCenterId`;
+        }
+
+        sql += `and uldbid=:ulbId`;
+      } else {
+        sql += `
+          select wardid,wardname,zonename,connno,colcenname,cmscode,cmsaccno,recamount,amttypename,instrudate,
+          ownername,bankname,recdate,recno, description,transfer,useradjustment,demanddraft,payorder,bankamt,termdepositrec,
+          totalcashamt,chequeamt,windowname,windowno,totintersetamt,recmode_paycode,collcenterid,insby 
+          from vw_conndailycollectionrpt
+          where  trunc(recdate) between :fromDate and :toDate
+        `;
+
+        if (userChecked && binds.user != "") {
+          sql += `and insby=:user`;
+        }
+
+        if (binds.payType) {
+          sql += `and AMTTYPEID=:payType`;
+        }
+
+        if (userChecked) {
+          sql += `and collcenterid =:collectionCenterId`;
+        }
+
+        sql += `and uldbid=:ulbId`;
+      }
+    } else if(reportType === "dailysumm") {
+      sql += `
+        select TAXNAME, sum(ARREARSAMT) ARREARSAMT, sum(CURRENTAMT) CURRENTAMT, 
+        sum(TOTALAMT) TOTALAMT, AMTTYPE,taxseq 
+        from vw_dailycollsummary
+        where trunc(receiptdt) between :fromDate and :toDate
+      `;
+
+      if (binds.collectionCenterId) {
+        sql += `and collcenterid=:collectionCenterId`;
+      } 
+
+      sql += `group by AMTTYPE,TAXNAME,taxseq  order by taxseq`;
+    } else if (reportType === "collsumm") {
+      sql += `
+        select ward_name wardname,zone_name zonename,nvl(sum(csh),0) cashamt,
+        (SUM (NVL (chq, 0)) + SUM (NVL (dmd, 0))) Chequeamt,nvl(sum(onl),0) Onlineamt, 
+        SUM(NVL (advance,0)) advance, 
+        (SUM (NVL (csh, 0)) + SUM (NVL (chq, 0)) + SUM (NVL (dmd, 0))+SUM (NVL (onl, 0)) + SUM(NVL (advance,0)) ) totalamt 
+        from VW_DAILYCOLLWARDWISE
+        where trunc(receiptdt) between :fromDate and :toDate
+      `;
+
+      if (binds.collectionCenterId) {
+        sql += `and collcenterid =:collectionCenterId`;
+      }
+
+      sql += ` group by ward_name,zone_name `;
+    }
+  }
+
+  const result = await executeQuery(sql, binds);
+
+
+  return result.rows || [];
+}
+
 module.exports = {
   getWardDropdown,
   getZoneDropdown,
@@ -2449,4 +2724,9 @@ module.exports = {
   getPendingArrearsUpdateAuthListRepo,
   arrearsUpdateAuthListSubmitRepo,
   aowt_mtrreadingupd_ins_new,
+  getFinancialYearDropdownRepo,
+  getUserConfigRepo,
+  getUserDropdownMBMCRepo,
+  getUserDropdownRepo,
+  getDailyCollectionReportDtlsRepo
 };

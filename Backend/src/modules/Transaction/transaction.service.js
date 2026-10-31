@@ -68,6 +68,12 @@ const {
   getPendingArrearsUpdateAuthListRepo,
   arrearsUpdateAuthListSubmitRepo,
   aowt_mtrreadingupd_ins_new,
+  getFinancialYearDropdownRepo,
+  getPaymentDropdownRepo,
+  getUserConfigRepo,
+  getUserDropdownMBMCRepo,
+  getUserDropdownRepo,
+  getDailyCollectionReportDtlsRepo,
 } = require("./transaction.repo");
 
 async function getWardDropdownService(payload) {
@@ -417,6 +423,30 @@ async function mtrReadingUpdateInsService(payload) {
   return aowt_mtrreadingupd_ins_new(payload);
 }
 
+// REPORTS
+
+// Daily Collection Report
+
+async function getFinancialYearDropdownService() {
+  return getFinancialYearDropdownRepo();
+}
+
+async function getUserConfigService(payload) {
+  return getUserConfigRepo(payload);
+}
+
+async function getUserDropdownMBMCService(payload) {
+  return getUserDropdownMBMCRepo(payload);
+}
+
+async function getUserDropdownService(payload) {
+  return getUserDropdownRepo(payload);
+}
+
+async function getDailyCollectionReportDtlsService(payload) {
+  return getDailyCollectionReportDtlsRepo(payload);
+}
+
 module.exports = {
   getWardDropdownService,
   getZoneDropdownService,
@@ -485,4 +515,9 @@ module.exports = {
   getPendingArrearsUpdateListService,
   arrearsUpdateAuthListSubmitService,
   mtrReadingUpdateInsService,
+  getFinancialYearDropdownService,
+  getUserConfigService,
+  getUserDropdownMBMCService,
+  getUserDropdownService,
+  getDailyCollectionReportDtlsService
 };
