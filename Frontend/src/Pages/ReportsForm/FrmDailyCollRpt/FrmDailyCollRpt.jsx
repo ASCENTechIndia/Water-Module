@@ -212,7 +212,7 @@ const FrmDailyCollRpt = () => {
             }}
         >
             <form className="w-full space-y-6" onSubmit={handleSubmit(handleProcess)}>
-                <div className="grid grid cols-1 md:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
                         <Label
                             text={"From Date / दिनांक पासून:"}
