@@ -405,6 +405,11 @@ const STATIC_MENU = [
         MENUID: 601,
         MENUTITLE: "Daily Collection Report",
         PAGEPATH: "/ReportsForm/FrmDailyCollRpt"
+      },
+      {
+        MENUID: 602,
+        MENUTITLE: "Close Connection Report",
+        PAGEPATH: "/ReportsForm/FrmCloseConnRpt"
       }
     ]
   }

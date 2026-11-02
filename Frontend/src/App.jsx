@@ -113,6 +113,7 @@ import FrmFineGeneration from "./Pages/Transaction/FrmFineGeneration/FrmFineGene
 import FrmMtrNoUpdate from "./Pages/Transaction/FrmMtrNoUpdate/FrmMtrNoUpdate.jsx";
 import FrmWaterArreasUpdtAuthList from "./Pages/Transaction/FrmWaterArreasUpdtAuthList/FrmWaterArreasUpdtAuthList.jsx";
 import FrmDailyCollRpt from "./Pages/ReportsForm/FrmDailyCollRpt/FrmDailyCollRpt.jsx";
+import FrmCloseConnRpt from "./Pages/ReportsForm/FrmCloseConnRpt/FrmCloseConnRpt.jsx";
 
 function App() {
   const hostname = window.location.hostname;
@@ -574,6 +575,11 @@ function App() {
                   <Route 
                     path="/ReportsForm/FrmDailyCollRpt"
                     element={<FrmDailyCollRpt />}
+                  />
+
+                  <Route
+                    path="/ReportsForm/FrmCloseConnRpt"
+                    element={<FrmCloseConnRpt />}
                   />
                 </Routes>
               </ProtectedRoute>
