@@ -458,30 +458,30 @@ async function getDailyCollectionReportDtlsService(payload) {
 
   let sql = "";
   const binds = {
-    fromDate,
-    toDate,
-    ulbId: Number(ulbId)
+    p_from_date: fromDate,
+    p_to_date: toDate,
+    p_ulb_id: Number(ulbId)
   };
 
   // Add optional filters and their corresponding binds together.
   const addUserFilter = (column = "insby") => {
     if (userChecked && user) {
-      sql += ` AND ${column} = :user`;
-      binds.user = user;
+      sql += ` AND ${column} = :p_user`;
+      binds.p_user = user;
     }
   };
 
   const addPayTypeFilter = (column = "AMTTYPEID") => {
     if (payType && payType !== "-1") {
-      sql += ` AND ${column} = :payType`;
-      binds.payType = payType;
+      sql += ` AND ${column} = :p_payType`;
+      binds.p_payType = Number(payType);
     }
   };
 
   const addCollectionCenterFilter = (column = "collcenterid") => {
     if (userChecked && collectionCenterId) {
-      sql += ` AND ${column} = :collectionCenterId`;
-      binds.collectionCenterId = Number(collectionCenterId);
+      sql += ` AND ${column} = :p_center_id`;
+      binds.p_center_id = Number(collectionCenterId);
     }
   };
 
@@ -498,14 +498,14 @@ async function getDailyCollectionReportDtlsService(payload) {
           windowno, totintersetamt, recmode_paycode, collcenterid,
           Mudrank, insby
         FROM vw_conndailycollectionSmc
-        WHERE TRUNC(recdate) BETWEEN :fromDate AND :toDate
+        WHERE TRUNC(recdate) BETWEEN :p_from_date AND :p_to_date
       `;
 
       addUserFilter();
       addPayTypeFilter();
       addCollectionCenterFilter();
 
-      sql += ` AND uldbid = :ulbId`;
+      sql += ` AND uldbid = :p_ulb_id`;
 
     } else if (reportType === "taxwisecoll") {
       sql = `
@@ -522,8 +522,8 @@ async function getDailyCollectionReportDtlsService(payload) {
           SUM(DPCCUR) DPCCUR,
           ADVANCEAMT, TOTDISCAMT, COLLCENTRE_ID, AMTTYPE, INSBY
         FROM vw_taxwisecoll
-        WHERE ULBID = :ulbId
-          AND TRUNC(RECEIPDATE) BETWEEN :fromDate AND :toDate
+        WHERE ULBID = :p_ulb_id
+          AND TRUNC(RECEIPDATE) BETWEEN :p_from_date AND :p_to_date
       `;
 
       if (userChecked) {
@@ -537,8 +537,8 @@ async function getDailyCollectionReportDtlsService(payload) {
       addPayTypeFilter("amttype");
 
       if (userChecked && collectionCenterId) {
-        sql += ` AND collcentre_id = :collectionCenterId`;
-        binds.collectionCenterId = Number(collectionCenterId);
+        sql += ` AND collcentre_id = :p_center_id`;
+        binds.p_center_id = Number(collectionCenterId);
       }
 
       sql += `
@@ -559,8 +559,8 @@ async function getDailyCollectionReportDtlsService(payload) {
     sql = `
       SELECT *
       FROM Vw_taxwisecolluimc
-      WHERE ulbid = :ulbId
-        AND TRUNC(RECEIPTDT) BETWEEN :fromDate AND :toDate
+      WHERE ulbid = :p_ulb_id
+        AND TRUNC(RECEIPTDT) BETWEEN :p_from_date AND :p_to_date
     `;
 
     if (userChecked) {
@@ -574,8 +574,8 @@ async function getDailyCollectionReportDtlsService(payload) {
     addPayTypeFilter("amttype");
 
     if (userChecked && collectionCenterId) {
-      sql += ` AND collcenterid = :collectionCenterId`;
-      binds.collectionCenterId = Number(collectionCenterId);
+      sql += ` AND collcenterid = :p_center_id`;
+      binds.p_center_id = Number(collectionCenterId);
     }
 
     // Other ULBs
@@ -593,7 +593,7 @@ async function getDailyCollectionReportDtlsService(payload) {
             recmode_paycode, advanceamt, wtr_tax, wcess, dpcc,
             chq_bounce, totamt, collcenterid, OLDCONNNO, insby
           FROM vw_conndailycollectionmbmcrpt
-          WHERE TRUNC(recdate) BETWEEN :fromDate AND :toDate
+          WHERE TRUNC(recdate) BETWEEN :p_from_date AND :p_to_date
         `;
 
         if (!userChecked || !user) {
@@ -604,7 +604,7 @@ async function getDailyCollectionReportDtlsService(payload) {
         addPayTypeFilter();
         addCollectionCenterFilter();
 
-        sql += ` AND uldbid = :ulbId`;
+        sql += ` AND uldbid = :p_ulb_id`;
 
       } else {
         sql = `
@@ -617,14 +617,14 @@ async function getDailyCollectionReportDtlsService(payload) {
             windowname, windowno, totintersetamt,
             recmode_paycode, collcenterid, insby
           FROM vw_conndailycollectionrpt
-          WHERE TRUNC(recdate) BETWEEN :fromDate AND :toDate
+          WHERE TRUNC(recdate) BETWEEN :p_from_date AND :p_to_date
         `;
 
         addUserFilter();
         addPayTypeFilter();
         addCollectionCenterFilter();
 
-        sql += ` AND uldbid = :ulbId`;
+        sql += ` AND uldbid = :p_ulb_id`;
       }
 
     } else if (reportType === "dailysumm") {
@@ -637,12 +637,12 @@ async function getDailyCollectionReportDtlsService(payload) {
           AMTTYPE,
           taxseq
         FROM vw_dailycollsummary
-        WHERE TRUNC(receiptdt) BETWEEN :fromDate AND :toDate
+        WHERE TRUNC(receiptdt) BETWEEN :p_from_date AND :p_to_date
       `;
 
       if (collectionCenterId) {
-        sql += ` AND collcenterid = :collectionCenterId`;
-        binds.collectionCenterId = Number(collectionCenterId);
+        sql += ` AND collcenterid = :p_center_id`;
+        binds.p_center_id = Number(collectionCenterId);
       }
 
       sql += `
@@ -667,12 +667,12 @@ async function getDailyCollectionReportDtlsService(payload) {
             SUM(NVL(advance, 0))
           ) totalamt
         FROM VW_DAILYCOLLWARDWISE
-        WHERE TRUNC(receiptdt) BETWEEN :fromDate AND :toDate
+        WHERE TRUNC(receiptdt) BETWEEN :p_from_date AND :p_to_date
       `;
 
       if (collectionCenterId) {
-        sql += ` AND collcenterid = :collectionCenterId`;
-        binds.collectionCenterId = Number(collectionCenterId);
+        sql += ` AND collcenterid = :p_center_id`;
+        binds.p_center_id = Number(collectionCenterId);
       }
 
       sql += ` GROUP BY ward_name, zone_name`;

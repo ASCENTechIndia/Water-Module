@@ -79,6 +79,8 @@ const FrmDailyCollRpt = () => {
     const [paymodeOptions, setPaymodeOptions] = useState([]);
     const [financialYearOptions, setFinancialYearOptions] = useState([]);
 
+    const [reportDetails, setReportDetails] = useState([]);
+
     const watchCollectionCenter = watch("collectionCenter");
 
     const fetchULBCode = async () => {
@@ -124,8 +126,6 @@ const FrmDailyCollRpt = () => {
         try {
             setLoading(true);
 
-            console.log(data);
-
             const payload = {
                 userChecked,
                 payType: data.payMode,
@@ -139,7 +139,17 @@ const FrmDailyCollRpt = () => {
                 reportType: data.reportType
             }
 
-            console.log(payload);
+            const dtlsResponse = await apiService.post("/transaction/getDailyCollectionRptDtls", payload);
+
+            if (dtlsResponse.success && Array.isArray(dtlsResponse.data) && dtlsResponse.data.length > 0) {
+                setReportDetails(dtlsResponse.data);
+            } else if (dtlsResponse.success && Array.isArray(dtlsResponse.data) && dtlsResponse.data.length === 0) {
+                alert("No record found");
+                setReportDetails([]);
+            } else {
+                alert("Something went wrong");
+                setReportDetails([]);
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -197,7 +207,7 @@ const FrmDailyCollRpt = () => {
 
             await fetchDropdowns(
                 `/transaction/getUserDropdown?ulbId=${ulbId}&collectionCenterId=${encodeURIComponent(watchCollectionCenter)}`,
-                "USERID",
+                "USERNAME",
                 "USERNAME",
                 setUserNameOptions
             );
