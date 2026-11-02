@@ -11,6 +11,33 @@ import GetIPAddress from "../../../utils/ipHelper";
 import config from "../../../utils/config";
 import Button from "../../../Components/Button";
 
+const getToday = () => {
+    const d = new Date();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${month}-${day}`;
+};
+
+const formatDateForPayload = (dateString) => {
+    const [year, month, day] = dateString.split("-");
+    const monthMap = {
+        "01": "Jan",
+        "02": "Feb",
+        "03": "Mar",
+        "04": "Apr",
+        "05": "May",
+        "06": "Jun",
+        "07": "Jul",
+        "08": "Aug",
+        "09": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+    };
+    let date = `${day}-${monthMap[month]}-${year}`;
+    return date;
+}
+
 const FrmDailyCollRpt = () => {
     const { user } = useAuth();
     const ulbId = user?.ulbId;
@@ -32,18 +59,19 @@ const FrmDailyCollRpt = () => {
         formState: { errors }
     } = useForm({
         defaultValues: {
-            fromDate: "",
-            toDate: "",
+            fromDate: getToday(),
+            toDate: getToday(),
             collectionCenter: "",
             userName: "",
             payMode: "",
             reportType: "",
-            exportTo: "",
+            exportTo: "pdf",
             financialYear: ""
         }
     });
 
     const [ulbCode, setULBCode] = useState("");
+    const [userChecked, setUserChecked] = useState(false);
 
     const [reportTypes, setReportTypes] = useState([]);
     const [collectionCenterOptions, setCollectionCenterOptions] = useState([]);
@@ -97,6 +125,21 @@ const FrmDailyCollRpt = () => {
             setLoading(true);
 
             console.log(data);
+
+            const payload = {
+                userChecked,
+                payType: data.payMode,
+                fromDate: formatDateForPayload(data.fromDate),
+                toDate: formatDateForPayload(data.toDate),
+                collectionCenterId: data.collectionCenter,
+                user: data.userName,
+                exportTo: data.exportTo,
+                ulbId: Number(ulbId),
+                ulbCode,
+                reportType: data.reportType
+            }
+
+            console.log(payload);
         } catch (error) {
             console.error(error);
         } finally {
@@ -202,6 +245,14 @@ const FrmDailyCollRpt = () => {
         }
     }, [ulbCode]);
 
+    useEffect(() => {
+        if (financialYearOptions.length) {
+            const obj = financialYearOptions.find(opt => opt.label === "Current Year");
+            const value = obj ? String(obj.value) : "";
+            setValue("financialYear", value);
+        }
+    }, [financialYearOptions]);
+
     return (
         <Layout
             title="Daily Collection Report"
@@ -275,23 +326,34 @@ const FrmDailyCollRpt = () => {
                         <Label
                             text={"Username / वापरकर्ता"}
                         />
-                        <select
-                            className="form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm"
-                            {...register("userName")}
-                        >
-                            <option value="">
-                                -- Select --
-                            </option>
 
-                            {userNameOptions.map((opt) => (
-                                <option
-                                    key={opt.value}
-                                    value={opt.value}
-                                >
-                                    {opt.label}
+                        <div className="flex gap-x-2">
+                            <input
+                                type="checkbox"
+                                onChange={() => {
+                                    setUserChecked(!userChecked);
+                                }}
+                                value={userChecked}
+                            />
+                            <select
+                                className={`form-input-box w-full border border-gray-400 rounded-md px-3 py-2 text-sm ${userChecked ? "" : "bg-slate-200 cursor-not-allowed"}`}
+                                {...register("userName")}
+                                disabled={!userChecked}
+                            >
+                                <option value="">
+                                    -- Select --
                                 </option>
-                            ))}
-                        </select>
+
+                                {userNameOptions.map((opt) => (
+                                    <option
+                                        key={opt.value}
+                                        value={opt.value}
+                                    >
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <Label
@@ -352,8 +414,8 @@ const FrmDailyCollRpt = () => {
 
                         <div className="flex flex-wrap gap-4 mt-2">
                             {[
-                                { label: "Excel", value: "1" },
-                                { label: "PDF", value: "2" }
+                                { label: "Excel", value: "xls" },
+                                { label: "PDF", value: "pdf" }
                             ].map((item) => (
                                 <label
                                     key={item.value}

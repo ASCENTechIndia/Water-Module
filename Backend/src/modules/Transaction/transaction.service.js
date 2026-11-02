@@ -444,7 +444,255 @@ async function getUserDropdownService(payload) {
 }
 
 async function getDailyCollectionReportDtlsService(payload) {
-  return getDailyCollectionReportDtlsRepo(payload);
+  const {
+    reportType,
+    fromDate,
+    toDate,
+    collectionCenterId,
+    user,
+    payType,
+    userChecked,
+    ulbId,
+    ulbCode
+  } = payload;
+
+  let sql = "";
+  const binds = {
+    fromDate,
+    toDate,
+    ulbId: Number(ulbId)
+  };
+
+  // Add optional filters and their corresponding binds together.
+  const addUserFilter = (column = "insby") => {
+    if (userChecked && user) {
+      sql += ` AND ${column} = :user`;
+      binds.user = user;
+    }
+  };
+
+  const addPayTypeFilter = (column = "AMTTYPEID") => {
+    if (payType && payType !== "-1") {
+      sql += ` AND ${column} = :payType`;
+      binds.payType = payType;
+    }
+  };
+
+  const addCollectionCenterFilter = (column = "collcenterid") => {
+    if (userChecked && collectionCenterId) {
+      sql += ` AND ${column} = :collectionCenterId`;
+      binds.collectionCenterId = Number(collectionCenterId);
+    }
+  };
+
+  // SMKC / SMKMC
+  if (ulbCode === "SMKC" || ulbCode === "SMKMC") {
+    if (reportType === "dailycoll") {
+      sql = `
+        SELECT
+          wardid, wardname, zonename, connno, colcenname, cmscode,
+          cmsaccno, recamount, amttypename, instrudate, ownername,
+          bankname, recdate, recno, description, transfer,
+          useradjustment, demanddraft, payorder, bankamt,
+          termdepositrec, totalcashamt, chequeamt, windowname,
+          windowno, totintersetamt, recmode_paycode, collcenterid,
+          Mudrank, insby
+        FROM vw_conndailycollectionSmc
+        WHERE TRUNC(recdate) BETWEEN :fromDate AND :toDate
+      `;
+
+      addUserFilter();
+      addPayTypeFilter();
+      addCollectionCenterFilter();
+
+      sql += ` AND uldbid = :ulbId`;
+
+    } else if (reportType === "taxwisecoll") {
+      sql = `
+        SELECT
+          CONNID, ULBID, REC_ID, RECEIPTNO, RECEIPDATE,
+          RECEIVDFROM, ADDRESS, OLDCONNNO, CONNNO, RECMODE,
+          BLOCK, ZONE, WARD, BOOKNO, AMOUNT, CHEQUENO,
+          CHEQUEDATE, BANKNAME,
+          SUM(ARREARSAMT) ARREARSAMT,
+          SUM(METERRENTARR) METERRENTARR,
+          SUM(DPCARR) DPCARR,
+          SUM(CURRENTAMT) CURRENTAMT,
+          SUM(METERRENTCUR) METERRENTCUR,
+          SUM(DPCCUR) DPCCUR,
+          ADVANCEAMT, TOTDISCAMT, COLLCENTRE_ID, AMTTYPE, INSBY
+        FROM vw_taxwisecoll
+        WHERE ULBID = :ulbId
+          AND TRUNC(RECEIPDATE) BETWEEN :fromDate AND :toDate
+      `;
+
+      if (userChecked) {
+        if (!user) {
+          throw new Error("User is required");
+        }
+
+        addUserFilter();
+      }
+
+      addPayTypeFilter("amttype");
+
+      if (userChecked && collectionCenterId) {
+        sql += ` AND collcentre_id = :collectionCenterId`;
+        binds.collectionCenterId = Number(collectionCenterId);
+      }
+
+      sql += `
+        GROUP BY
+          CONNID, ULBID, REC_ID, RECEIPTNO, RECEIPDATE,
+          RECEIVDFROM, ADDRESS, OLDCONNNO, CONNNO, RECMODE,
+          BLOCK, ZONE, WARD, BOOKNO, AMOUNT, CHEQUENO,
+          CHEQUEDATE, BANKNAME, ADVANCEAMT, TOTDISCAMT,
+          COLLCENTRE_ID, AMTTYPE, INSBY
+      `;
+    }
+
+    // IMC / UIMC
+  } else if (
+    (ulbCode === "IMC" || ulbCode === "UIMC") &&
+    reportType === "taxwisecoll"
+  ) {
+    sql = `
+      SELECT *
+      FROM Vw_taxwisecolluimc
+      WHERE ulbid = :ulbId
+        AND TRUNC(RECEIPTDT) BETWEEN :fromDate AND :toDate
+    `;
+
+    if (userChecked) {
+      if (!user) {
+        throw new Error("User is required");
+      }
+
+      addUserFilter();
+    }
+
+    addPayTypeFilter("amttype");
+
+    if (userChecked && collectionCenterId) {
+      sql += ` AND collcenterid = :collectionCenterId`;
+      binds.collectionCenterId = Number(collectionCenterId);
+    }
+
+    // Other ULBs
+  } else {
+    if (reportType === "dailycoll") {
+      if (ulbCode === "MBMC") {
+        sql = `
+          SELECT
+            wardid, wardname, zonename, connno, colcenname,
+            cmscode, cmsaccno, recamount, amttypename, instruno,
+            instrudate, ownername, bankname, recdate, recno,
+            description, transfer, useradjustment, demanddraft,
+            payorder, bankamt, termdepositrec, totalcashamt,
+            chequeamt, windowname, windowno, totintersetamt,
+            recmode_paycode, advanceamt, wtr_tax, wcess, dpcc,
+            chq_bounce, totamt, collcenterid, OLDCONNNO, insby
+          FROM vw_conndailycollectionmbmcrpt
+          WHERE TRUNC(recdate) BETWEEN :fromDate AND :toDate
+        `;
+
+        if (!userChecked || !user) {
+          throw new Error("User is required");
+        }
+
+        addUserFilter();
+        addPayTypeFilter();
+        addCollectionCenterFilter();
+
+        sql += ` AND uldbid = :ulbId`;
+
+      } else {
+        sql = `
+          SELECT
+            wardid, wardname, zonename, connno, colcenname,
+            cmscode, cmsaccno, recamount, amttypename, instrudate,
+            ownername, bankname, recdate, recno, description,
+            transfer, useradjustment, demanddraft, payorder,
+            bankamt, termdepositrec, totalcashamt, chequeamt,
+            windowname, windowno, totintersetamt,
+            recmode_paycode, collcenterid, insby
+          FROM vw_conndailycollectionrpt
+          WHERE TRUNC(recdate) BETWEEN :fromDate AND :toDate
+        `;
+
+        addUserFilter();
+        addPayTypeFilter();
+        addCollectionCenterFilter();
+
+        sql += ` AND uldbid = :ulbId`;
+      }
+
+    } else if (reportType === "dailysumm") {
+      sql = `
+        SELECT
+          TAXNAME,
+          SUM(ARREARSAMT) ARREARSAMT,
+          SUM(CURRENTAMT) CURRENTAMT,
+          SUM(TOTALAMT) TOTALAMT,
+          AMTTYPE,
+          taxseq
+        FROM vw_dailycollsummary
+        WHERE TRUNC(receiptdt) BETWEEN :fromDate AND :toDate
+      `;
+
+      if (collectionCenterId) {
+        sql += ` AND collcenterid = :collectionCenterId`;
+        binds.collectionCenterId = Number(collectionCenterId);
+      }
+
+      sql += `
+        GROUP BY AMTTYPE, TAXNAME, taxseq
+        ORDER BY taxseq
+      `;
+
+    } else if (reportType === "collsumm") {
+      sql = `
+        SELECT
+          ward_name wardname,
+          zone_name zonename,
+          NVL(SUM(csh), 0) cashamt,
+          (SUM(NVL(chq, 0)) + SUM(NVL(dmd, 0))) chequeamt,
+          NVL(SUM(onl), 0) onlineamt,
+          SUM(NVL(advance, 0)) advance,
+          (
+            SUM(NVL(csh, 0)) +
+            SUM(NVL(chq, 0)) +
+            SUM(NVL(dmd, 0)) +
+            SUM(NVL(onl, 0)) +
+            SUM(NVL(advance, 0))
+          ) totalamt
+        FROM VW_DAILYCOLLWARDWISE
+        WHERE TRUNC(receiptdt) BETWEEN :fromDate AND :toDate
+      `;
+
+      if (collectionCenterId) {
+        sql += ` AND collcenterid = :collectionCenterId`;
+        binds.collectionCenterId = Number(collectionCenterId);
+      }
+
+      sql += ` GROUP BY ward_name, zone_name`;
+    }
+  }
+
+  if (!sql.trim()) {
+    throw new Error(`Invalid or unsupported report type: ${reportType}`);
+  }
+
+  console.log("SQL: ", sql);
+  console.log();
+
+  console.log("Binds: ", binds);
+  console.log();
+  // Only the service passes SQL and binds to the repository.
+  return getDailyCollectionReportDtlsRepo({
+    sql,
+    binds
+  });
 }
 
 module.exports = {
