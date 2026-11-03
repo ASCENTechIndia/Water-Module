@@ -65,7 +65,7 @@ const FrmBillPrintIndividual = () => {
         >
             <form className="w-full space-y-6" onSubmit={handleSubmit(handleIndividualPrint)}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    
+                            
                 </div>
             </form>
         </Layout>
